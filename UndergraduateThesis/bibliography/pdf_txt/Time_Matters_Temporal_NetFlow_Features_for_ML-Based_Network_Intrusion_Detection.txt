@@ -1,0 +1,1220 @@
+Received 20 March 2026, accepted 15 April 2026, date of publication 28 April 2026, date of current version 6 May 2026.
+Digital Object Identifier 10.1109/ACCESS.2026.3688204
+
+Time Matters: Temporal NetFlow Features for
+ML-Based Network Intrusion Detection
+MAJED LUAY 1,2 , SIAMAK LAYEGHY 1 , NILOUFAR NOORBIN1 , MOHANAD SARHAN1 ,
+GAYAN KULATILLEKE 1 , NOUR MOUSTAFA 3 , (Senior Member, IEEE),
+AND MARIUS PORTMANN 1 , (Member, IEEE)
+1 School of Electrical Engineering and Computer Science, University of Queensland, Brisbane, QLD 4072, Australia
+2 College of Computing and Information Technology, University of Bisha, Bisha 61922, Saudi Arabia
+3 School of Engineering and Information Technology, University of New South Wales, Sydney, NSW 2052, Australia
+
+Corresponding author: Siamak Layeghy (siamak.layeghy@uq.net.au)
+
+ABSTRACT Most machine learning-based network intrusion detection systems (NIDS) rely on perflow time-agnostic feature vectors, representing each flow using structural NetFlow features without
+explicit temporal information. This representation limits the ability to capture the intrinsic temporal
+structure of network traffic, such as event sequencing, inter-arrival dynamics, and non-stationary rate
+fluctuations. Consequently, the contribution of these temporal dependencies to detection performance
+remains under-characterised. In this work, we evaluate the extent to which sequential architectures,
+specifically Transformers, Long Short-Term Memory networks, and one-dimensional Convolutional Neural
+Networks, can exploit time-dependent information under controlled cross-dataset conditions. To facilitate
+this analysis, we introduce NF3, a temporally enriched extension of existing NetFlow-based benchmarks,
+which integrates fine-grained timestamps and inter-arrival-time statistics. Using these augmented datasets,
+we quantify temporal regularities in benign and malicious traffic and benchmark the ability of each
+architecture to learn time-dependent representations in both binary and multi-class settings. Our results
+demonstrate that augmenting conventional flow features with temporal information yields consistent gains;
+binary detection improves by up to 3% in F1 score, while macro-averaged multi-class F1 increases by
+approximately 27%, with the most significant improvements occurring in attack classes with pronounced
+temporal signatures. These findings indicate that incorporating time-dependent information enhances both
+the discriminative power and behavioural interpretability of modern NIDS.
+INDEX TERMS Intrusion detection systems (IDS), NetFlow data, network traffic classification, sequential
+deep learning models, temporal network analysis, transformers and LSTM networks.
+
+I. INTRODUCTION
+
+Ensuring the security and integrity of network infrastructures
+has become increasingly challenging as cyber threats and
+large-scale attacks continue to expand in both scope and
+complexity [1]. For instance, in the first quarter of 2025 alone,
+Cloudflare reported mitigating approximately 20.5 million
+distributed denial of service (DDoS) attacks, in which more
+than 700 exceeded one terabit per second (Tbps) or one
+billion packets per second (Bpps) in scale [2]. The volume
+The associate editor coordinating the review of this manuscript and
+approving it for publication was Chao Tong
+VOLUME 14, 2026
+
+.
+
+and rate of traffic generated during such attacks make perpacket inspection impractical, both in terms of computational
+resources and storage requirements [3].
+Flow-level monitoring methods, such as NetFlow [4],
+provide a more scalable approach by aggregating packets
+into summarised flows between endpoints. These flows
+capture various attributes of packets such as source and
+destination IP addresses, ports, protocols, and packet and
+byte counts [5]. While this reduces the volume of data
+to be processed, it retains the information needed for
+detecting anomalies and attacks [6]. Accordingly, flowbased Network Intrusion Detection Systems (NIDSs) play a
+
+2026 The Authors. This work is licensed under a Creative Commons Attribution 4.0 License.
+For more information, see https://creativecommons.org/licenses/by/4.0/
+
+66899
+
+M. Luay et al.: Time Matters: Temporal NetFlow Features for ML-Based Network Intrusion Detection
+
+crucial role within the broader network security ecosystem,
+as they enable real-time traffic monitoring and analysis to
+detect suspicious activities, unauthorised access attempts, and
+potential security breaches [7].
+While traditional NIDSs primarily depend on predefined
+signatures to detect malicious activities [8], adversaries can
+often evade detection by making minor modifications to
+their attack patterns using publicly available tools. This
+highlights the need for more adaptive and intelligent detection
+approaches [9]. To address this limitation, modern NIDSs
+increasingly use machine learning (ML) techniques that
+learn normal network behaviour to detect anomalies, moving
+beyond the restrictions of static rule-based detection [1], [10],
+[11].
+Most ML-based NIDS approaches rely on per-flow
+features and treat each flow as an independent instance [9],
+[12], which simplifies traffic representation but may overlook
+the temporal dimension of network activity and how events
+evolve over time [13], [14]. As a result, the impact of aspects
+such as the sequence of flows, packet inter-arrival times
+(IAT), sudden traffic surges, and daily fluctuations in benign
+activity on detection performance remains insufficiently
+understood [15]. Moreover, although prior studies have
+explored feature importance in NIDS [16], [17], [18], the
+specific contribution of temporal features in enhancing
+detection performance has received little attention.
+These limitations point to the need for approaches that
+can capture dependencies across flows and account for how
+network events unfold in sequence. Recent advances in
+sequential learning, particularly transformer architectures,
+have drawn attention to the value of modelling temporal
+patterns in complex data [19]. In this work, we examine
+how such models can leverage flow sequences and temporal
+information to improve the detection of dynamic and
+sophisticated attack behaviours.
+To this end, we began by augmenting existing NetFlowbased NIDS benchmark datasets [20], [21], which lack
+temporal information, with additional temporal features.
+Each flow record was enriched with start and end times,
+as well as IAT statistics between consecutive packets within
+a flow. The complete creation process for these enriched
+datasets, collectively referred to as NF3, is presented in
+Section III. The NF3 datasets are made publicly available
+to enable future research on intrusion detection methods that
+utilise temporal dynamics and sequential patterns [22].
+Using these NF3 datasets, we performed a detailed
+temporal analysis of network traffic, examining how benign
+and various attack flows differ in their distributions of
+flow duration, IAT, and other timing-related properties.
+To assess the role of temporal features, we applied three
+sequential models: Long Short-Term Memory (LSTM) networks [23], one-dimensional Convolutional Neural Networks
+(1D-CNN) [24], and Transformers [25]. Their performance
+was evaluated on both binary and multi-class classification
+tasks, with and without temporal features. In addition,
+66900
+
+we conducted a permutation feature importance analysis [26],
+which further demonstrates the value of temporal information. The main contributions of this work are as follows:
+• Providing an empirical evaluation of temporal flow
+features for ML-based NIDS, testing their effectiveness
+with sequential models including LSTM, 1D-CNN, and
+Transformer architectures.
+• Releasing the NF3 datasets,1 an enriched version of
+existing NetFlow benchmarks that incorporates temporal features to enable further research on flow-based
+intrusion detection.
+• Presenting a detailed temporal analysis of network
+traffic in the NF3 datasets, showing how benign and
+various attack classes differ in flow duration, IAT, and
+other timing-related attributes.
+The rest of the paper is organised as follows. Section II
+reviews related work and identifies research gaps. Section III
+describes the NF3 datasets. Section IV presents the temporal
+analysis of network traffic. Section V reports the experimental evaluation of the effectiveness of temporal features using
+sequential models. Finally, Section VII concludes the paper
+and discusses directions for future work.
+II. RELATED WORKS
+
+Prior studies [17], [27], [28], [29] have systematically
+analysed feature importance in flow-based NIDS datasets.
+Awad et al. [17] performed correlation-based and thresholddriven selection on a large NetFlow-formatted IoT intrusion
+dataset containing over 17 million flows, reducing the
+number of features to 13 while maintaining up to 100%
+detection accuracy. Binbusayyis and Vaiyapuri citebib:27
+conducted a comprehensive analysis to recommend the most
+effective feature evaluation measure for intrusion detection.
+Their study compared consistency-based, correlation-based,
+information-theoretic (information gain), and distance-based
+criteria, each reflecting a different strategy for identifying
+informative features. The evaluation was performed on two
+benchmark datasets: NSL-KDD [30] and UNSW-NB15 [31],
+and found that the consistency-based measure provided the
+best performance. Their results indicated that an optimal
+subset of features significantly improves detection accuracy.
+This underscores the value of identifying impactful features,
+such as the temporal ones in our study. Sarhan et al. [28]
+applied the SHAP technique [32] to evaluate the contribution
+of NetFlow features and offer insight into how individual
+features affect model predictions. Choi et al. [29] extended
+this direction with an attack-specific analysis framework
+using NF-BoT-IoT-v2 and NF-ToN-IoT-v2 datasets, identifying dominant features for each attack type and demonstrating
+improved performance with reduced dimensionality.
+Beyond general feature analyses at the dataset level, several
+works have focused on individual NetFlow features. One
+commonly studied feature is flow length, which provides
+1 Datasets available at: https://staff.itee.uq.edu.au/marius/NIDS_datasets/
+
+VOLUME 14, 2026
+
+M. Luay et al.: Time Matters: Temporal NetFlow Features for ML-Based Network Intrusion Detection
+
+valuable information about traffic dynamics and has been
+the focus of extensive research [33], [34], [35]. Studies
+such as Iorliam et al. [33] have shown that malicious TCP
+flows deviate significantly in their size distribution compared
+to benign flows. Beigi et al. [34] employed a decision tree
+classifier incorporating several feature categories, including
+duration-based metrics, to detect botnet activity, achieving
+detection rates between 75% and 99%. Chen et al. [35]
+analysed slow-paced and persistent network attacks and
+showed that malicious flows exhibit distinct duration-based
+and length-distribution patterns that deviate from those of
+benign traffic.
+IAT features have also received considerable attention due
+to their ability to capture fine-grained temporal patterns [36],
+[37], [38], [39], [40]. Benson et al. [38] analysed IAT across
+ten diverse data centre networks spanning universities,
+enterprises and cloud providers, revealing variations tied
+to different application-layer behaviours. Building on this,
+Kandula et al. [39] examined the distribution of key traffic
+features using a multi-level monitoring approach, combining
+SNMP counters, sampled flow or packet headers, and deep
+packet inspection to capture a comprehensive view of traffic
+volume, congestion, and application-level dynamics.
+Nonetheless, the temporal analysis of standard flow
+formats, like NetFlow [4], remains under-explored [41].
+Studies have explored the effectiveness of sequential learning
+models, such as LSTM, in extracting temporal characteristics
+from NetFlow data for NIDS [14]. Some researchers adopted
+CNN and LSTM models simultaneously to construct a hybrid
+model [42], [43]. CNNs are widely used for spatial feature
+extraction, particularly in computer vision, and have been
+adapted for traffic modelling [44]. In [42] and [43], the
+authors introduce the Spatial and Temporal Aware Intrusion
+Detection Model (STIDM). STIDM is a spatio-temporal
+feature extraction model designed to analyse IAT features
+between consecutive packets. This model employs a wellknown CNN architecture, LeNet-5, to extract spatial features,
+complemented by a modified LSTM to capture temporal
+patterns. Although this method allows grouping of packets
+into flows, it does not effectively facilitate the determination
+of broader temporal patterns across NetFlow data.
+Corsini et al. [14] explored temporal sequences of network
+traffic flows that denote patterns of malicious activities. The
+main focus was to identify whether specific temporal patterns
+exist for each attack class, rather than competing with stateof-the-art solutions. The paper investigates the use of LSTM
+to learn temporal patterns in network flows and compares the
+performance of the LSTM to a static Feed-forward Neural
+Network (FNN) model.
+These ad-hoc methods lead to inconsistent feature definitions, making it difficult to reproduce results or compare
+models reliably. Furthermore, researchers who generate or
+augment timestamps in their datasets (e.g., [45], [46])
+often restrict the use of these modified datasets to their
+own experiments, without making them publicly available.
+
+VOLUME 14, 2026
+
+Furthermore, no publicly available NetFlow-formatted NIDS
+benchmark currently includes temporal features, which has
+prevented a systematic investigation of their impact on
+detection performance. This critical gap forms the primary
+motivation for our work: to rigorously evaluate the role and
+importance of temporal information in flow-based intrusion
+detection. To address this gap, we introduce NF3; the
+third generation of the standardised NetFlow benchmark
+datasets, expanded with explicit temporal features useful for
+exploring time-aware and sequence-based intrusion detection
+methods.
+III. NF3: NetFlow DATASETS WITH TEMPORAL FEATURES
+
+This section outlines the structure and preparation pipeline
+of the NF3 datasets. Building on the methodology used to
+generate the earlier versions [20], [21], NF3 extends the
+datasets by introducing a temporal dimension through the
+inclusion of fine-grained timestamps and IAT features.
+A. NEW FEATURES
+
+Table 1 summarises the features included in this version of the
+datasets alongside those of previous versions. As shown, the
+new release retains all the features of the previous versions
+and introduces an additional set of ten temporal features.
+These new features fall into two categories: timestamp features (highlighted in green), which specify the start and end
+times of flows in milliseconds, and IAT features (highlighted
+in blue), which capture various statistical measures of the
+inter-arrival times between consecutive packets within a flow.
+Timestamps allow for the precise ordering of events within
+a network. They are also helpful in accurately calculating
+flow durations, which are important for detecting abnormally
+long or short connections that might indicate malicious
+activity [47]. Historical timestamp data allows for the creation
+of baselines of normal network behaviour (e.g., typical traffic
+patterns during different times of day [38], [40]). Deviations
+from these baselines can then be identified as anomalies. This
+temporal granularity is necessary for the advanced analyses
+and correlations that will be explored in the subsequent
+sections.
+IAT is a key temporal metric that measures the elapsed
+time between consecutive packets at a monitoring point [40].
+When calculated in a specific direction, either from source to
+destination or in reverse, IAT exposes fine-grained patterns
+in traffic behaviour, such as flow regularity, congestion, and
+burstiness [36]. Although IAT is defined at the packet level,
+it becomes particularly informative when aggregated at the
+flow level. To compute this metric accurately, each packet’s
+timestamp is recorded upon arrival, and the difference
+between consecutive timestamps is determined. These time
+differences are then aggregated to obtain the minimum,
+maximum, average, and standard deviation for each flow. The
+resulting set of metrics forms a concise temporal signature
+that can uncover traffic anomalies not evident from volume
+or structural features alone [37].
+66901
+
+M. Luay et al.: Time Matters: Temporal NetFlow Features for ML-Based Network Intrusion Detection
+
+TABLE 1. Feature availability across NF1, NF2, and NF3 versions. Newly added temporal features are highlighted: timestamps (Green), and statistics for
+IATs (Blue).
+
+FIGURE 1. Workflow used to prepare the NF3 datasets. Raw pcap files are first converted into flow-level records
+using the nProbe tool. These unlabelled flows are then matched with external ground truth files containing attack
+events annotated with 5-tuples and precise timestamps. A matching step aligns flows to attacks based on protocol,
+source/destination IPs and ports, and temporal overlap. The final labelled NetFlow dataset includes NetFlow features
+and both binary and multi-class labels. In this work, we follow the NF2 [21] for dataset creation, and incorporate IAT
+and flow statistics to provide complementary information for complex flow understanding.
+
+B. DATASET CREATION
+
+The methodology used to generate NF3 datasets follows
+the same core workflow as in previous releases [20], [21].
+Raw traffic captures from the source datasets [31], [48],
+66902
+
+[49], [50] were converted into NetFlow records using the
+nProbe tool [51]. nProbe operates as a NetFlow/IPFIX
+exporter that aggregates packets into flow-level summaries.
+The exporter was configured with an active timeout of two
+VOLUME 14, 2026
+
+M. Luay et al.: Time Matters: Temporal NetFlow Features for ML-Based Network Intrusion Detection
+
+TABLE 2. Statistics of attack types across the datasets, showing the count of flows categorised under each attack and benign class.
+
+minutes and the default inactive timeout to segment longlived flows while preserving temporal resolution. The option
+-dont-reforge-timestamps was enabled to maintain
+the original packet timestamps rather than the exporter’s
+emission times. This configuration ensured that the generated
+flow records accurately reflected the timing behaviour of
+the captured traffic and supported precise temporal analysis.
+Flow records were aligned with ground-truth annotations
+provided by the original datasets using protocol, source and
+destination IP addresses, ports, and timestamp overlap. Each
+matching step produced binary and multi-class labels that
+identify benign traffic and specific attack categories. For
+the binary label, each record is assigned a value of 0 for
+benign and 1 for malicious flows. The ratio of benign to
+malicious traffic varies notably across the NF3 datasets:
+NF-UNSW-NB15-v3 includes about 5.4 % malicious flows,
+NF-CSE-CIC-IDS2018-v3 about 12.9 %, NF-ToN-IoT-v3
+around 39 %, and NF-BoT-IoT-v3 is dominated by attack
+traffic with nearly 99.7 % malicious flows. The detailed
+distribution of individual attack classes across the NF3
+datasets is presented in Table 2. All processed datasets
+were unified under a common feature schema to ensure
+consistency, comparability, and reproducibility across NF3
+releases. The overall conversion and labelling workflow is
+illustrated in Figure 1.
+IV. TEMPORAL ANALYSIS OF NIDS BENCHMARK
+DATASETS
+
+In this section, we conduct an in-depth, dataset-level temporal
+analysis of patterns that are not visible through structural or
+volume-based features alone. Our focus here is exploratory to
+highlight how attributes such as flow durations and IAT vary
+across attack types and datasets. These descriptive insights
+help us understand the datasets better before applying any
+evaluation models. To simplify notation in the subsequent
+analysis and model evaluation, the NF3 datasets are referred
+to using the abbreviated names: NF-UNSW, NF-CIC,
+VOLUME 14, 2026
+
+NF-ToN, and NF-BoT corresponding to NF-UNSW-NB15v3, NF-CSE-CIC-IDS2018-v3, NF-ToN-IoT-v3, and NFBoT-IoT-v3, respectively.
+
+A. FLOW DURATION DISTRIBUTION (FDD)
+
+Flow duration is a fundamental temporal attribute that
+represents how long a communication persists between
+endpoints [47]. Assessing these distributions helps to reveal
+behavioural differences between benign and malicious traffic,
+such as short bursts in scans versus prolonged sessions in data
+exfiltration. Here, we assess the flow duration distributions to
+investigate how different attack classes vary in the length of
+their network sessions and whether these temporal patterns
+diverge from benign behaviour. As shown in Figure 2,
+each histogram illustrates the frequency of flows across
+logarithmically scaled duration ranges for all traffic classes
+in the four NF3 datasets. Flow durations are capped at
+two-minute intervals to align with the NetFlow exporter
+configuration.
+In NF-UNSW, the overall FDD is dominated by shortlived flows across nearly all classes. Certain attack classes,
+such as Worms and Analysis, remain strictly confined below
+two or three seconds. In NF-CIC, the distribution becomes
+more diverse. The benign traffic shows a uniform spread
+across the entire duration range. DoS and Infilteration attacks
+also extend across nearly the entire durations. Other attack
+types are mostly concentrated below one minute. In NF-ToN,
+although it includes nine attack classes, the majority of flows
+occur within very short durations. Only Password and MITM
+attacks, along with benign traffic, extend into longer duration
+ranges. The remaining attacks are tightly clustered near the
+lower duration bins. Finally, in NF-BoT, there is no clear
+distinction among attack classes in terms of flow duration.
+The distribution shows that certain duration bins contain a
+dominant number of flows, while comparatively fewer flows
+appear in other ranges.
+66903
+
+M. Luay et al.: Time Matters: Temporal NetFlow Features for ML-Based Network Intrusion Detection
+
+FIGURE 2. FDD across NF3 datasets. Each subplot visualises the distribution of flow durations. Bars are stacked by
+class and larger class counts appear behind smaller ones.
+
+From these observations, several conclusions can be
+drawn. The benign traffic consistently exhibits a uniform
+distribution across the full duration range, which reflects
+diverse and naturally varying communication patterns.
+In contrast, DoS and DDoS attacks show variable duration
+behaviour, which may arise from differences in attack tools,
+configurations, and rate parameters that manipulate how long
+each flow persists. Scanning attacks are characteristically
+very short, aligning with their purpose of rapidly probing
+multiple targets without maintaining sustained connections.
+Minor inconsistencies observed across datasets could also
+stem from their synthetic or replayed nature, which may
+influence how durations are recorded or segmented during
+capture. Overall, flow duration emerges as a potentially discriminative temporal feature for some attack classes, which
+can be a valuable cue for understanding their persistence and
+behavioural dynamics.
+B. ANALYSIS OF PACKET INTER-ARRIVAL TIME
+
+We evaluate IAT features to examine how packet-level timing
+differs between benign and attack traffic across the NF3
+datasets. We focus on the average IAT in both source-todestination and destination-to-source directions to capture the
+overall transmission rhythm of each class. Flows with zero
+average IAT values were removed from the assessment to
+avoid bias and noise in the distribution.
+Figure 3 shows the distribution of average IATs for all
+four NF3 datasets. NF-UNSW shows a clear separation
+between benign and attack flows, which makes it a relatively
+easy binary classification case. The benign traffic spans a
+66904
+
+wider range of IAT values, whereas most attack classes
+cluster within narrow, low-IAT regions, indicating stable and
+repetitive packet timing. In contrast, NF-CIC exhibits a more
+varied temporal behaviour. The DDoS flows generally have
+shorter IAT than benign traffic, particularly in the destinationto-source direction. Bot and Brute Force attacks show a
+very clear separation from normal traffic, with values tightly
+clustered within a narrow IAT range. Interestingly, most DoS
+flows are clustered within average IAT exceeding one minute
+with narrow timing intervals despite the overlap with benign
+traffic.
+In NF-ToN, the average IAT distribution allows many
+attack types to be easily distinguished from one another.
+Several classes form distinct, non-overlapping clusters that
+reflect clear temporal differences between their traffic
+patterns. The Backdoor flows exhibit tightly clustered IAT
+values. Other attack types, such as DoS, DDoS, and Scanning,
+also concentrate near the lower IAT ranges. A similar
+pattern appears in NF-BoT, where the DoS and DDoS
+classes demonstrate a significant separation from benign and
+other attack types, despite their large share of total flows.
+This distinction highlights the strong temporal regularity of
+flooding-based attacks in the dataset, making the average IAT
+a particularly discriminative feature to identify them.
+Across all NF3 datasets, average IAT proves to be a strong
+temporal discriminator. Flooding attacks can be identified by
+their dense concentration of extremely low IATs, whereas
+persistent or stealthy attacks occupy longer but still structured
+timing ranges. Benign traffic, in contrast, is characterised
+by irregular and widely dispersed IATs that lack repetitive
+VOLUME 14, 2026
+
+M. Luay et al.: Time Matters: Temporal NetFlow Features for ML-Based Network Intrusion Detection
+
+FIGURE 3. Distribution of average IAT across different attack classes in NF3 datasets. The x-axis represents the
+average IAT while the y -axis corresponds to the attack categories.
+
+temporal patterns. This consistent difference between the
+temporal regularity of attacks and the variability of benign
+flows demonstrates that average IAT serves as a reliable and
+generalisable feature for distinguishing automated or tooldriven activity from normal network behaviour.
+Although this analysis focuses on the average IAT, the
+other statistics introduced in the NF3 datasets—minimum,
+maximum, and standard deviation—also hold strong potential for intrusion detection. The minimum IAT can capture
+micro-burst behaviours where packets are transmitted in very
+rapid succession, which is typical in high-rate flooding or
+scanning attacks. The maximum IAT reflects the longest idle
+periods within a flow and may indicate session persistence
+or delayed responses often seen in backdoor or Infilteration
+activities. The standard deviation of IAT measures the
+stability of packet timing and can therefore distinguish
+between steady automated traffic and irregular human-driven
+communication. These complementary statistics provide
+additional dimensions for modelling temporal behaviour and
+can enhance the discriminative power of time-aware intrusion
+detection systems when combined with the average IAT
+feature.
+C. TEMPORAL DISTRIBUTION OF FLOWS
+
+When analysing traffic over time, it is important to track
+how attack classes are distributed across different time
+intervals. Identifying the exact occurrence periods of each
+attack class helps validate the correctness of ground-truth
+labels and exposes how attacks are scheduled within the
+datasets. This information clarifies whether attacks appear
+as isolated events or overlap with benign activity, which
+directly influences the difficulty of learning and detection.
+In this subsection, we represent the flow rates as a time
+VOLUME 14, 2026
+
+series for the flows of each attack class to identify their exact
+occurrence periods. Across the NF3 datasets, most attack
+classes were executed independently and can be observed
+as stand-alone events within benign background traffic.
+However, NF-UNSW is an exception, where all attacks are
+launched simultaneously. While such overlap can occur in
+real-world scenarios, analysing each attack class individually
+is often more informative for capturing distinct behaviours.
+Figure 4 illustrates one representative day from each NF3
+dataset, where flows are aggregated per minute and plotted
+on a logarithmic scale to improve visual clarity.
+Using this representation, volumetric attacks such as DoS
+and DDoS are clearly visible in some datasets, particularly
+in NF-CIC and NF-BoT, where the malicious flow rate
+rises sharply above benign activity, forming distinct temporal
+spikes. In contrast, similar attack classes in other datasets
+appear less pronounced, likely due to slower or lowintensity variants of DoS behaviour that blend more smoothly
+with background traffic. These observations emphasise
+that, beyond identifying when attacks occur, analysing the
+temporal intensity of flow activity is crucial for understanding
+how different attack types manifest in network behaviour.
+Building on this observation, it is also valuable to explore
+how other feature values evolve temporally within each
+traffic class. Features such as byte and packet volumes
+can reveal deeper insights into the behaviour and intensity
+of network activities [52]. This temporal perspective helps
+identify fluctuations that may correspond to distinct attack
+stages or operational patterns.
+Figure 5 illustrates this by showing the IN_BYTES feature
+aggregated per minute for the same representative day used
+earlier. Each time series corresponds to a specific attack
+class, enabling visual comparison of their activity levels
+66905
+
+M. Luay et al.: Time Matters: Temporal NetFlow Features for ML-Based Network Intrusion Detection
+
+FIGURE 4. Temporal distribution of traffic flow rates across NF3 datasets. The x-axis represents the hours of the
+day, and the y-axis indicates the total number of flows per minute for each attack class.
+
+and temporal intensity. Monitoring such numerical features
+over time helps uncover distinctive traffic behaviours and
+can reveal periods of abnormal data transfer associated with
+different attack patterns.
+A similar observation to that in the flow-rate emerges here.
+Not all volume-based attacks produce consistently high byte
+counts; some DoS flows show low or moderate volumes
+that overlap with benign traffic. This again indicates that
+attack traffic can be intentionally modulated to resemble
+normal activity, as in slow-rate DoS variants that sustain
+long-lived but low-throughput connections. Such recurring
+patterns reinforce that effective detection requires attention to
+temporal persistence and behavioural dynamics, not merely
+the instantaneous flow volume.
+V. EVALUATION PIPELINE
+
+To investigate the role of the temporal features in attack
+detection, we evaluate their effectiveness using three sequential deep learning models, namely LSTM, 1D-CNN, and
+Transformer architectures.
+Preprocessing: The evaluation begins with a structured
+preprocessing step to prepare the NetFlow data for sequential
+learning. Separate procedures are used for numerical and
+categorical attributes.
+We apply MinMax normalisation to scale all numeric
+NetFlow features to the [0, 1] range. Categorical fields
+are processed using One-Hot Encoding (OHE) for the top
+20 most frequent values. Specifically, the top 20 are identified
+and encoded as separate binary values, while all other
+values are grouped into a single category labelled Other.
+This method allows the model to capture patterns from
+common categorical values while maintaining computational
+efficiency. The encoding strategy follows best practices
+established in prior work that investigated preprocessing
+strategies for categorical data in NIDS settings [53].
+The timestamp features FLOW_START_MILLISECONDS
+and FLOW_END_MILLISECONDS were originally recorded
+66906
+
+in Unix time (i.e., milliseconds since 1970), resulting in
+large absolute values. These are not meaningful for flow-level
+learning and can negatively impact model stability. Therefore,
+we first shift these values so that the earliest flow starts at
+0 milliseconds, aligning all flows relative to the beginning of
+the dataset. The shifted values are then scaled to [0, 1] using
+MinMax normalisation.
+To prevent biased learning and ensure a fair, generalisable
+evaluation, we exclude non-temporal features that are known
+to correlate strongly with specific attack types [17], [54]. Previous studies [21], [54] have shown that including identifiers
+such as IP addresses and port numbers can artificially boost
+model performance by allowing models to learn from datasetspecific artefacts rather than genuine behavioural patterns.
+In particular, [21], [54] reported biased prediction outcomes
+when Time-to-Live (TTL) features were included in the
+UNSW-NB15 dataset. Although this issue was specific to
+the UNSW-NB15 dataset, we removed TTL features from all
+four NF3 datasets to maintain consistency across evaluations.
+Accordingly, we exclude all features related to IP addresses,
+port numbers, and TTL values to promote generalisation and
+ensure the models focus on broader traffic behaviours rather
+than memorising flow-specific details.
+Sequence Construction: The datasets are transformed
+into fixed-length sequences before being fed into the models.
+Each sequence consists of N consecutive flows, preserving
+the natural order of NetFlow records as they appear in the
+datasets. This ordering follows the chronological sequence of
+flow observations and enables the models to capture temporal
+dependencies across multiple flows. Rather than assigning
+a single label to an entire sequence, this study adopts a
+sequence labelling strategy, where each element (i.e. each
+flow) retains its original class label within the sequence [55].
+Essentially, the model then takes into consideration the
+temporally adjacent neighbour flows.
+To determine an appropriate sequence length N ,
+an exploratory study was conducted by evaluating model
+VOLUME 14, 2026
+
+M. Luay et al.: Time Matters: Temporal NetFlow Features for ML-Based Network Intrusion Detection
+
+FIGURE 5. Time series of the IN_BYTES feature aggregated per minute for one representative day from each NF3
+dataset. The x-axis represents the hours of the day, and the y-axis indicates the total incoming bytes per minute for
+each attack class.
+
+performance across different sequence lengths from 10 to
+100. A sequence length of N = 10 yielded the highest
+F1 scores, while performance gradually decreased as the
+sequence length increased. Longer sequences span a wider
+range of traffic behaviours within a single sample, which
+can dilute localised temporal patterns relevant for detection.
+Sequence lengths below 10 flows were not examined,
+as they provide limited temporal context. Based on these
+observations, N = 10 was selected for the experiments.
+Model Architectures: The generated flow windows form
+the input sequences for three sequential models: LSTM, 1DCNN, and Transformer. All models use the Adam optimiser
+(learning rate = 0.0001) and a time-distributed dense output
+layer with sigmoid or softmax activation depending on
+the task. Models were trained for 10 epochs with a batch
+size of 16, using early stopping based on validation loss
+(patience = 3) and restoring the best-performing weights.
+The time-distributed layer enables the model to produce a
+prediction for each flow within the sequence. The LSTM
+employs four bidirectional recurrent layers of ten units each
+to capture sequential correlations. The 1D-CNN consists
+of three convolutional layers with 64, 128, and 256 filters
+(kernel size = 3, ReLU activation, batch normalisation) to
+extract local temporal patterns. The Transformer includes
+four encoder layers (hidden dimension = 64, two attention
+heads, ReLU feed-forward blocks, dropout, and residual
+connections) with learned positional encoding to model longrange dependencies. This unified configuration isolates the
+influence of temporal features while keeping the architectural
+complexity comparable.
+Finally, the trained models are subsequently evaluated
+using a shuffling-based permutation analysis to investigate
+the role of temporal features in influencing model decisions.
+
+FIGURE 6. Results of binary classification.
+
+VI. RESULTS
+
+To evaluate the impact of newly introduced features, two
+complementary evaluations are performed: (i) comparing the
+VOLUME 14, 2026
+
+performance of binary and multi-class classification tasks
+when excluding and including them, and (ii) permutation
+66907
+
+M. Luay et al.: Time Matters: Temporal NetFlow Features for ML-Based Network Intrusion Detection
+
+TABLE 3. Per-class F1 scores (%) for NF-UNSW with and without temporal features.
+
+TABLE 4. Per-class F1 scores (%) for NF-ToN with and without temporal features.
+
+analysis to assess the reliance of models on these features.
+In both cases, we focus primarily on macro F1 score as
+our evaluation metric, due to the imbalanced nature of the
+datasets.
+A. BINARY CLASSIFICATION RESULTS
+
+Figure 6 shows the F1 scores for the three models across
+all datasets. In each figure, the orange and blue bars show
+the F1 score without (baseline) and with temporal features,
+respectively. For LSTM, incorporating temporal features
+improves performance across all datasets. The gains are
+particularly notable in NF-ToN (+3.28%) and NF-UNSW
+(+1.12%), while more modest improvements are observed
+for NF-CIC and NF-BoT.
+The 1D-CNN also shows consistent improvements when
+temporal features are added. Again, the largest gains appear in
+NF-ToN (+3.11%) and NF-CIC (+1.07%), whereas the NFBoT dataset remains unchanged. Similarly, the Transformer
+architecture benefits from temporal features, achieving the
+strongest improvements in NF-ToN (+2.20%) and NF-CIC
+(+0.94%). The performance on NF-BoT remains saturated
+at 99.89%.
+To further examine the impact of temporal features,
+we extend our analysis to the multi-class setting, where
+different attack categories are considered separately. This
+enables us to assess which attack types, if any, benefit more
+from these temporal features.
+
+66908
+
+B. MULTI-CLASS CLASSIFICATION
+
+For the sake of clarity and the fact that the attack classes
+are different in each dataset, we have presented the results
+related to each dataset separately. Table 3 shows the results of
+multi-class classification for the NF-UNSW dataset. As can
+be seen, while the inclusion of temporal features boosts
+classification performance for the Benign class in the LSTM
+model (from 36.84% to 73.81%), it has a marginal impact on
+the rest of the classes except Backdoor, DoS, and Generic,
+which benefit from these features across all models, with
+the Transformer achieving consistent gains (e.g., Backdoor:
+13.10% → 17.25%; Generic: 66.17% → 72.46%). For the
+Transformer architecture and 1D-CNN model, while the
+performance for the Benign class is already very good
+in the baseline, i.e. hard to improve further, the rest of the
+classes follow a similar pattern.
+Nevertheless, the overall classification performance on
+NF-UNSW remains poor, particularly for minority attack
+classes. For instance, the Worms and Shellcode classes
+achieve near-zero detection performance due to the extremely
+small number of flows of these classes (e.g., Worms,
+158 flows), limiting the models’ capacity to capture attackspecific patterns. Baseline multi-class classification results
+for this dataset remain poor, in line with prior studies [54].
+Table 4 shows the results of multi-class classification on
+the NF-ToN dataset. As can be seen, the addition of temporal
+features results in substantial improvement in detecting
+
+VOLUME 14, 2026
+
+M. Luay et al.: Time Matters: Temporal NetFlow Features for ML-Based Network Intrusion Detection
+
+TABLE 5. Per-class F1 scores (%) for NF-CIC with and without temporal features.
+
+TABLE 6. Per-class F1 scores (%) for NF-BoT with and without temporal features.
+
+several attack types, particularly those that were challenging
+under baseline features. For instance, in the LSTM model,
+DoS increases from 34.75% to 78.16%. The 1D-CNN
+model also shows improvement, especially for DoS (76.83%
+→ 98.21%) and Injection (82.30% → 96.91%). Similar
+improvements can be seen in the Transformer architecture,
+where DoS reaches 98.48% from 77.49% and MITM 53.70%
+from 15.30%, demonstrating that temporal features help
+capture nuanced temporal patterns critical for detecting these
+attacks.
+Table 5 shows the results of multi-class classification for
+the NF-CIC dataset. Similar to previous datasets, temporal
+information consistently enhances detection performance
+for multiple attack classes, including some of those with
+low baseline scores. In the case of the LSTM model,
+BruteForce detection improves from 43.39% to 72.08%, DoS
+from 25.70% to 51.30%, Bot from 20.37% to 30.55%, and
+Infilteration from 4.52% to 8.71%. The 1D-CNN model
+benefits even more strongly, with BruteForce reaching
+99.87% from 56.45%, DoS from 58.51% to 97.89%, and
+Web-Attack from 2.73% to 8.48%, a clear indication of the
+impact of the temporal features in the detection of such
+attacks. Finally, the Transformer architecture also shows a
+similar trend, with the exception of the Web-Attack class that
+shows a decline in detection performance compared to the
+baseline, i.e. when temporal features are not included in the
+analysis.
+The NF-BoT dataset is the last in this analysis. It has an
+unusual imbalance towards malicious flows where the Benign
+traffic constitutes less than 1% of the total data. Despite
+this, temporal features still lead to substantial improvements
+for several attack classes, as shown in Table 6. Here, the
+Transformer architecture shows the greatest performance
+improvement compared to the other two models. It provides
+consistent gains across all classes, with particularly large
+improvements for DDoS and Theft, reaching 41.62% and
+VOLUME 14, 2026
+
+78.53%, respectively. The LSTM and 1D-CNN models also
+show consistent and significant improvements across most
+classes, although there is a slight decline for the Benign and
+Theft classes, respectively.
+To summarise the performance variations observed in
+multi-class classification following the inclusion of temporal
+features, the results show that although the magnitude of
+improvement varies across individual classes, the overall
+macro-averaged improvement remains consistently positive
+across all datasets and models. This finding demonstrates
+that incorporating temporal features generally enhances
+classification performance. It is also worth noting that not all
+attack types exhibit strong temporal dependencies, and the
+results accurately reflect this characteristic.
+TABLE 7. Feature groups used in the permutation analysis.
+
+C. PERMUTATION ANALYSIS
+
+The initial comparative evaluations between models with
+and without temporal features are essential to establish
+the practical impact of incorporating these features across
+different architectures and datasets. This stage provides a
+broad understanding of how temporal information influences
+model performance under realistic conditions. However, such
+evaluations alone cannot fully isolate the specific contribution
+66909
+
+M. Luay et al.: Time Matters: Temporal NetFlow Features for ML-Based Network Intrusion Detection
+
+of temporal features, as the model architectures and input
+representations inevitably change when new features are
+introduced. After confirming the overall effect in the previous
+section, we conduct a permutation analysis [26] in this
+section, as a complementary step to more accurately quantify
+the role of temporal features within a fixed model. This twostage approach provides both empirical validation through
+direct performance comparison and causal insight through
+controlled feature importance analysis.
+Permutation analysis is a model-agnostic technique that
+estimates the contribution of a feature (or group of features)
+by measuring the degradation in classification performance
+when the feature values are randomly shuffled. In our
+permutation analysis, we combine the related features into
+three groups as shown in Table 7.
+The Durations group includes three features, that existed
+in the previous versions of the datasets. The Timestamps
+group includes the flow start and end times (in milliseconds),
+and the IAT group includes all inter-arrival time statistics for
+source-to-destination and destination-to-source flows.
+We first shuffle each group independently to examine
+its individual contributions to classification performance.
+Next, we shuffle all temporal features simultaneously to
+evaluate their collective importance. These experiments are
+performed for both binary and multi-class classification tasks.
+If shuffling the temporal features results in a substantial drop
+in performance, it indicates that the models rely on temporal
+information; if it leads to little or no change, it suggests that
+the models do not strongly depend on these features.
+Figure 7 shows the results of the permutation analysis for
+the binary classification task across the four NF3 datasets
+using the LSTM, 1D-CNN, and Transformer models. The
+solid orange bars represent the baseline F1 scores with
+unshuffled data, while the subsequent bars illustrate performance when timestamps, durations, IAT, and all temporal
+features are shuffled.
+Across all datasets, shuffling temporal features leads to
+noticeable performance degradation, confirming that the
+models rely on temporal information to varying degrees.
+For NF-UNSW, all models achieve strong baselines (94–
+99% F1), but timestamp shuffling causes a sharp decline,
+most notably for the LSTM (47.19%), while 1D-CNN and
+Transformer remain more robust (83.63% and 98.66%).
+In NF-ToN, where baseline scores are 93–95%, timestamp
+shuffling again results in substantial drops (around 63.98%),
+whereas IAT and duration shuffling have smaller effects,
+suggesting timestamps are the dominant temporal factor.
+For NF-CIC, all temporal groups contribute significantly;
+LSTM performance falls from 96.66% to between 60–74%,
+with similar declines for CNN and Transformer (65.56%
+and 72.70%), showing that temporal dynamics are central to
+this dataset. In contrast, NF-BoT remains almost unaffected
+(around 99%), reflecting its severe class imbalance and
+limited temporal dependency.
+Overall, the analysis demonstrates that temporal features
+are vital for effective binary attack detection in most
+66910
+
+FIGURE 7. Permutation analysis for the binary classification task across
+the NF3 datasets reported using F1 score. The orange bars denote the
+baseline performance using unshuffled data with all features.
+
+datasets. The 1D-CNN and LSTM models show higher
+sensitivity to temporal disruption, whereas the Transformer
+remains relatively stable, likely due to its ability to capture
+broader contextual dependencies even when temporal order
+is distorted.
+Figure 8 presents the results of the permutation analysis
+for the multi-class classification task across the four NF3
+datasets using the LSTM, 1D-CNN, and Transformer architectures. Results are reported using macro F1 scores, which
+better reflect the impact of class imbalance by averaging
+performance across all classes. The orange bars represent
+the baseline performance using all NF3 features, while the
+subsequent bars show the impact of shuffling timestamps,
+durations, IAT, and all temporal features.
+Across all datasets, shuffling temporal features reduces
+detection performance to varying degrees, confirming their
+essential role in distinguishing attack categories. For NFUNSW, baseline macro F1 scores are modest (39.95% for
+VOLUME 14, 2026
+
+M. Luay et al.: Time Matters: Temporal NetFlow Features for ML-Based Network Intrusion Detection
+
+In NF-BoT, unlike the binary classification case where all
+models maintained near-perfect performance after shuffling,
+the effect becomes clearly visible in the multi-class setting.
+Here, timestamp permutation halves performance across all
+models, and shuffling all temporal features reduces scores
+to about 18–19%, revealing the underlying importance of
+temporal dependencies that was previously masked by the
+dataset’s strong class imbalance.
+Overall, these results demonstrate that temporal features
+are essential for effective multi-class attack detection. Among
+the three temporal groups, timestamps and IAT, which were
+newly introduced in the NF3 datasets, consistently emerge
+as the most influential components. In contrast, duration
+features, which were already included in earlier NF2 versions,
+have a smaller impact on performance. The macro F1
+metric further highlights how dataset imbalance interacts
+with temporal dependencies, reinforcing the critical role of
+these newly added temporal features in shaping overall model
+performance.
+
+VII. CONCLUSION
+
+FIGURE 8. Permutation analysis for the multi-class classification task
+across the NF3 datasets reported using macro F1 score. The orange bars
+denote the baseline performance using unshuffled data with all features.
+
+Transformer, 33.34% for 1D-CNN, and below 10% for
+LSTM), and shuffling any temporal group produces only
+small changes. A possible contributing factor to the weak
+performance and low sensitivity to temporal shuffling in NFUNSW is the small sample size of several attack classes.
+Many attack classes in this dataset contain only a few hundred
+or even fewer examples, which makes it difficult for the
+models to learn stable temporal patterns.
+In NF-ToN, where baselines are higher (around 66–81%),
+timestamp shuffling leads to a severe drop in all models,
+reducing the Transformer and 1D-CNN to approximately
+18% and the LSTM to 11.72%, while shuffling IAT or
+duration features has a milder impact, keeping scores above
+60%. For NF-CIC, removing timestamps cuts performance
+by nearly half or even less, with IAT and duration shuffling
+also causing notable declines (around 45.21% for LSTM and
+66–67% for 1D-CNN and Transformer). When all temporal
+features are shuffled together, macro F1 falls below 30%,
+showing that temporal structure is vital for this dataset.
+VOLUME 14, 2026
+
+This study provides a systematic examination of the role of
+temporal information in flow-based network intrusion detection. By extending existing NetFlow benchmarks to create the
+NF3 datasets, two new temporal feature groups, timestamps
+and IAT statistics, were added to the previously available
+duration features. This enhancement enabled a detailed
+investigation of how time-dependent patterns influence
+both binary and multi-class attack detection. Comparative
+evaluations and permutation analyses conducted across four
+benchmark datasets showed that temporal features capture
+behavioural patterns that time-agnostic flow features alone
+cannot represent. Among these, timestamps and IAT features
+consistently proved to be the most informative, allowing finer
+distinction between benign and malicious traffic. In contrast,
+duration features, which were already included in NF2,
+contributed less to overall performance improvements.
+Experiments using sequential deep learning models confirmed that including temporal features improves detection
+accuracy across different architectures and datasets. The
+improvement was particularly notable in multi-class classification, where temporal information helps models separate
+multiple attack types more effectively.
+This study demonstrates that temporal features substantially enhance flow-based intrusion detection. Using
+NF3 datasets, we show that timestamps and IAT metrics
+yield meaningful performance improvements across LSTM,
+1D-CNN, and Transformer architectures—particularly for
+attacks with strong temporal characteristics. The permutation
+analysis confirmed their causal importance. Duration features
+alone were less impactful, highlighting the added value of
+fine-grained time features. NF3 establishes a unified, timeaware benchmark for future research in sequence modelling,
+temporal embeddings, and cross-dataset generalisation for
+real-world NIDS deployment.
+66911
+
+M. Luay et al.: Time Matters: Temporal NetFlow Features for ML-Based Network Intrusion Detection
+
+REFERENCES
+[1] N. Hoque, M. H. Bhuyan, R. C. Baishya, D. K. Bhattacharyya, and
+J. K. Kalita, ‘‘Network attacks: Taxonomy, tools and systems,’’ J. Netw.
+Comput. Appl., vol. 40, pp. 307–324, Apr. 2014.
+[2] O. Yoachimik and J. Pacheco. (Apr. 2025). Cloudflare’s 2025 Q1
+Ddos Threat Report. [Online]. Available: https://blog.cloudflare.com/
+ddos-threat-report-for-2025-q1/
+[3] G. Vormayr, J. Fabini, and T. Zseby, ‘‘Why are my flows different? A
+tutorial on flow exporters,’’ IEEE Commun. Surveys Tuts., vol. 22, no. 3,
+pp. 2064–2103, 3rd Quart., 2020.
+[4] B. Claise, ‘‘Cisco systems netflow services export version 9,’’ Cisco Syst.,
+San Jose, CA, USA, Tech. Rep. 838, 2004.
+[5] M. F. Umer, M. Sher, and Y. Bi, ‘‘Flow-based intrusion detection:
+Techniques and challenges,’’ Comput. Secur., vol. 70, pp. 238–254,
+Sep. 2017.
+[6] D. Zhou, Z. Yan, Y. Fu, and Z. Yao, ‘‘A survey on network data collection,’’
+J. Netw. Comput. Appl., vol. 116, pp. 9–23, Aug. 2018.
+[7] S. Kumar, S. Gupta, and S. Arora, ‘‘Research trends in networkbased intrusion detection systems: A review,’’ IEEE Access, vol. 9,
+pp. 157761–157779, 2021.
+[8] M. Roesch, ‘‘Snort: Lightweight intrusion detection for networks,’’ in
+Proc. Lisa, vol. 99, 1999, pp. 229–238.
+[9] R. A. Disha and S. Waheed, ‘‘Performance analysis of machine learning
+models for intrusion detection system using Gini impurity-based weighted
+random forest (GIWRF) feature selection technique,’’ Cybersecurity,
+vol. 5, no. 1, p. 1, Dec. 2022.
+[10] S. Hosseininoorbin, S. Layeghy, M. Sarhan, R. Jurdak, and M. Portmann,
+‘‘Exploring edge TPU for network intrusion detection in IoT,’’ J. Parallel
+Distrib. Comput., vol. 179, Sep. 2023, Art. no. 104712.
+[11] G. Apruzzese, L. Pajola, and M. Conti, ‘‘The cross-evaluation of machine
+learning-based network intrusion detection systems,’’ IEEE Trans. Netw.
+Service Manage., vol. 19, no. 4, pp. 5152–5169, Dec. 2022.
+[12] S. Omar, A. Ngadi, and H. H. Jebur, ‘‘Machine learning techniques for
+anomaly detection: An overview,’’ Int. J. Comput. Appl., vol. 79, no. 2,
+pp. 33–41, Oct. 2013.
+[13] S. Duque Anton, L. Ahrens, D. Fraunholz, and H. D. Schotten, ‘‘Time is of
+the essence: Machine learning-based intrusion detection in industrial time
+series data,’’ in Proc. IEEE Int. Conf. Data Mining Workshops (ICDMW),
+Nov. 2018, pp. 1–6.
+[14] A. Corsini, S. J. Yang, and G. Apruzzese, ‘‘On the evaluation of sequential
+machine learning for network intrusion detection,’’ in Proc. 16th Int. Conf.
+Availability, Rel. Secur., New York, NY, USA, Aug. 2021, pp. 1–10.
+[15] M. A. Hogo, ‘‘Temporal analysis of intrusion detection,’’ in Proc. Int.
+Carnahan Conf. Secur. Technol. (ICCST), Oct. 2014, pp. 1–6.
+[16] N. Moustafa and J. Slay, ‘‘The significant features of the UNSW-NB15 and
+the KDD99 data sets for network intrusion detection systems,’’ in Proc. 4th
+Int. Workshop Building Anal. Datasets Gathering Exper. Returns Secur.
+(BADGERS), Nov. 2015, pp. 25–31.
+[17] M. Awad and S. Fraihat, ‘‘Recursive feature elimination with crossvalidation with decision tree: Feature selection method for machine
+learning-based intrusion detection systems,’’ J. Sensor Actuator Netw.,
+vol. 12, no. 5, p. 67, Sep. 2023.
+[18] A. Ayantayo, A. Kaur, A. Kour, X. Schmoor, F. Shah, I. Vickers, P. Kearney,
+and M. M. Abdelsamea, ‘‘Network intrusion detection using feature fusion
+with deep learning,’’ J. Big Data, vol. 10, no. 1, p. 167, Nov. 2023.
+[19] L. D. Manocchio, S. Layeghy, W. W. Lo, G. K. Kulatilleke, M. Sarhan,
+and M. Portmann, ‘‘FlowTransformer: A transformer framework for flowbased network intrusion detection systems,’’ Expert Syst. Appl., vol. 241,
+May 2024, Art. no. 122564.
+[20] M. Sarhan, S. Layeghy, N. Moustafa, M. Portmann, ‘‘NetFlow datasets
+for machine learning-based network intrusion detection systems,’’ International Conference on Big Data Technologies and Applications. Cham,
+Switzerland: Springer, 2021, pp. 117–135.
+[21] M. Sarhan, S. Layeghy, and M. Portmann, ‘‘Towards a standard feature
+set for network intrusion detection system datasets,’’ Mobile Netw. Appl.,
+vol. 27, no. 1, pp. 357–370, Feb. 2022.
+[22] (2025). NetFlow V3 NIDS Datasets—The University of Queensland.
+[Online]. Available: https://staff.itee.uq.edu.au/marius/NIDSdatasets/
+[23] S. Hochreiter and J. Schmidhuber, ‘‘Long short-term memory,’’ Neural
+Comput., vol. 9, no. 8, pp. 1735–1780, Nov. 1997.
+[24] E. U. H. Qazi, A. Almorjan, and T. Zia, ‘‘A one-dimensional convolutional
+neural network (1D-CNN) based deep learning system for network
+intrusion detection,’’ Appl. Sci., vol. 12, no. 16, p. 7986, Aug. 2022.
+66912
+
+[25] A. Vaswani, N. Shazeer, N. Parmar, J. Uszkoreit, L. Jones, A. N. Gomez,
+L. Kaiser, and I. Polosukhin, ‘‘Attention is all you need,’’ in Proc. Adv.
+Neural Inf. Process. Syst., 2017, pp. 5998–6008.
+[26] L. Breiman, ‘‘Random forests,’’ Mach. Learn., vol. 45, no. 1,
+pp. 5–32, 2001.
+[27] A. Binbusayyis and T. Vaiyapuri, ‘‘Comprehensive analysis
+and recommendation of feature evaluation measures for
+intrusion detection,’’ Heliyon, vol. 6, no. 7, Jul. 2020,
+Art. no. e04262.
+[28] M. Sarhan, S. Layeghy, and M. Portmann, ‘‘Evaluating standard feature
+sets towards increased generalisability and explainability of ML-based
+network intrusion detection,’’ Big Data Res., vol. 30, Nov. 2022,
+Art. no. 100359.
+[29] D. Choi, J. Rheey, and H. Park, ‘‘Attack-specific feature analysis
+framework for NetFlow IoT datasets,’’ Comput. Secur., vol. 157, Oct. 2025,
+Art. no. 104536.
+[30] M. Tavallaee, E. Bagheri, W. Lu, and A. A. Ghorbani, ‘‘A detailed analysis
+of the KDD CUP 99 data set,’’ in Proc. IEEE Symp. Comput. Intell. Secur.
+Defense Appl., Jul. 2009, pp. 1–6.
+[31] N. Moustafa and J. Slay, ‘‘UNSW-NB15: A comprehensive data set
+for network intrusion detection systems (UNSW-NB15 network data
+set),’’ in Proc. Mil. Commun. Inf. Syst. Conf. (MilCIS), Nov. 2015,
+pp. 1–6.
+[32] S. Lundberg and S. Lee, ‘‘A unified approach to interpreting model
+predictions,’’ in Proc. Adv. Neural Inf. Process. Syst., 2017, pp. 4765–4774.
+[33] A. Iorliam, S. Tirunagari, A. T. S. Ho, S. Li, A. Waller, and
+N. Poh, ‘‘Flow size difference’ can make a difference: Detecting malicious TCP network flows based on Benford’s law,’’ 2016,
+arXiv:1609.04214.
+[34] E. Biglar Beigi, H. Hadian Jazi, N. Stakhanova, and A. A. Ghorbani,
+‘‘Towards effective feature selection in machine learning-based botnet
+detection approaches,’’ in Proc. IEEE Conf. Commun. Netw. Secur.,
+Oct. 2014, pp. 247–255.
+[35] L. M. Chen, S.-W. Hsiao, M. C. Chen, and W. Liao, ‘‘Slow-paced persistent
+network attacks analysis and detection using spectrum analysis,’’ IEEE
+Syst. J., vol. 10, no. 4, pp. 1326–1337, Dec. 2016.
+[36] J. Zimmermann, A. J. Clark, G. Mohay, F. Pouget, and M. Daciér, ‘‘The use
+of packet inter-arrival times for investigating unsolicited internet traffic,’’
+in Proc. 1st Int. Workshop Systematic Approaches Digit. Forensic Eng.,
+2006, pp. 89–104.
+[37] K. C. Gross, K. Vaidyanathan, and A. E. Brownsword, ‘‘Inter-arrival time
+intrusion-detection technique to provide enhanced cybersecurity, July 3
+2018,’’ U.S. Patent 10 015 139, Jul. 3, 2018.
+[38] T. Benson, A. Akella, and D. A. Maltz, ‘‘Network traffic characteristics of
+data centers in the wild,’’ in Proc. 10th ACM SIGCOMM Conf. Internet
+Meas., Nov. 2010, pp. 267–280.
+[39] S. Kandula, S. Sengupta, A. Greenberg, P. Patel, and R. Chaiken, ‘‘The
+nature of data center traffic: Measurements & analysis,’’ in Proc. 9th
+ACM SIGCOMM Conf. Internet Meas., New York, NY, USA, Nov. 2009,
+pp. 202–208.
+[40] A. Lakhina, K. Papagiannaki, M. Crovella, C. Diot, E. D. Kolaczyk,
+and N. Taft, ‘‘Structural analysis of network traffic flows,’’ in Proc. joint
+Int. Conf. Meas. Model. Comput. Syst., New York, NY, USA, Jun. 2004,
+pp. 61–72.
+[41] B. Li, J. Springer, G. Bebis, and M. Hadi Gunes, ‘‘A survey of network
+flow applications,’’ J. Netw. Comput. Appl., vol. 36, no. 2, pp. 567–581,
+Mar. 2013.
+[42] X. Han, R. Yin, Z. Lu, B. Jiang, Y. Liu, S. Liu, C. Wang, and N.
+Li, ‘‘STIDM: A spatial and temporal aware intrusion detection model,’’
+in Proc. IEEE 19th Int. Conf. Trust, Secur. Privacy Comput. Commun.
+(TrustCom), Dec. 2020, pp. 370–377.
+[43] Y. Zhang, X. Chen, L. Jin, X. Wang, and D. Guo, ‘‘Network intrusion
+detection: Based on deep hierarchical network and original flow data,’’
+IEEE Access, vol. 7, pp. 37004–37016, 2019.
+[44] J. Zhao, R. Masood, and S. Seneviratne, ‘‘A review of computer vision
+methods in network security,’’ IEEE Commun. Surveys Tuts., vol. 23, no. 3,
+pp. 1838–1878, 3rd Quart., 2021.
+[45] C. Wu, J. Sun, J. Chen, M. Alazab, Y. Liu, and Y. Xiang, ‘‘TCG–
+IDS : Robust network intrusion detection via temporal contrastive graph
+learning,’’ IEEE Trans. Inf. Forensics Security, vol. 20, pp. 1475–1486,
+2025.
+[46] Y. Wang, J. Li, W. Zhao, Z. Han, H. Zhao, L. Wang, and X. He, ‘‘N-STGAT:
+Spatio-temporal graph neural network based network intrusion detection
+for near-Earth remote sensing,’’ Remote Sens., vol. 15, no. 14, p. 3611,
+Jul. 2023.
+VOLUME 14, 2026
+
+M. Luay et al.: Time Matters: Temporal NetFlow Features for ML-Based Network Intrusion Detection
+
+[47] M. Hamdan, B. Mohammed, U. Humayun, A. Abdelaziz, S. Khan,
+M. A. Ali, M. Imran, and M. N. Marsono, ‘‘Flow-aware elephant
+flow detection for software-defined networks,’’ IEEE Access, vol. 8,
+pp. 72585–72597, 2020.
+[48] I. Sharafaldin, A. H. Lashkari, and A. A. Ghorbani, ‘‘Toward generating
+a new intrusion detection dataset and intrusion traffic characterization,’’
+ICISSp, vol. 1, pp. 108–116, Jan. 2018.
+[49] N. Moustafa, ‘‘A new distributed architecture for evaluating AI-based
+security systems at the edge: Network TON_IoT datasets,’’ Sustain. Cities
+Soc., vol. 72, Sep. 2021, Art. no. 102994.
+[50] N. Koroniotis, N. Moustafa, E. Sitnikova, and B. Turnbull, ‘‘Towards the
+development of realistic botnet dataset in the Internet of Things for network
+forensic analytics: Bot-IoT dataset,’’ Future Gener. Comput. Syst., vol. 100,
+pp. 779–796, Nov. 2019.
+[51] NProbe, an Extensible Netflow V5/V9/IPFIX Probe for IPV4/V6, Ntop,
+New York, NY, USA, 2017.
+[52] M. Luay, S. Layeghy, Y. Pandey, G. Kulatilleke, and M. Portmann,
+‘‘Multimodal LLMs for zero-shot intrusion detection using NetFlow
+visualisations,’’ in Proc. IEEE 50th Conf. Local Comput. Netw. (LCN),
+Oct. 2025, pp. 1–7.
+[53] L. Manocchio, S. Layeghy, M. Gallagher, and M. Portmann. (2023). An
+Evaluation of Preprocessing Methods for Machine Learning Based NIDS.
+[Online]. Available: https://ssrn.com/abstract=4647372
+[54] M. Sarhan, S. Layeghy, N. Moustafa, M. Gallagher, and M. Portmann,
+‘‘Feature extraction for machine learning-based intrusion detection in IoT
+networks,’’ Digit. Commun. Netw., vol. 10, no. 1, pp. 205–216, Feb. 2024.
+[55] X. Wang, J. Liu, and C. Zhang, ‘‘Network intrusion detection based on
+multi-domain data and ensemble-bidirectional LSTM,’’ EURASIP J. Inf.
+Secur., vol. 2023, no. 1, p. 5, Jun. 2023.
+
+MAJED LUAY received the bachelor’s degree
+from Taif University, Saudi Arabia, in 2015, and
+the Master of Information Security degree from
+the Queensland University of Technology (QUT),
+Brisbane, in 2020. He is currently pursuing the
+Ph.D. degree with The University of Queensland
+(UQ), Australia. His research interests include
+network security, flow-based intrusion detection,
+Denial-of-Service (DoS/DDoS) attack analysis,
+visual analytics for network traffic, and the
+application of machine learning and large language models to cybersecurity.
+SIAMAK LAYEGHY received the Ph.D. degree in
+computer science from The University of Queensland, Australia, where his research focused on
+constraint programming approaches for softwaredefined networking. He is a Lecturer and a
+Researcher in applied machine learning and network security at the School of Electrical Engineering and Computer Science, The University
+of Queensland. His research interests include
+applied machine learning, computer networks,
+cybersecurity, and the Internet of Things.
+NILOUFAR NOORBIN received the bachelor’s
+degree in electronics engineering and the master’s degree in control engineering, building a
+strong foundation in systems and automation,
+and the Ph.D. degree in computer science from
+The University of Queensland, focusing on deep
+learning at the edge. She is currently a Principal
+Machine Learning professional at Sydney Water,
+where she leads the design and deployment of
+machine learning solutions for large-scale, realworld applications. Her research interests include deep learning, edge AI,
+and the Internet of Things (IoT), with an emphasis on scalable, and robust
+AI systems for critical infrastructure.
+
+VOLUME 14, 2026
+
+MOHANAD SARHAN received the bachelor’s
+degree in information technology and the Ph.D.
+degree in AI security from The University of
+Queensland. He has authored and co-authored
+peer-reviewed publications in the areas of information security and applied AI, contributing to
+both academic scholarship and industry-relevant
+knowledge. His research focuses on cybersecurity,
+artificial intelligence security, and the protection
+of digital systems.
+
+GAYAN KULATILLEKE received the Bachelor
+of Engineering degree in computer science and
+engineering from the University of Moratuwa, Sri
+Lanka, the master’s degree in big data and AI from
+the Queen Mary University of London, U.K., and
+the Ph.D. degree from the School of Information
+Technology and Electrical Engineering (ITEE),
+The University of Queensland, Australia. His
+research interests include graph neural networks,
+algorithm optimization, LLMs, network security,
+and AI/ML applications in cybersecurity.
+
+NOUR MOUSTAFA (Senior Member, IEEE)
+received the bachelor’s and master’s degrees in
+computer science from the Faculty of Computer
+and Information, Helwan University, Egypt, in
+2009 and 2014, respectively, and the Ph.D. degree
+in the field of cyber security from UNSW Canberra, in 2017. He is a Lecturer at the UNSW
+Canberra Centre for Cyber, University of New
+South Wales (UNSW). He started his academic
+career as an Assistant Lecturer at the Faculty of
+Computers and Information, Helwan University, in 2011. His areas of
+interests include cyber security, in particular, network security, host- and
+network-intrusion detection systems, statistics, deep learning, and machine
+learning techniques. He is interested in designing and developing threat
+detection and forensic mechanisms to the Industry 4.0 technology for
+identifying malicious activities from cloud computing, fog computing, the
+IoT, and industrial control systems over virtual machines and physical
+systems.
+
+MARIUS PORTMANN (Member, IEEE) received
+the Ph.D. degree in technical sciences (electrical
+engineering) from the Swiss Federal Institute of
+Technology (ETH Zürich). He is a Professor
+and the Cisco Chair in network security at the
+School of Electrical Engineering and Computer
+Science, The University of Queensland, Australia.
+His research interests include computer networks,
+cybersecurity, the Internet of Things, and applied
+AI.
+
+66913
+
+

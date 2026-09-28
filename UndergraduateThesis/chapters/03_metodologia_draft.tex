@@ -1,0 +1,341 @@
+\section{Datasets Utilizados}
+\label{sec:datasets_utilizados}
+
+A concepção, o treinamento e a validação empírica de Sistemas de Detecção de Intrusão em Redes (\emph{Network Intrusion Detection Systems} -- NIDS) orientados a Aprendizado de Máquina e Aprendizado Profundo dependem criticamente da qualidade, diversidade e representatividade dos conjuntos de dados utilizados \cite{standard2021, netflow2020}. Historicamente, a comunidade de segurança da informação recorreu a bases públicas pioneiras, tais como DARPA~98, KDD~Cup~99 e NSL-KDD. Não obstante a sua relevância histórica, tais bases tornaram-se anacrônicas face às transformações da Internet moderna: exibem tráfego artificial gerado em ambientes desprovidos de ruído operacional humano, não contemplam protocolos de transporte criptografados e contêm distribuições estatísticas de pacotes que não reproduzem a complexidade das ameaças contemporâneas \cite{Sharafaldin2018TowardGA, advancedids2024}.
+
+Com o intuito de superar tais deficiências metodológicas e assegurar que os modelos avaliados sejam submetidos a condições operacionais fidedignas, este trabalho adota o paradigma de análise fundamentado em fluxos de rede bidirecionais (\emph{bidirectional network flows}). Formalmente, um fluxo de rede $\mathcal{F}$ é definido como uma sequência temporal de pacotes de dados transmitidos entre dois pontos terminais ao longo de um canal de comunicação, unicamente indexados pela tupla quíntupla de cabeçalho L3/L4 (\emph{5-tuple}):
+\begin{equation}
+\label{eq:fluxo_definicao}
+\mathcal{F} = \langle IP_{\mathrm{orig}}, Port_{\mathrm{orig}}, IP_{\mathrm{dest}}, Port_{\mathrm{dest}}, Prot \rangle,
+\end{equation}
+em que $IP_{\mathrm{orig}}$ e $IP_{\mathrm{dest}}$ denotam os endereços de Protocolo de Internet (\emph{Internet Protocol} -- IP) de origem e destino, $Port_{\mathrm{orig}}$ e $Port_{\mathrm{dest}}$ correspondem às portas das camadas de transporte (TCP ou UDP), e $Prot$ identifica o protocolo encapsulado ($Prot \in \{6 \text{ [TCP]}, 17 \text{ [UDP]}, \dots\}$).
+
+A delimitação temporal de um fluxo é regida por duas variáveis de controle:
+\begin{enumerate}
+    \item \textbf{Tempo de Inatividade (\emph{Idle Timeout} -- $\tau_{\mathrm{idle}}$):} intervalo temporal máximo admissível de silêncio na comunicação sem o trânsito de pacotes entre os interlocutores (tipicamente parametrizado em $120\,\mathrm{s}$); caso superado, o fluxo é sumariamente encerrado e exportado;
+    \item \textbf{Tempo Máximo Ativo (\emph{Active Timeout} -- $\tau_{\mathrm{active}}$):} limiar superior de duração total concedido a uma conexão contínua (comumente definido em $1800\,\mathrm{s}$); atingido esse limite, o fluxo é segmentado e consolidado para mitigar a retenção indefinida de estados na memória volátil dos monitores de rede.
+\end{enumerate}
+
+A partir do encerramento de um fluxo $\mathcal{F}$, ferramentas especializadas de extração estatística aplicam operadores de agregação sobre as distribuições de tempo, tamanho e sinalizadores, gerando um vetor de atributos numéricos $\mathbf{x} \in \mathbb{R}^D$:
+\begin{equation}
+\label{eq:vetor_caracteristicas}
+\mathbf{x} = \phi(\mathcal{F}) = [f_1, f_2, \dots, f_D]^T,
+\end{equation}
+sendo $\phi(\cdot)$ a função de mapeamento implementada pelo extrator de telemetria e $D$ a dimensionalidade do vetor característico.
+
+Neste trabalho, são selecionados três conjuntos de dados consolidados e complementares que cobrem diferentes espectros de tráfego, topologias e vetores de ameaça:
+\begin{itemize}
+    \item \textbf{CSE-CIC-IDS2018:} referência consagrada para tráfego corporativo e ataques complexos distribuídos em infraestrutura de computação em nuvem;
+    \item \textbf{CIC-BCCC-NRC-2024:} benchmark contemporâneo voltado a ambientes de Internet das Coisas (\emph{Internet of Things} -- IoT), protocolos leves de telemetria (MQTT) e variantes modernas de negação de serviço e botnets;
+    \item \textbf{UNSW-NB15:} base de referência analítica contendo tráfego sintético e realístico de alta fidelidade gerado por hardware de emulação com ampla diversidade de técnicas de exploração e evasão.
+\end{itemize}
+
+O Quadro~\ref{quadro:comparativo_geral_datasets} sintetiza as propriedades fundamentais, origens e características operacionais dos três conjuntos de dados analisados nesta pesquisa.
+
+\begin{quadro}[htb]
+\centering
+\caption{Quadro comparativo dos datasets selecionados para treinamento e avaliação.}
+\label{quadro:comparativo_geral_datasets}
+\small
+\begin{tabularx}{\textwidth}{|l|l|X|X|c|c|}
+\hline
+\textbf{Dataset} & \textbf{Ano} & \textbf{Ambiente de Captura} & \textbf{Mecanismo de Geração} & \textbf{Features} & \textbf{Classes} \\ \hline
+CSE-CIC-IDS2018 & 2018 & Nuvem AWS corporativa (5 departamentos e \emph{server room}) & Agentes B-Profile (humanos) e M-Profiles (ataques) & 80 & 15 \\ \hline
+CIC-BCCC-NRC-2024 & 2024 & Laboratórios físicos e híbridos IoT/IoMT (IoTRL e UNB) & Dispositivos reais/emulados, corretores MQTT e scripts & 69 & 48 \\ \hline
+UNSW-NB15 & 2015 & Cyber Range Lab (ACCS / UNSW Canberra) & Dispositivo IXIA PerfectStorm e tráfego realístico & 66 & 10 \\ \hline
+\end{tabularx}
+\fonte{Elaborado pelo autor (2026).}
+\end{quadro}
+
+
+\subsection{CSE-CIC-IDS2018: Origem, Geração, Features e Estatísticas}
+\label{subsec:cse_cic_ids2018}
+
+O conjunto de dados CSE-CIC-IDS2018 (\emph{Communications Security Establishment \& Canadian Institute for Cybersecurity}) foi desenvolvido mediante um projeto de cooperação técnica entre o instituto governamental canadense Communications Security Establishment e o Canadian Institute for Cybersecurity da University of New Brunswick (UNB) \cite{Sharafaldin2018TowardGA}. O objetivo do projeto consistiu na criação de um conjunto de dados de segurança cibernética em grande escala, hospedado publicamente na plataforma Amazon Web Services (AWS), que superasse as restrições de anonimização excessiva, volume diminuto e obsolescência de ameaças presentes em bases legadas.
+
+\subsubsection{Topologia e Infraestrutura de Rede}
+
+A concepção experimental do CSE-CIC-IDS2018 foi implementada integralmente em ambiente de computação em nuvem na AWS, compreendendo duas redes completamente apartadas: a Rede da Vítima (\emph{Victim-Network}) e a Rede de Ataque (\emph{Attack-Network}).
+
+A \emph{Victim-Network} replica a infraestrutura de uma organização corporativa de médio e grande porte, estruturada em cinco departamentos operacionais independentes conectados a uma sala de servidores (\emph{Server Room}):
+\begin{itemize}
+    \item \textbf{Controladora de Domínio e Infraestrutura Central:} servidor Windows Server 2016 desempenhando funções de Diretório Ativo (\emph{Active Directory}), Servidor de Nomes de Domínio (DNS) e autenticação centralizada;
+    \item \textbf{Servidores de Aplicação:} servidores com sistema operacional Ubuntu Linux (versões 12, 14.04 e 16.04) hospedando serviços web HTTP/HTTPS, bancos de dados relacionais e servidores FTP;
+    \item \textbf{Estações de Trabalho Heterogêneas:} mais de 500 máquinas clientes conectadas à rede interna, englobando sistemas operacionais Windows~10, Windows~8.1, Windows~7, distribuições Linux e macOS;
+    \item \textbf{Dispositivos de Interconexão:} firewalls corporativos (Fortinet) e switches de rede gerenciáveis configurados com espelhamento de portas (\emph{port mirroring}) na interface do comutador principal, permitindo a gravação sem perdas de pacotes do tráfego bidirecional bruto em formato PCAP.
+\end{itemize}
+
+A \emph{Attack-Network}, por sua vez, compreende uma sub-rede externa composta por cerca de 50 estações atacantes orquestradas externamente na AWS, operando distribuições Linux voltadas a testes de penetração (Kali Linux) e nós com Windows~8.1, provisionados com endereçamento IP público e conectividade direta com o perímetro de entrada da rede corporativa alvo.
+
+\subsubsection{Metodologia de Geração de Tráfego}
+
+Para mitigar a artificialidade observada em bases puramente simuladas, \citeonline{Sharafaldin2018TowardGA} formalizaram uma metodologia de geração baseada em perfis comportamentais:
+\begin{enumerate}
+    \item \textbf{B-Profile (\emph{Benign Profile}):} agente de software desenvolvido em linguagem Java, encarregado de perfilar e modelar o comportamento abstrato de interações humanas de 25 perfis distintos de usuários reais. O agente B-Profile extrai propriedades estatísticas das requisições para os protocolos HTTP, HTTPS, FTP, SSH e serviços de correio eletrônico (SMTP, POP3 e IMAP), sintetizando variáveis como distribuição temporal entre cliques, tamanhos de carga útil, padrões de navegação e durações de sessão, reproduzindo um tráfego de fundo naturalístico e não determinístico;
+    \item \textbf{M-Profile (\emph{Malicious Profile}):} agentes programados dedicados à execução de rotinas de ataque estruturadas. A coleta de dados transcorreu durante dez dias úteis consecutivos em fevereiro de 2018, cobrindo sete cenários operacionais de ataques:
+    \begin{itemize}
+        \item \emph{Brute Force Attacks:} ataques automatizados de força bruta direcionados a serviços de acesso e autenticação remota (FTP e SSH);
+        \item \emph{Heartbleed Attack:} exploração da vulnerabilidade de estouro de memória no protocolo TLS/OpenSSL;
+        \item \emph{Botnet Activity:} tráfego gerado por estações comprometidas pela botnet Ares, incluindo comunicação periódica de comando e controle e download de módulos;
+        \item \emph{Denial of Service (DoS):} saturação seletiva de recursos de servidores web mediante ataques volumétricos e de baixa cadência (\emph{slow rate}), abrangendo DoS-Hulk, DoS-GoldenEye, DoS-SlowHTTPTest e DoS-Slowloris;
+        \item \emph{Distributed Denial of Service (DDoS):} ataques distribuídos de negação de serviço orquestrados via múltiplas máquinas atacantes utilizando ferramentas como LOIC (\emph{Low Orbit Ion Cannon}) em versões HTTP e UDP, e HOIC (\emph{High Orbit Ion Cannon});
+        \item \emph{Web Attacks:} injeção de comandos SQL (\emph{SQL Injection}), scripts em páginas web (\emph{Cross-Site Scripting} -- XSS) e ataques de força bruta contra sistemas de autenticação web;
+        \item \emph{Infiltration Attack:} invasão estruturada em duas fases: na primeira etapa, uma máquina cliente interna é comprometida mediante engenharia social (download de documento PDF contendo código malicioso armazenado em pasta do serviço Dropbox) que estabelece uma porta dos fundos (\emph{backdoor}) via Meterpreter/Metasploit; na segunda etapa, a partir da estação comprometida, os atacantes executam varreduras de mapeamento de rede (\emph{IP sweeps}, \emph{port scans} com Nmap) e enumeração de serviços (SMB, RDP, RPC) visando a movimentação lateral na rede interna.
+    \end{itemize}
+\end{enumerate}
+
+\subsubsection{Atributos Extraídos e Estrutura Tabular}
+
+A conversão dos arquivos PCAP brutos para formato tabular foi executada por meio da ferramenta CICFlowMeter-V3 \cite{Sharafaldin2018TowardGA}, a qual inspeciona o fluxo bidirecional e calcula um total de 80 atributos estatísticos. Tais atributos compreendem:
+\begin{itemize}
+    \item Estatísticas de duração da conexão e intervalos de chegada entre pacotes (\emph{Flow IAT}, \emph{Fwd IAT}, \emph{Bwd IAT}: valores mínimo, máximo, média e desvio padrão);
+    \item Distribuições de tamanho de pacotes nas direções de avanço (\emph{forward}) e retrocesso (\emph{backward});
+    \item Métricas de taxas de transferência (\emph{Flow Bytes/s}, \emph{Flow Packets/s});
+    \item Contadores de sinalizadores do cabeçalho TCP (FIN, SYN, RST, PSH, ACK, URG, CWR, ECE);
+    \item Comprimentos de cabeçalhos e tamanhos médios de segmentos;
+    \item Métricas de janelas iniciais de recepção TCP (\emph{Init Win Bytes});
+    \item Intervalos de atividade e inatividade estatística do canal (\emph{Active} e \emph{Idle}: mínimo, máximo, média e desvio padrão).
+\end{itemize}
+
+No pipeline de processamento integrado do modelo ALF-MoE, atributos constantes sem variância (como \emph{Bwd PSH Flags} e taxas de rajada sem preenchimento) e variáveis redundantes com colinearidade estrita foram expurgados, resultando em um vetor canônico de 62 atributos numéricos contínuos e discretos.
+
+\subsubsection{Estatísticas e Distribuição Amostral}
+
+O conjunto completo CSE-CIC-IDS2018 possui 16.232.943 fluxos de rede, sendo composto por 13.484.708 conexões benignas (83,07\%) e 2.748.235 conexões maliciosas (16,93\%) \cite{standard2021}. Na matriz experimental processada para os experimentos do modelo ALF-MoE (adotando uma partição estratificada de teste com fração de 20\% do conjunto total balanceado), totalizam-se 632.484 amostras de teste distribuídas em 15 classes distintas. A Tabela~\ref{tab:distribuicao_csecicids2018} detalha a distribuição das classes de tráfego, as categorias de ataque e o quantitativo amostral correspondente.
+
+\begin{table}[htb]
+\centering
+\caption{Distribuição de classes e suporte amostral no benchmark CSE-CIC-IDS2018.}
+\label{tab:distribuicao_csecicids2018}
+\small
+\begin{tabularx}{\textwidth}{|c|l|X|r|r|}
+\hline
+\textbf{ID} & \textbf{Classe Canônica} & \textbf{Categoria de Ameaça} & \textbf{Amostras (Teste)} & \textbf{Proporção (\%)} \\ \hline
+0 & Benign & Tráfego Normal & 136.285 & 21,55\% \\ \hline
+1 & Botnet & Botnet Ares (C2) & 56.873 & 8,99\% \\ \hline
+2 & BruteForce-FTP & Força Bruta em Autenticação & 38.603 & 6,10\% \\ \hline
+3 & BruteForce-SSH & Força Bruta em Autenticação & 37.790 & 5,97\% \\ \hline
+4 & DDoS-HOIC & Negação de Serviço Distribuída & 99.785 & 15,78\% \\ \hline
+5 & DDoS-LOIC-HTTP & Negação de Serviço Distribuída & 99.287 & 15,70\% \\ \hline
+6 & DDoS-LOIC-UDP & Negação de Serviço Distribuída & 345 & 0,05\% \\ \hline
+7 & DoS-GoldenEye & Negação de Serviço (Exaustão) & 8.210 & 1,30\% \\ \hline
+8 & DoS-Hulk & Negação de Serviço (HTTP Flood) & 92.260 & 14,59\% \\ \hline
+9 & DoS-SlowHTTPTest & Negação de Serviço (Baixa Taxa) & 28.048 & 4,43\% \\ \hline
+10 & DoS-Slowloris & Negação de Serviço (Baixa Taxa) & 2.238 & 0,35\% \\ \hline
+11 & Infiltration & Movimentação Lateral e C2 & 32.570 & 5,15\% \\ \hline
+12 & WebAttack-BruteForce\_Web & Ataques a Aplicações Web & 123 & 0,02\% \\ \hline
+13 & WebAttack-BruteForce\_XSS & Ataques a Aplicações Web & 54 & 0,01\% \\ \hline
+14 & WebAttack-SQL\_Injection & Ataques a Aplicações Web & 13 & 0,002\% \\ \hline
+\multicolumn{3}{|l|}{\textbf{Total de Instâncias Avaliadas}} & \textbf{632.484} & \textbf{100,00\%} \\ \hline
+\end{tabularx}
+\fonte{Elaborado pelo autor (2026), com base em \citeonline{Sharafaldin2018TowardGA} e relatórios do projeto.}
+\end{table}
+
+
+\subsection{CIC-BCCC-NRC-2024: Origem, Geração, Features e Estatísticas}
+\label{subsec:cic_bccc_nrc_2024}
+
+A proliferação ubíqua de dispositivos inteligentes conectados, redes de sensores sem fio e sistemas ciberfísicos expandiu severamente a área de exposição a ataques cibernéticos em infraestruturas industriais e de Internet das Coisas (\emph{Internet of Things} -- IoT) \cite{ciciot2023}. Tráfegos gerados por ecossistemas IoT exibem discrepâncias substanciais em relação a ambientes corporativos convencionais: caracterizam-se por mensagens assíncronas de telemetria de tamanho reduzido, protocolos de comunicação de baixa sobrecarga de cabeçalho (tais como MQTT e CoAP) e restrições energéticas e de processamento nos dispositivos de borda.
+
+Diante dessa demanda de pesquisa, o Canadian Institute for Cybersecurity (CIC), o Bell Centre for Cyber Security (BCCC) e o National Research Council Canada (NRC) desenvolveram uma iniciativa colaborativa para criar uma suíte unificada de bases de dados tabulares aumentada, designada \emph{CIC-BCCC-NRC\_TabularIoTAttack-2024} \cite{sasi2025efficient}.
+
+\subsubsection{Infraestrutura e Topologia do Banco de Testes}
+
+O ambiente físico e computacional que subsidiou a geração do CIC-BCCC-NRC-2024 integra os laboratórios \emph{Internet of Things Research Lab} (IoTRL) do Army Cyber Institute e as bancadas de ensaio do CIC na University of New Brunswick \cite{sasi2025efficient}. A topologia abrange mais de 40 dispositivos terminais físicos e componentes virtuais distribuídos em múltiplos domínios funcionais:
+\begin{itemize}
+    \item \textbf{Dispositivos de Automação Residencial e Comercial:} lâmpadas e tomadas inteligentes, termostatos digitais, sensores ambientais e câmeras de monitoramento IP comunicando-se via protocolos IEEE~802.11 (Wi-Fi), Zigbee, Z-Wave e Bluetooth Low Energy (BLE);
+    \item \textbf{Concentradores e Plataformas de Orquestração:} aplicação de gerenciamento de automação centralizada (\emph{Home Assistant}) integrada a comutadores inteligentes (Vera Plus), operando como pontes de tradução entre a rede sem fio dos sensores e a rede local cabeada;
+    \item \textbf{Brokers e Mensageria IoT:} corretores do protocolo MQTT (\emph{Message Queuing Telemetry Transport}) responsáveis pelo recebimento de tópicos de telemetria e disseminação para nós assinantes;
+    \item \textbf{Monitoramento e Captura Transparente:} emprego de derivadores ópticos e elétricos de sinal (\emph{network taps}) instalados entre os comutadores de borda e os gateways de saída, viabilizando a duplicação fidedigna de pacotes em tempo de execução via \emph{dumpcap} e Wireshark sem introdução de latência ou perda na transmissão de dados.
+\end{itemize}
+
+\subsubsection{Taxonomia dos Vetores de Ataque}
+
+O conjunto contempla uma ampla diversidade de ataques concebidos especificamente para explorar as vulnerabilidades intrínsecas aos protocolos leves e dispositivos embarcados, estruturados nas seguintes famílias operacionais \cite{sasi2025efficient}:
+\begin{enumerate}
+    \item \textbf{Ataques Específicos ao Protocolo MQTT:}
+    \begin{itemize}
+        \item \emph{MQTT Brute Force:} varredura exaustiva de credenciais e identificadores de cliente em serviços de mensageria;
+        \item \emph{MQTT DoS Connect Flood:} saturação das tabelas de conexão do corretor MQTT mediante rajadas ininterruptas de pacotes \texttt{CONNECT};
+        \item \emph{MQTT DDoS Publish Flood:} sobrecarga nos canais de transmissão através da publicação descontrolada de tópicos volumosos em alta cadência;
+        \item \emph{MQTT Malformed:} injeção de pacotes com cabeçalhos corrompidos e formatos inválidos para desencadear falhas de descontinuidade no parser do broker.
+    \end{itemize}
+    \item \textbf{Inundações Volumétricas e Ataques com Fragmentação L3/L4:}
+    \begin{itemize}
+        \item Inundações com sinalizadores TCP específicos: \emph{ACK Flood}, \emph{SYN Flood}, \emph{DDoS TCP SYN Flood}, \emph{DDoS PSHACK Flood} e \emph{DDoS RSTFIN Flood};
+        \item Inundações baseadas em protocolos de transporte e controle: \emph{DoS UDP Flood}, \emph{DDoS UDP Flood}, \emph{DoS ICMP Flood}, \emph{DDoS ICMP Flood} e \emph{DoS DNS Flood};
+        \item Ataques avançados de fragmentação: \emph{DDoS ACK Fragmentation} e \emph{DDoS ICMP Fragmentation}, os quais exploram lacunas na remontagem de datagramas pelos nós de roteamento para provocar sobrecarga de memória e esgotamento de tabelas de estado.
+    \end{itemize}
+    \item \textbf{Botnets e Códigos Maliciosos IoT:}
+    \begin{itemize}
+        \item Família Mirai: variantes ativas explorando dispositivos com credenciais padrão em portas Telnet/SSH, abrangendo \emph{Mirai ACK Flood}, \emph{Mirai HTTP Flood}, \emph{Mirai Host Brute Force} e \emph{Mirai UDP Plain};
+        \item \emph{Ransomware} e \emph{Backdoors}: códigos maliciosos direcionados ao sequestro e controle não autorizado de dispositivos embarcados.
+    \end{itemize}
+    \item \textbf{Reconhecimento, Varredura e Identificação Operacional:}
+    \begin{itemize}
+        \item Mapeamento ativo de topologia: \emph{Recon Ping Sweep}, \emph{Recon Host Discovery};
+        \item Sondagem de serviços e portas: \emph{Port Scanning}, \emph{Recon Port Scan}, \emph{Scan Host Port} e \emph{Scan UDP Attack};
+        \item Impressão digital de sistemas operacionais (\emph{OS Fingerprinting}): \emph{Recon OS Scan} e \emph{Scan Port OS};
+        \item Varreduras automatizadas de vulnerabilidades: \emph{Recon Vulnerability Scan}, \emph{Vulnerability Scanner} e \emph{Scan Aggressive}.
+    \end{itemize}
+    \item \textbf{Ataques Man-in-the-Middle e Manipulação de Camada de Enlace:}
+    \begin{itemize}
+        \item Envenenamento de tabelas ARP (\emph{MITM ARP Spoofing}) e interceptação intermediária de fluxos não cifrados (\emph{MITM}).
+    \end{itemize}
+    \item \textbf{Ataques a Aplicações e Quebra de Credenciais:}
+    \begin{itemize}
+        \item Ataques de dicionário e exaustão: \emph{Sparta SSH Brute Force}, \emph{Telnet Brute Force}, \emph{Dictionary Brute Force} e \emph{Password Attack};
+        \item Vulnerabilidades web e upload: \emph{SQL Injection}, \emph{XSS} (\emph{Cross-Site Scripting}) e \emph{Uploading Attack}.
+    \end{itemize}
+\end{enumerate}
+
+\subsubsection{Atributos Extraídos e Distribuição Amostral}
+
+A conversão dos fluxos de tráfego seguiu a extração via versão estendida do CICFlowMeter otimizada para tráfego IoT, capturando dinâmicas de pacotes de tamanho reduzido e rajadas assíncronas. Após a sanitização e o descarte de identificadores diretos de rede (Flow ID, IPs, portas, timestamp e protocolos constantes), foram consolidados 69 atributos numéricos representativos.
+
+O dataset agrega 48 classes granulares (nível de abstração 0), exibindo um volume avaliado no conjunto de teste de 588.930 amostras. O Quadro~\ref{quadro:familias_cicbccc2024} agrupa as 48 classes em macro-famílias funcionais e detalha o quantitativo amostral observado no protocolo experimental da pesquisa.
+
+\begin{quadro}[htb]
+\centering
+\caption{Famílias funcionais, classes granulares e suporte amostral no CIC-BCCC-NRC-2024.}
+\label{quadro:familias_cicbccc2024}
+\footnotesize
+\begin{tabularx}{\textwidth}{|l|X|r|r|}
+\hline
+\textbf{Macro-Família} & \textbf{Classes Granulares Incluídas} & \textbf{Amostras (Teste)} & \textbf{Proporção (\%)} \\ \hline
+Tráfego Legítimo & Benign Traffic & 47.453 & 8,06\% \\ \hline
+\multirow{4}{*}{\shortstack[l]{DDoS / DoS com\\Sinalizadores e\\Fragmentação}} & ACK Flood (38.856), DDoS PSHACK Flood (51.105), DDoS RSTFIN Flood (47.852), DDoS ACK Frag. (12.407), DDoS TCP SYN Flood (70), SYN Flood (43.651), DoS SYN Flood (14.630), DoS TCP Flood (50.711) & 259.282 & 44,03\% \\ \hline
+\multirow{2}{*}{\shortstack[l]{DDoS / DoS\\Volumétrico\\(UDP, ICMP, DNS)}} & DDoS ICMP Flood (500), DDoS ICMP Frag. (1.872), DDoS UDP Flood (499), DoS UDP Flood (950), DoS ICMP Flood (682), DoS DNS Flood (334), DDoS HTTP Flood (3.005) & 7.842 & 1,33\% \\ \hline
+\multirow{2}{*}{\shortstack[l]{Protocolos IoT\\(MQTT)}} & MQTT Brute Force (51.206), MQTT DDoS Publish Flood (21.282), MQTT DoS Connect Flood (24.921), MQTT DoS Publish Flood (190), MQTT Malformed (416) & 98.015 & 16,64\% \\ \hline
+Botnet Mirai & Mirai ACK Flood (1.531), Mirai HTTP Flood (296), Mirai Host Brute Force (716), Mirai UDP Plain (299) & 2.842 & 0,48\% \\ \hline
+\multirow{3}{*}{\shortstack[l]{Reconhecimento\\e Escaneamento}} & Port Scanning (26), Recon Port Scan (6.866), Recon Host Discovery (82), Recon Ping Sweep (2.830), Recon OS Scan (6.612), OS Fingerprinting (13), Scan Port OS (600), Scan Host Port (507), Scan UDP Attack (3.260), Scan Aggressive (1.411), Recon Vulnerability Scan (4.323), Vulnerability Scanner (833) & 27.363 & 4,65\% \\ \hline
+Intercepção / MitM & MITM (2.746), MITM ARP Spoofing (3.112) & 5.858 & 0,99\% \\ \hline
+Malware Avançado & Backdoor (5.912), Ransomware (3.203) & 9.115 & 1,55\% \\ \hline
+\multirow{2}{*}{\shortstack[l]{Força Bruta e\\Autenticação}} & Sparta SSH Brute Force (49.269), Password Attack (26.257), Dictionary Brute Force (3.364), Telnet Brute Force (135) & 79.025 & 13,42\% \\ \hline
+Ataques Web / Upload & SQL Injection (1.750), XSS (49.661), Uploading Attack (724) & 52.135 & 8,85\% \\ \hline
+\multicolumn{2}{|l|}{\textbf{Total de Instâncias Avaliadas}} & \textbf{588.930} & \textbf{100,00\%} \\ \hline
+\end{tabularx}
+\fonte{Elaborado pelo autor (2026), com base em \citeonline{sasi2025efficient} e metadados de execução.}
+\end{quadro}
+
+
+\subsection{UNSW-NB15: Origem, Geração, Features e Estatísticas}
+\label{subsec:unsw_nb15}
+
+O conjunto de dados UNSW-NB15 foi concebido e disponibilizado em 2015 pelo \emph{Cyber Range Lab} do \emph{Australian Centre for Cyber Security} (ACCS), situado na Universidade de New South Wales (UNSW) em Canberra, Austrália \cite{moustafa2015unsw, standard2021}. O propósito de sua criação radicava na superação do descompasso técnico das bases KDD99 e NSL-KDD, provendo à comunidade acadêmica um repositório contemporâneo dotado de assinaturas de tráfego sintético combinadas a tráfego de fundo operacional realístico, acompanhado da carga útil (\emph{payload}) completa de pacotes.
+
+\subsubsection{Ambiente de Simulação e Infraestrutura de Captura}
+
+A produção do UNSW-NB15 baseou-se na plataforma de emulação de tráfego de alta densidade **IXIA PerfectStorm**, uma solução de hardware dedicada a testes de estresse e resiliência em equipamentos de telecomunicações corporativos e militares \cite{moustafa2015unsw}.
+
+A arquitetura física do laboratório compreendeu:
+\begin{itemize}
+    \item Dois servidores dedicados conectados à plataforma de emulação IXIA, responsáveis pela injeção coordenada de atividades benignas e vetores de exploração cibernética contemporâneos;
+    \item Um terceiro servidor operando como nó roteador e receptor dos fluxos de tráfego cruzados;
+    \item Segmentação de tráfego em canais Gigabit Ethernet através de switches gerenciáveis dotados de espelhamento transparente;
+    \item Captura integral de pacotes via ferramenta `tcpdump`, operada em duas sessões contínuas: uma sessão de 16 horas em 22 de janeiro de 2015 e uma sessão complementar de 15 horas em 17 de fevereiro de 2015, resultando em aproximadamente 100~gigabytes de tráfego bruto compactado em formato PCAP.
+\end{itemize}
+
+\subsubsection{Taxonomia das Classes de Ataque}
+
+O conjunto de dados abrange nove famílias consolidadas de ataques cibernéticos modernos, além de uma classe dedicada ao tráfego legítimo (\emph{Benign}) \cite{moustafa2015unsw, standard2021}:
+\begin{enumerate}
+    \item \textbf{Fuzzers:} disparos massivos de mensagens com campos propositalmente corrompidos, comprimentos discrepantes ou dados aleatórios destinados a induzir falhas de segmentação, estouros de pilha (\emph{buffer overflow}) ou desvios inesperados na lógica de execução de programas receptores;
+    \item \textbf{Analysis:} procedimentos de sondagem e reconhecimento focados em serviços de aplicação e páginas web, tais como injeção de parâmetros em cabeçalhos HTTP, varreduras pontuais de diretórios e exploração de relatórios de erro para levantamento de falhas estruturais;
+    \item \textbf{Backdoors:} comunicações furtivas que visam estabelecer e manter portas dos fundos em sistemas previamente comprometidos, possibilitando acesso remoto privilegiado sem a necessidade de autenticação tradicional;
+    \item \textbf{Denial of Service (DoS):} tentativas deliberadas de esgotamento de recursos computacionais críticos (memória, núcleos de processamento ou largura de banda de rede) em servidores alvos, impedindo o atendimento de solicitações de clientes legítimos;
+    \item \textbf{Exploits:} execuções direcionadas de rotinas automatizadas que exploram vulnerabilidades documentadas em softwares, bibliotecas e sistemas operacionais (catalogadas sob identificadores CVE);
+    \item \textbf{Generic:} procedimentos de ataque genéricos que operam independentemente da implementação da aplicação alvo, tais como ataques criptográficos contra cifras de bloco e colisões induzidas em tabelas de dispersão (\emph{hash});
+    \item \textbf{Reconnaissance:} ações preliminares de varredura ativa (\emph{scans}) e enumeração de topologia, destinadas a identificar portas abertas, versões de serviços e nós acessíveis na rede local;
+    \item \textbf{Shellcode:} injeções compactas de código de máquina binário em áreas vulneráveis de memória com o intuito de invocar uma linha de comando com privilégios de superusuário (\emph{root shell});
+    \item \textbf{Worms:} códigos maliciosos autônomos providos de mecanismos de replicação automática através da rede, os quais propagam cópias de si mesmos explorando portas de comunicação abertas em outros nós.
+\end{enumerate}
+
+\subsubsection{Espaço de Atributos e Alinhamento no ALF-MoE}
+
+Na versão original concebida por \citeonline{moustafa2015unsw}, a extração dos atributos a partir dos arquivos PCAP combinou as ferramentas de monitoramento de fluxo Argus e Bro-IDS (atualmente denominado Zeek), associadas a doze rotinas de agregação em linguagem SQL, totalizando 49 atributos divididos em cinco grupos funcionais:
+\begin{itemize}
+    \item \emph{Flow features} (4 atributos): tempos de início/fim e métricas fundamentais de identificação;
+    \item \emph{Basic features} (9 atributos): propriedades elementares de cabeçalho TCP/IP (protocolo, estado, contagens e tamanhos);
+    \item \emph{Content features} (8 atributos): características contextuais da carga útil (janelas TCP, profundidade HTTP, transferências FTP);
+    \item \emph{Time features} (9 atributos): intervalos IAT e taxas temporais de transferência;
+    \item \emph{Additional generated features} (19 atributos): variáveis de histórico relacional construídas sobre janelas deslizantes de 100 conexões e intervalos temporais de 100 segundos.
+\end{itemize}
+
+Com vistas a assegurar a consistência do modelo proposto e harmonizar o espaço de entrada entre os múltiplos especialistas da arquitetura ALF-MoE, este trabalho adota a versão do dataset alinhada ao padrão CICFlowMeter, designada \emph{CIC-UNSW-NB15}. Por meio dessa extração, as conexões brutas dos PCAPs originais da UNSW são representadas pelas mesmas estatísticas de fluxo bidirecional empregadas nos demais benchmarks. Após a eliminação de constantes nulas e identificadores triviais, a base consolidou 66 atributos estatísticos contínuos.
+
+\subsubsection{Estatísticas e Distribuição Amostral}
+
+Em sua composição original integral, o UNSW-NB15 totaliza 2.540.044 fluxos de rede, sendo 2.218.761 instâncias benignas (87,35\%) e 321.283 instâncias de ataque (12,65\%) \cite{standard2021}. Para a realização dos ensaios de avaliação de generalização sob a versão CIC-UNSW-NB15, a partição estratificada de teste consolidou 19.858 amostras representativas abrangendo as dez classes. A Tabela~\ref{tab:distribuicao_unswnb15} apresenta a distribuição detalhada de amostras, classes e proporções avaliadas.
+
+\begin{table}[htb]
+\centering
+\caption{Distribuição de classes e suporte amostral no benchmark CIC-UNSW-NB15.}
+\label{tab:distribuicao_unswnb15}
+\small
+\begin{tabularx}{\textwidth}{|c|l|X|r|r|}
+\hline
+\textbf{ID} & \textbf{Classe} & \textbf{Descrição do Vetor de Ameaça} & \textbf{Amostras (Teste)} & \textbf{Proporção (\%)} \\ \hline
+0 & Analysis & Varreduras de portas e testes de injeção web & 69 & 0,35\% \\ \hline
+1 & Backdoor & Portas dos fundos e canais de acesso furtivo & 87 & 0,44\% \\ \hline
+2 & Benign & Conexões legítimas de rede corporativa & 3.772 & 18,99\% \\ \hline
+3 & DoS & Esgotamento e saturação de recursos computacionais & 863 & 4,35\% \\ \hline
+4 & Exploits & Exploração direcionada de vulnerabilidades de software & 6.016 & 30,30\% \\ \hline
+5 & Fuzzers & Pacotes malformados para indução de falhas e travamentos & 5.332 & 26,85\% \\ \hline
+6 & Generic & Colisões criptográficas e ataques genéricos de bloco & 909 & 4,58\% \\ \hline
+7 & Reconnaissance & Mapeamento de topologia e enumeração de serviços & 2.364 & 11,90\% \\ \hline
+8 & Shellcode & Payloads binários para obtenção de shell privilegiada & 394 & 1,98\% \\ \hline
+9 & Worms & Códigos maliciosos autorreplicáveis via rede & 52 & 0,26\% \\ \hline
+\multicolumn{3}{|l|}{\textbf{Total de Instâncias Avaliadas}} & \textbf{19.858} & \textbf{100,00\%} \\ \hline
+\end{tabularx}
+\fonte{Elaborado pelo autor (2026), com base em \citeonline{moustafa2015unsw} e relatórios do projeto.}
+\end{table}
+
+
+% =========================================================================================
+% SEÇÕES RESERVADAS - AGUARDANDO CONCLUSÃO DOS TESTES EXPERIMENTAIS EM ANDAMENTO
+% =========================================================================================
+
+\section{Pipeline de Pré-processamento e Engenharia de Features}
+\label{sec:preprocessamento}
+% [Seção reservada - aguardando conclusão dos testes experimentais]
+
+\subsection{Seleção, Normalização e Codificação}
+\label{subsec:selecao_normalizacao}
+% [Seção reservada - aguardando conclusão dos testes experimentais]
+
+\subsection{Tratamento de Desbalanceamento de Classes}
+\label{subsec:desbalanceamento}
+% [Seção reservada - aguardando conclusão dos testes experimentais]
+
+\section{Arquitetura Proposta: ALF-MoE}
+\label{sec:arquitetura_proposta}
+% [Seção reservada - aguardando conclusão dos testes experimentais]
+
+\subsection{Visão Geral do Sistema e Fluxo de Dados}
+\label{subsec:visao_geral_alfmoe}
+% [Seção reservada - aguardando conclusão dos testes experimentais]
+
+\subsection{Modelos Especialistas (DNN, CNN, GRU, CAE, LSTM)}
+\label{subsec:especialistas}
+% [Seção reservada - aguardando conclusão dos testes experimentais]
+
+\subsection{Gating Network}
+\label{subsec:gating_network}
+% [Seção reservada - aguardando conclusão dos testes experimentais]
+
+\subsection{Mecanismo Attention-based Learnable Fusion (ALF)}
+\label{subsec:mecanismo_alf}
+% [Seção reservada - aguardando conclusão dos testes experimentais]
+
+\section{Protocolo Experimental de Treinamento e Avaliação}
+\label{sec:protocolo_experimental}
+% [Seção reservada - aguardando conclusão dos testes experimentais]
+
+\subsection{Funções de Perda e Otimização}
+\label{subsec:funcoes_perda}
+% [Seção reservada - aguardando conclusão dos testes experimentais]
+
+\subsection{Métricas de Avaliação (Acurácia, Precision, Recall, F1-Score, Latência)}
+\label{subsec:metricas_avaliacao}
+% [Seção reservada - aguardando conclusão dos testes experimentais]

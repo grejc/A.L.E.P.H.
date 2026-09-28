@@ -1,0 +1,1075 @@
+P4-NIDS: High-Performance Network
+Monitoring and Intrusion Detection in P4
+
+arXiv:2411.17987v2 [cs.NI] 23 Dec 2024
+
+Yaying Chen1 , Siamak Layeghy1 , Liam Daly Manocchio1 , and Marius
+Portmann1
+School of EECS, The University of Queensland, Brisbane, QLD, 4072, Australia
+yaying.chen@uq.net.au, siamak.layeghy@uq.net.au, liam@riftcs.com and
+marius@ieee.org
+
+Abstract. This paper presents a high-performance, scalable network
+monitoring and intrusion detection system (IDS) implemented in P4.
+The proposed solution is designed for high-performance environments
+such as cloud data centers, where ultra-low latency, high bandwidth,
+and resilient infrastructure are essential. Existing state-of-the-art (SoA)
+solutions, which rely on traditional out-of-band monitoring and intrusion detection techniques, often struggle to achieve the necessary latency and scalability in large-scale, high-speed networks. Unlike these
+approaches, our in-band solution provides a more efficient, scalable alternative that meets the performance needs of Terabit networks. Our
+monitoring component captures extended NetFlow v9 features at wire
+speed, while the in-band IDS achieves high-accuracy detection without
+compromising on performance. In evaluations on real-world P4 hardware,
+both the NetFlow monitoring and IDS components maintain negligible
+impact on throughput, even at traffic rates up to 8 million packets per
+second (mpps). This performance surpasses SoA in terms of accuracy and
+throughput efficiency, ensuring that our solution meets the requirements
+of large-scale, high-performance environments.
+
+Keywords: P4 programming, Network Monitoring, Intrusion Detection, Software Defined Networking, High Performance Networking
+
+1
+
+Introduction
+
+High-performance networks should be able to transfer vast amounts of data
+with very minimal delays, usually in the order of microseconds, so that realtime applications in areas such as cloud computing are realised. They must meet
+strict requirements to support modern applications and services, including ultralow latency, high bandwidth, scalability, and resilience [1]. In addition, these
+networks need to maintain consistent performance under varying load conditions
+and scale effectively to handle increasing traffic demands. Robust security and
+intrusion detection are essential to protect sensitive data and ensure operational
+integrity against ongoing cyber threats. Equally important is efficient resource
+
+2
+
+Yaying Chen et al.
+
+management, achieved through advanced monitoring to optimise performance
+and resource allocation [2].
+To meet these requirements, advanced monitoring techniques are essential
+for keeping high-performance networks running smoothly. Real-time visibility
+allows for the immediate identification and response to potential issues before
+they impact users. This includes monitoring network traffic patterns, device performance, and application behaviour [3]. Telemetry data from various network
+elements provides valuable insights for capacity planning and performance optimisation. Additionally, end-to-end monitoring across the entire network path
+aids in troubleshooting complex issues in distributed environments [4].
+Similarly, intrusion detection plays a critical role in enforcing security measures. Modern intrusion detection techniques go beyond simple port-based methods, which only check port numbers assigned to specific applications. Instead
+they incorporate Deep Packet Inspection (DPI) and machine learning (ML) algorithms to accurately identify application types and traffic patterns. Traffic
+flows, in particular, are widely used for network traffic analysis to extract information related to applications based on their network behaviour. However, in
+high-performance networks, real-time intrusion detection that enables dynamic
+policy enforcement and mitigates security threats remains a challenging problem [5, 6].
+P4 (Programming Protocol-independent Packet Processors) [7] is a domainspecific language designed to specify how packets are processed by the data
+planes of network forwarding elements. Its introduction brought a revolutionary
+approach to networking and network management by enabling the programming of data planes [8]. This programmability empowers network operators to
+define custom packet processing logic directly within network devices, unlocking
+new possibilities for fine-grained traffic analysis and adaptive monitoring. An
+additional advantage of P4 is its protocol independence, ensuring that solutions
+developed with it are future-proof, capable of adapting to new network protocols
+and evolving traffic patterns. This makes P4 a strong foundation for achieving
+high performance in network management.
+While P4 offers significant advantages for monitoring and intrusion detection, it also has several limitations [9]. First, the memory and processing capabilities available in hardware switches for P4 are limited [10], which restricts the
+complexity of monitoring and classification algorithms that can be implemented
+directly in the data plane. As a result, more complex analysis often needs to be
+offloaded to external systems, which can introduce additional latency and reduce
+real-time responsiveness. Secondly, since P4 focuses on packet-level processing,
+maintaining state across multiple packets-essential for many advanced intrusion
+detection techniques-becomes challenging [11].
+This research proposes a P4-based monitoring and intrusion detection solution for high-performance networks, designed to operate within SDN data plane
+limitations. Our monitoring solution captures NetFlow [12] data with enhanced
+v.9 features, not found in previous solutions, and runs at wire speed, making it
+ideal for Terabit networks. We also implement a lightweight, flow-based intrusion
+
+P4-NIDS, Intrusion Detection in P4
+
+3
+
+detection system, as proposed in [13], within P4. This system uses NetFlow data
+from our monitoring module, addressing the need for cross-packet state tracking.
+The main contributions of this research can be summarised as:
+– Development of a high-performance, in-band network monitoring
+solution in P4
+We design and implement a NetFlow exporter capable of generating advanced NetFlow v.9 fields, which is not typically available in standard solutions. This exporter operates at wire speed and is capable of providing
+real-time network traffic visibility, offering a more scalable and efficient alternative to traditional out-of-band solutions.
+– In-band implementation of a lightweight and efficient NIDS in P4
+Our NIDS solution operates directly within the data plane, independent of
+the SDN controller, offering low-latency, high-throughput security monitoring. This approach improves real-time detection capabilities without compromising overall network performance.
+– Comprehensive performance evaluation in a 40 Gbps P4 hardware
+We assess both the NetFlow exporter and the NIDS in terms of computational overhead and impact on throughput. Our solution is capable of processing traffic rates up to 8 million packets per second (mpps) with minimal
+impact on throughput, even when both modules are active. By comparing
+our approach with state-of-the-art solutions, we demonstrate the superior
+efficiency and scalability of our solution for high-speed networks.
+The rest of this paper is organised as follows: Section 2 provides an overview of
+P4 programming and the NetFlow format. Section 3 discusses previous research
+in the fields of in-band network monitoring and intrusion detection, analysing
+their strengths and limitations. The following section outlines the methodology for in-band NetFlow generation and NIDS implementation in P4. Section 5
+presents an evaluation of the proposed solutions, first in an emulated network
+environment and then on a 40 Gbps P4 hardware setup, with results for each
+experimental configuration. Finally, Section 6 summaries the key findings and
+concludes the paper.
+
+2
+
+Background
+
+2.1
+
+P4 Programming
+
+The Programming Protocol-independent Packet Processors (P4) is an opensource SDN data plane programming language that was introduced in 2014
+with the aim of providing reconfigurability in the field, protocol independence,
+and target independence. This indicates that P4 programmers should have the
+capability to modify how switches handle packets after they are deployed. It
+suggests that switches should not be restricted to particular network protocols,
+and programmers should have the freedom to define packet-processing functions
+regardless of the complex details of the hardware they are built upon [7].
+
+4
+
+Yaying Chen et al.
+
+Through the separation of packet processing logic from hardware, P4 empowers devices to accommodate diverse networking protocols and provides developers with the flexibility to adjust device behavior without hardware modifications.
+This decoupling promotes innovation and adaptability in networking, enabling
+developers to explore new protocols, enhance network performance, and create
+tailored traffic management policies. Additionally, P4 facilitates the prototyping and implementation of novel networking features, enabling rapid iteration
+on designs without extensive hardware alterations. This speeds up development
+timelines and facilitates quicker deployment of advanced networking functionalities and services, providing more agile and effective network infrastructures.
+The P4 ecosystem provides a comprehensive suite of tools, compilers, libraries, and targets for the development, testing, and deployment of P4-based
+network functions. There are some critical components within that ecosystem
+and the language itself, which play a very important role in materializing programmable network infrastructure. These key elements are explained as follows:
+
+– P4 Language: At the core is the P4 language, which provides a protocolindependent and very flexible way of specifying packet processing behavior
+to network engineers or developers. P4 abstracts the hardware specification
+and hence makes it possible to program network equipment for specific use
+cases and requirements.
+– P4 Compiler: The P4 compiler, developed at ETH [14], is a member of
+the family of portable compilers that translate high-level P4 programs into
+lower-level, target-specific implementations. Optimizations are created, and
+configurations are generated for specific devices in order to guarantee efficient
+packet processing. P4 conformance, which means conformance of a target to
+the language specification with respect to syntax, semantics, and features
+of P4, is quite important for the correct interpretation and execution of P4
+programs.
+– P4 Runtime Environment: P4Runtime is a protocol-agnostic API that
+allows field reconfigurability. In particular, it offers the following abilities:
+dynamic deployment of a new P4 forwarding plane onto devices without
+needing code recompilation [15]. Network operators can update packet processing logic dynamically without any disruption to operations.
+– P4 Targets: These are the platforms (hardware or software) on which
+P4 programs can be run. They include programmable Application-Specific
+Integrated Circuits, FPGA-based SmartNICs, software switches like Open
+vSwitch, and Programmable Network Processors [16].
+– P4 Tools and Utilities: These are a raft of resources to help develop and
+debug P4 programs provided by P4 community. These range from debuggers,
+packet trace analysis tools, libraries, frameworks that enable many common
+networking tasks and protocols using the P4 language and simulation software.
+
+P4-NIDS, Intrusion Detection in P4
+
+2.2
+
+5
+
+NetFlow
+
+Network management and security require the collection and analysis of network
+traffic. There are three main approaches to network data collection. At one end of
+the spectrum is the collection of high-level information related to network device
+management. An example of this approach is the Simple Network Management
+Protocol (SNMP), an internet standard for monitoring and managing network
+devices. SNMP allows network administrators to gather information about network devices, such as routers, switches, servers, and printers, by polling these
+devices for various metrics such as bandwidth usage, interface errors, and CPU
+load. This approach provides a basic overview of network health and performance but lacks the detailed information needed for many network security and
+troubleshooting operations.
+On the other end of the spectrum is packet capturing, where all traffic packets passing through monitoring points are collected and recorded. While this
+method provides much more detailed and useful information compared to the
+first approach, it is almost impractical in large-scale real-world networks due
+to the storage requirements and concerns regarding the privacy and security of
+network users and servers.
+The third approach involves summarising network traffic statistics as network
+flows, balancing between the detailed but storage-intensive packet capturing and
+the high-level statistics of SNMP-like protocols. Network flows are identified by
+common attributes known as the five-tuple, including source and destination IP
+addresses, L4 (transport layer) ports, and the L4 protocol, representing a series
+of packets. This approach is widely adopted in the networking industry for its
+scalability and practicality.
+Accordingly, all major producers of network devices have developed or
+adopted methods for network flow collection. For example, Huawei uses the NetStream protocol, Juniper uses Jflow, Alcatel uses cflow, and s-flow is employed by
+several large network device manufacturers. However, the most widely adopted
+network flow collection protocol is Cisco’s NetFlow, proposed in 1996 by Darren
+and Barry Bruins [17]. NetFlow is also the basis for an Internet Engineering
+Task Force (IETF) standard for flow information, known as Internet Protocol
+Flow Information Export (IPFIX). There are different versions of the NetFlow
+protocol that provide varying levels of information about network traffic. While
+NetFlow version 5 is unidirectional with a limited set of features, NetFlow version 9, the most common version, offers bi-directional flow information with a
+much broader set of features [18].
+
+3
+
+Related Work
+
+Since the proposed method for intrusion detection in this research is flow-based,
+and we have also developed a method for in-band NetFlow generation/extraction, we review the related works in both fields. First, we focus on prior approaches to in-band NetFlow generation, then we examine existing in-band flowbased intrusion detection systems, highlighting the techniques and models they
+employ to establish the context and limitations that our work addresses.
+
+6
+
+3.1
+
+Yaying Chen et al.
+
+In-band Network Monitoring
+
+FlowStalker [19] is proposed to enhance the ability of monitoring traffic flows
+directly on the data plane, without relying on external controllers or middleboxes. The main idea is to leverage P4 to monitor network flows directly on the
+data plane. FlowStalker allows for capturing a wide range of metrics, including
+packet counts, byte counts, and a few other flow statistics. While FlowStalker
+brings flexibility to directly monitor a wide range of traffic metrics on the data
+plane, it does so at an extra cost with respect to management and optimisation of the monitoring rules. This extra complexity is more critical in large-scale
+network environments that are dynamic in nature, with traffic patterns constantly changing with a high number of flows. Additionally, FlowStalker has
+not been evaluated on real-world hardware, as the authors relied exclusively on
+BMv2 [20], a P4 software switch that does not fully capture the constraints and
+performance characteristics of production-grade devices. This gap leaves open
+questions about how well FlowStalker would scale under the resource limitations
+and high-throughput demands of actual hardware environments.
+P4Flow [21], proposes a flow monitoring tool for cloud provider networks
+implemented on programmable data planes. It allows the providers to monitor
+a set of desired flows according to their needs, offering more granular control
+over what is monitored and how data is collected. The system is designed to
+operate without the need for extensive controller intervention, enabling monitoring directly on the network switches. While it is claimed that P4Flow can
+reduce the overhead of reporting the flow statistics by considering the properties
+of the inter-node links such as delay and bandwidth, they have not included
+the effect of monitoring flows via P4Flow on throughput or other resources. Although P4Flow is powerful in monitoring network traffic, it comes at a high
+resource cost in terms of memory, processing power, and other resources on the
+switch, which might be exhausted and hence limit its deployment, especially
+on resource-constrained environments. Network operators need to manage these
+resources cautiously, probably at the cost of monitoring details versus total network performance, to let P4Flow be effectively deployed without overwhelming
+the underlying hardware.
+P4-based Proactive Monitoring (PPM) [22] adopts a proactive approach to
+enhance the efficiency of monitoring collection operations. It collects and processes network data in real time directly within the network devices. This is
+in contrast to traditional reactive monitoring schemes that rely on the central
+controller to request data from switches. PPM allows programmable switches
+to proactively forward monitoring information to the controller after the controller enables PPM. The measurement results show that PPM can not only
+enhance the efficiency of collecting monitoring information by applying a proactive mechanism but also minimise the general monitoring overhead compared to
+the polling-based methods. However, PPM still requires the SDN controller as
+coordinator and while the scheme reduces direct dependence on the controller,
+the controller still plays an essential role as a coordinator. It can configure the
+P4 programs deployed on the switches and set policies that dictate how monitor-
+
+P4-NIDS, Intrusion Detection in P4
+
+7
+
+ing should be conducted. In addition, the performance evaluation with realistic
+traffic rates is missing in this research.
+
+3.2
+
+In-band Intrusion Detection
+
+IISY [23] explores using commodity programmable switches for in-network classification. While it is not designed as an NIDS, it could feasibly be adapted for
+this purpose. It focuses on mapping trained machine learning models to matchaction pipelines, and introduces a prototype named In-network Inference made
+easy(IIsy). Support for the integration of four machine learning models at the
+data plane level: decision trees, support vector machines, K-means, is illustrated.
+The authors also discuss the adaptability of their approach to various targets
+and suggest that their solution can be extended to include additional machine
+learning algorithms. However, the approach is inherently limited in accuracy due
+to the types of features it can extract. This restriction can impact the reliability
+of the classification process. Also, deploying updates to classification models requires changes through the control plane, which could add complexity and delay
+in adapting to new requirements or improving model performance.
+Researchers at Purdue University proposed Leo [24] for online intrusion detection capable of handling multi-terabit line rates. It employs a machine learning model that operates within the data plane of network switches. In order
+to achieve higher speeds, Leo restricts the number of features used for packet
+classification to 10, and this limitation affects the accuracy of classification for
+complex traffic patterns. In addition, while Leo supports deeper trees than many
+previous systems (up to depth in TCAMs), it still relies on balancing between
+tree depth and accuracy, which could lead to performance issues if the depth
+is insufficient for certain classification tasks. In summary, while Leo presents a
+promising approach to online intrusion detection, its limited classification accuracy highlights the need for alternative solutions in this field.
+MAP4 [25] is a framework designed to explore the feasibility of deploying
+ML models in programmable network devices. It deploys a pre-trained DecisionTree model into a programmable switch, allowing for accurate flow classification
+at line rate. The results demonstrate that most flows can be correctly classified with just a few packets. In some scenarios, 97% of the traffic is accurately
+classified with only two packets per flow, while all traffic classes are correctly
+labelled using a maximum of four packets. However, the MAP4 framework requires a concurrency control mechanism implemented in Micro C language to
+prevent race conditions arising from parallel packet processing. This reliance on
+an external component introduces a dependency outside the P4 ecosystem and
+could limit portability across different hardware platforms.
+In order to address the shortcomings of the previous systems, as explained
+above, this paper proposes an approach for both network monitoring and intrusion detection, implemented purely in P4, with no use of the SDN controller or
+reliance on any other languages.
+
+8
+
+Yaying Chen et al.
+Controller
+
+Controller (P4-Util)
+
+Programmable Data Plane
+
+BMv2 Switch
+
+NetFlow Generator
+
+Network Traffic
+Packet
+
+Machine Learning
+Model
+
+Label
+
+NetFlow Generator
+
+Network Traffic
+Packet
+
+Machine Learning
+Model
+
+Label
+
+Fig. 1. P4-NIDS architecture in left) Hardware data plane and Right) BMv2 emulation
+environment
+
+4
+
+Method
+
+Figure 1 shows the overall architecture of the proposed solution for both
+hardware-based and emulation-based implementation. The left figure shows the
+implementation in a P4-compatible hardware data plane, and the right figure
+shows the implementation in BMv2 emulation environment. As can be seen, in
+both implementations there are two main components: a NetFlow generator/exporter and a pre-trained ML model. In this section, we initially explain the
+NetFlow generator/exporter implementation, then we discuss the implementation of the pre-trained ML model.
+4.1
+
+NetFlow Generator in P4
+
+Upon arrival at a switch port, each packet is processed by the NetFlow Generator component, which logs flows using a Flow ID. This Flow ID is derived
+from applying a hash function to the packet’s 5-tuple (destination IP, source IP,
+destination port, source port, and protocol). The Flow ID serves as a key for
+accessing entries in the NetFlow Table (Figure 2) within the P4 Switch. This
+table is organised as an array of registers, where each unique NetFlow field is
+stored in its own designated P4 Register. When flows are analysed for intrusion
+
+Fig. 2. NetFlow Table, and fields used to create the hash value for a flow entry
+
+P4-NIDS, Intrusion Detection in P4
+
+9
+
+detection, e.g., by an ML-based NIDS, these registers can be accessed by the ML
+model directly on the data plane. Currently, the system supports 12 NetFlow
+fields [26] , enabling the necessary features for an ML-based NIDS. Additional
+NetFlow fields could be generated similarly if required.
+Furthermore, these registers are accessible from the control plane using the
+P4-Utils [27] API, allowing periodic exports as CSV files or transmission to an
+external NetFlow collector server. This module can therefore function independently as a P4-implemented NetFlow Exporter.
+4.2
+
+ML-based NIDS in P4
+
+The P4 language is designed mainly for packet processing but has several limitations that make it difficult to implement most machine learning models. P4 lacks
+general-purpose computation features like variables, loops, and functions. It also
+has limited memory and stateful processing because it relies on basic registerbased storage, and it does not support floating-point arithmetic or complex data
+types, which are essential for many machine learning tasks. Furthermore, P4’s
+control flow is not flexible enough to handle the complex logic needed for machine
+learning models, such as recursive functions or deep learning architectures. The
+absence of built-in machine learning libraries adds to the challenge, requiring
+developers to implement fundamental algorithms from scratch. [8].
+While P4 has limitations, it is still possible to implement certain models,
+such as Decision Tree classifiers, Random Forests, and simple regression models
+using its available instruction set. While simple neural network models have also
+been implemented in P4 environments, this was made possible by extending the
+basic capabilities with custom data structures, specialised processing pipelines,
+and leveraging additional hardware resources such as lookup tables (LUTs) and
+parallel processing [28]. Given that P4 offers minimal support for training machine learning models, we can only deploy pre-trained models. For the purpose of
+network intrusion detection, we used a pre-trained DT model, as proposed and
+evaluated in [13], to illustrate the feasibility of implementing an efficient in-band
+NIDS that can work in high throughput environments. This pre-trained Decision
+Tree classifier was selected because of its efficient design, which delivers strong
+classification performance across several publicly available benchmark datasets,
+making it a practical choice within P4’s constraints for high-performance network traffic analysis.
+The adopted DT classifier is a NetFlow-based NIDS that uses NetFlow fields
+to form the conditions within if-else statements. Given P4’s limited expressiveness and control flow capabilities, it is notable that the language still supports
+the use of multiple if-else statements, allowing for the implementation of this
+DT model. The main part of the DT classifier code, as implemented in our P4
+program, is shown in code listing 1.1. In this implementation, NetFlow fields,
+read from P4 registers, are distributed across the if-else statements based on the
+conditions defined by the pre-trained DT model, as proposed in [13]. Despite
+P4’s constraints, this approach effectively leverages the language’s capabilities
+to achieve the desired network intrusion detection.
+
+10
+
+Yaying Chen et al.
+
+Listing 1.1. Decision Tree Implementation in P4
+1
+
+...
+
+2
+
+bit<32> IN PKTS;//1
+
+3
+
+bit<16> MIN IP PKT LEN;//5
+
+4
+
+...
+
+5
+
+bit<16> L4 DST PORT;//17
+
+6
+
+bit<16> L4 SRC PORT;//18
+
+7
+
+received packet counter.read(IN PKTS,current flow id);
+
+8
+
+...
+
+9
+
+dstport register.read(L4 DST PORT,current flow id);
+
+10
+
+srcport register.read(L4 SRC PORT,current flow id);
+
+11
+
+if(TCP WIN MAX OUT <= 26865) {
+if(NUM PKTS 1024 TO 1514 BYTES <= 120) {
+
+12
+
+if(IN PKTS <= 45) {
+
+13
+
+if(MIN TTL <= 36) {
+
+14
+15
+
+if(TCP WIN MAX OUT <= 2) {
+
+16
+
+malicious flag register.write(current flow id,1);
+
+17
+
+} else {
+
+18
+
+...
+
+19
+
+} else {
+
+malicious flag register.write(current flow id,0);
+
+20
+
+...
+
+21
+
+5
+
+Evaluation and Results
+
+In this study, we conducted two sets of experiments. The first set involved using
+an emulated network environment to validate the proof of concept and compare the performance of our model with previous solutions that were evaluated
+solely in emulated environments. In the second phase, we used a real-world P4compatible hardware setup to assess the system’s performance under practical
+conditions, offering a more accurate measure of its effectiveness and scalability
+evaluated on a real-world P4-compatible hardware setup.
+5.1
+
+Emulated Environment
+
+Experimental Setup Figure 3 illustrates the emulated network used in this
+study. For our emulated network setup, we utilised a Dell Optiplex 7070 machine
+equipped with an Intel Core i7-9700 CPU operating at 3.00 GHz and 24GB of
+DDR4 2666 MHz RAM. The host operating system was a Desktop Ubuntu
+22.04 (kernel 6.5.0-25-generic). All experiments were conducted on a VirtualBox
+
+P4-NIDS, Intrusion Detection in P4
+
+11
+
+eth0
+
+DDoS Traffic
+
+P1
+P3
+P2 BMV2 Switch
+
+eth0
+
+Target Host
+
+eth0
+
+UQ Traffic
+
+Mininet Environment
+Fig. 3. Emulated network setup
+
+VM configured with 6 virtual CPU core (100% capacity) and 8 GB RAM, running Desktop Ubuntu 16.04 (Kernel 4.4.0-150-generic). The network elements,
+including clients and servers for both benign and attack traffic, as well as the
+target host, were created using the Mininet network emulator [29]. Mininet is
+the standard emulation tool employed by the P4 consortium to test P4 program
+functionalities.
+We implemented our DT classifier in the P4 software switch, BMV2 [20],
+based on P4-16 [30] with P4-Utils [27]. For the performance and overhead evaluation of the implemented modules, the NetFlow exporter and DT-based classifier
+we used iperf [31].
+Performance Evaluation To evaluate the scalability of the proposed solution,
+we started by setting a baseline, measuring the system’s initial performance metrics. Following this, we applied our proposed algorithms to observe any changes
+in performance. Accordingly, Our experiments included three different scenarios
+to thoroughly evaluate the system’s behaviour:
+1. Basic Port Forwarding: In this scenario, only a simple port forwarding
+setup is implemented. All packets arriving at either port P1 or P2 are forwarded to port P3, and vice versa, with no additional processing.
+2. NetFlow Generation Enabled: In this case, we enabled NetFlow generation for the packets being forwarded between switch ports.
+3. DT-based NIDS Enabled: Finally, in this scenario, we activated the DTbased NIDS, which is responsible for classifying network traffic flows as either
+benign or potentially malicious.
+Throughout all three scenarios, the CPU utilisation consistently remained at
+0.3%, indicating that the added NetFlow exporter and DT-based classifier modules impose a minimal load on the processor when emulated on the BMv2 switch.
+This suggests that our additional modules scale efficiently without overloading
+the system’s CPU.
+
+12
+
+Yaying Chen et al.
+
+P4-NIDS
+
+FlowStalker
+
+Throughput MBits / Second
+
+80
+
+60
+
+40
+
+20
+
+0
+0
+
+5
+
+7
+
+9
+
+11
+
+Number of NetFlow Fields
+
+Fig. 4. Throughput comparison of P4-NIDS and FlowStalker by NetFlow features
+
+For comparison, we used two recent implementation of similar approaches in
+P4. As highlighted in the related work, FlowStalker [19] represents the current
+state-of-the-art in flow extraction schemes within P4, and we use it to benchmark
+the performance of our NetFlow extraction module.
+Figure 4 shows the throughput of our proposed NetFlow exporter for different
+number of features, side by side with that of FlowStalker [19]. For this comparison we used similar computational resources and both solutions are evaluated
+in BMv2 switch. As can be seen, under the similar condition, the throughput of
+our solution is about 4 times more than that of FlowStalker [19].
+
+P4-NIDS
+
+FlowStalker
+
+5
+
+7
+
+0.125
+
+Drop of Throughput %
+
+0.100
+
+0.075
+
+0.050
+
+0.025
+
+0.000
+0
+
+9
+
+11
+
+Number of NetFlow Fields
+
+Fig. 5. Throughput drop of P4-NIDS and FlowStalker by NetFlow features
+
+P4-NIDS, Intrusion Detection in P4
+
+13
+
+Table 1. Classification performance (F1-score) on different datasets
+
+Solution
+Leo-SRAM
+Leo-TCAM
+Our solution (BMv2)
+
+UNSW-NB15 CIC-2018/2017
+F1-score
+F1-score
+92.00
+93.00
+93.00
+99.00
+99.76
+98.09
+
+Similarly, Figure 5 shows the drop in throughput due to increasing the number of exported NetFlow fields for both our solution and FlowStalker. As can be
+seen, for the equal number of NetFlow fields, our solution shows between 25%
+to 50% less throughput drop than those of FlowStalker.
+We also evaluated our solution’s classification performance using two
+widely recognised NIDS benchmarking datasets: CIC-IDS-2018 [32] and UNSWNB155 [33]. To assess the effectiveness of our DT-based classifier, we compared
+its F1-score with that of Leo, a recent solution implementing a similar pretrained DT classifier in P4 for network intrusion detection. Table 1 presents the
+F1-scores of our solution alongside Leo’s. Our DT-based classifier demonstrates
+significantly better performance on the UNSW-NB15 dataset. For the CIC-IDS
+dataset, we used CIC-IDS-2018, an improved version of CIC-IDS-2017 that addresses prior issues. While this comparison isn’t fully equivalent, our results show
+that our classifier’s F1-score outperforms Leo’s SRAM-based version and is only
+slightly lower than Leo’s TCAM-based implementation.
+5.2
+
+P4-compatible Hardware
+
+Experiment Setup Our hardware-based testbed consists of Host H1, Server
+S1 and Host H2, as shown in Figure 6.
+
+Host H1
+Traffic Generator
+
+Server S1
+P4 Switch
+
+Host H2
+Traffic Receiver
+
+Dell OptiPlex 7070
+
+Dell PowerEdge R630
+
+Dell OptiPlex 7040
+
+Linux Kernel
+Linux Kernel
+
+PktGen
+DPDK
+
+Intel-NIC 40G
+XL710-QDA2
+
+P4 NIDS
+
+P4
+SDK
+
+Netronome
+SmartNIC
+CX 2x 40GbE
+
+40G QSFP+ Passive Direct Attach Copper Cable
+
+Fig. 6. Hardware experiment setup
+
+Linux Kernel
+
+DPDK
+
+Intel-NIC 40G
+XL710-QDA2
+
+14
+
+Yaying Chen et al.
+
+Host H1: a Dell OptiPlex 7070 machine running an Intel Core i7-9700 CPU
+with a clock rate of 3.00 GHz, and 24GB RAM (DDR4 2666 MHz). The host
+operating system is a Desktop Ubuntu 22.04 (kernel 6.5.0-25-generic). At Host
+H1, we enable the Pktgen-DPDK [34] to achieve high-performance traffic replay
+and generation.
+Server S1: a Dell PowerEdge R630 machine running an Intel Core E5-2630
+CPU with a clock rate of 2.40 GHz. The host operating system is a Desktop
+Ubuntu 18.04 (kernel 4.15.0-142-generic). A Netronome CX Agilio 2x40GbE
+SmartNIC with a deployed firmware containing P4-NIDS program is inserted in
+the Server. This host is used to power, flash firmware, and configure the card.
+Host H2: a Dell OptiPlex 7040 machine running an Intel Core i7-6700 CPU
+with a clock rate of 3.40 GHz, and 15GB RAM. The host operating system is a
+Desktop Ubuntu 18.04 (kernel 5.4.0-84-generic). At Host H2, DPDK [35] is used
+to receive the traffic and measure the throughput.
+Performance Evaluation In order to evaluate the resource utilisation of P4NIDS, we use the same three scenarios explored in the emulated environment for
+the performance evaluation namely Basic Port Forwarding, NetFlow Generation
+Enabled and DT-based NIDS Enabled. For this purpose, we measured memory
+utilisation and throughput drop for each scenario.
+For memory utilisation measurement, we ran these scenarios in Program
+Studio [36], which is an integrated development environment (IDE) designed
+for developing and debugging networking applications on Netronome’s Network
+Flow Processors (NFPs) [37]. It offers a graphical interface that aligns with
+the standard look and feel of Microsoft Windows, allowing developers to customise their workspace to fit personal workflows and preferences. It generated
+the memory usage report providing comprehensive details about memory usage
+across various types of memories within the system, as explained below.
+– CTM (Cluster Target Memory):
+Fast memory is typically used for storing packet data or scratch space during
+packet processing.
+– IMEM (Instruction Memory):
+Memory used to store the program’s instructions. It indicates how much
+code is loaded in each memory island.
+– EMEM (External Memory):
+Memory outside the core processing area, generally used for larger buffers
+or data not requiring fast access.
+– CLS (CLS Memory):
+Memory used by the local packet processor, generally for storing state information during packet processing.
+– LM (Local Memory):
+Refers to memory used by the micro-engines (ME) in each island.
+– EMEM CACHE:
+Cache memory for EMEM, used to speed up access to external memory.
+
+P4-NIDS, Intrusion Detection in P4
+
+15
+
+Table 2. Resource utilisation on Netronome SmartNIC (CX 2x40GbE)
+Memory Parts
+
+Basic Forwarding P4-NetFlow P4-NIDS
+(MB)
+(MB)
+(MB)
+Cluster Target Memory
+0.828580
+0.828580
+0.828580
+Instruction Memory
+0.783440
+0.783440
+0.783440
+External Memory
+965.367812
+969.89096 969.89256
+Classifier Memory
+0.098848
+0.147232
+0.151552
+Local Memory
+0.128844
+0.184140
+0.184140
+Cache Memory for EMEM
+0.561528
+1.118592
+1.118592
+
+Table 2 presents the comparison of memory utilisation between the above mentioned three scenarios. As can be seen, CTM and IMEM remain the same across
+all scenarios, while in the case of EMEM, CLS, LM and EMEM CACHE Memory
+slightly increases in P4-NetFlow and P4-NIDS compared to Basic Forwarding.
+Given the minimal memory increase, which remains within the kilobyte range,
+these results clearly indicate the lightweight nature of P4-NIDS and its suitability for large-scale network applications.
+For the throughput degradation analysis, we used Pktgen-DPDK [34], powered by DPDK, to benchmark the performance metrics. Different bandwidth
+limits were applied in Pktgen-DPDK on Host1 to evaluate throughput under
+various load conditions. Since our hardware supports a theoretical maximum
+bandwidth of 40 Gbps, we expected an output of e.g. 4 Gbps at 10% bandwidth
+and 40 Gbps at full capacity. However, as shown in Table 3, the Intel NIC hardware limitations restrict the maximum achievable traffic rate from Pktgen to
+about 25.940 Gbps at 100% bandwidth. The throughput for smaller packet sizes
+is significantly lower due to the higher number of packets processed by the hardware. For example, while the throughput for a 40 Gbps offered load is 25.819
+
+Table 3. PKT-GEN Bandwidth and Throughput Data
+Bandwidth % Offered Load Pkt Size=1024Bytes
+Gbits/s
+10%
+20%
+30%
+40%
+50%
+60%
+70%
+80%
+90%
+100%
+
+4
+8
+12
+16
+20
+24
+28
+32
+36
+40
+
+Pkt Size=64Bytes
+
+Sent Pkt
+
+Throughput
+
+Sent Pkt
+
+Throughput
+
+(MPPS)
+0.5
+1
+1.5
+2
+2.5
+3
+3.188
+3.228
+3.243
+3.227
+
+(Gbits/s)
+4
+8
+12
+16
+20
+24
+25.5
+25.824
+25.94
+25.819
+
+(MPPS)
+5.929
+7.754
+7.755
+7.701
+7.699
+7.793
+7.771
+7.834
+7.791
+7.717
+
+(Gbits/s)
+4
+5.267
+5.288
+5.289
+5.284
+5.282
+5.286
+5.258
+5.291
+5.302
+
+16
+
+Yaying Chen et al.
+
+9 NetFlow Fields
+10 NetFlow Fields
+14 NetFlow Fields
+19 NetFlow Fields
+22 NetFlow Fields
+Decision Tree with 22 NetFlow Fields
+
+SmartNIC Throughput (Gbits/s)
+
+25
+
+20
+
+15
+
+10
+
+5
+
+0
+4.00
+
+8.00
+
+12.00
+
+16.00
+
+20.00
+
+24.00
+
+25.50
+
+25.82
+
+25.83
+
+25.94
+
+SmartNIC Offered Load (Gbits/s)
+
+Fig. 7. Thoughput Vs. OfferedLoad
+
+Gbps with a 1024-byte packet size, it drops to only 5.302 Gbps with a 64-byte
+packet size.
+Considering these constraints, we evaluated the throughput of SmartNIC
+across five different NetFlow generation scenarios, each with varying feature sets
+and DT-based NIDS using 22 NetFlow features, under different offered loads.
+The experimental results are presented in Figure 7. The findings show that, in all
+scenarios, SmartNIC throughput closely matches the offered load, demonstrating high performance and minimal impact, particularly in the case of P4-NIDS
+(i.e., the DT-based classifier). Additionally, for a fixed SmartNIC offered load,
+throughput remains nearly constant, regardless of the number of NetFlow fields
+or the inclusion of DT-based NIDS.
+
+6
+
+Conclusion
+
+This study addresses the challenge of achieving high-performance and efficient
+data-plane implementation for network monitoring and machine learning-based
+intrusion detection. Unlike prior solutions that explore alternative approaches,
+our proposed method delivers comparable or superior performance to the stateof-the-art, while maintaining minimal computational overhead.
+Given the computational constraints of SDN data planes and the programming limitations of P4—such as restricted memory access, limited control flow,
+and arithmetic operations [38]—not all machine learning models can be implemented in P4. To address this, we adopted an efficient decision tree-based traffic
+classifier previously proposed in the literature and implemented it in P4.
+
+P4-NIDS, Intrusion Detection in P4
+
+17
+
+The results of the evaluation of our solution on a P4-compatible hardware
+setup indicate that P4-NIDS achieves high efficiency and performance. It exhibits
+minimal memory overhead, remains scalable for large networks, and delivers
+stable throughput under varying loads, confirming its viability for real-world
+deployment in high-speed networking environments. Our proposed solution for
+NetFlow generation and export demonstrates throughput at least four times
+higher than the best alternative solution. Moreover, it achieves 25% to 50% less
+throughput degradation as the number of exported NetFlow fields increases,
+outperforming the current state-of-the-art.
+These findings highlight the lightweight nature of our approach, ensuring
+it is well-suited for large-scale network applications. Additionally, the decision
+tree-based intrusion detection system (P4-NIDS) integrated within the solution
+effectively balances computational efficiency with high classification accuracy,
+even under demanding traffic conditions.
+In conclusion, the proposed solution sets a new benchmark for implementing
+network monitoring and intrusion detection within the P4 data plane, addressing
+key challenges of computational constraints and scalability. Its superior performance, low overhead, and compatibility with existing hardware make it an ideal
+choice for modern high-performance networking environments, paving the way
+for more efficient and robust SDN-based security solutions.
+
+References
+1. Mariam Kiran, Eric Pouyoul, Anu Mercian, Brian Tierney, Chin Guok, and Inder Monga. Enabling intent to configure scientific networks for high performance
+demands. Future Generation Computer Systems, 79:205–214, 2018.
+2. Mariam Kiran and Anshuman Chhabra. Understanding flows in high-speed scientific networks: A netflow data study. Future Generation Computer Systems,
+94:72–79, 2019.
+3. Jonatas Adilson Marques, Marcelo Caggiani Luizelli, Roberto Irajá Tavares da
+Costa Filho, and Luciano Paschoal Gaspary. An optimization-based approach for
+efficient network monitoring using in-band network telemetry. Journal of Internet
+Services and Applications, 10:1–20, 2019.
+4. Felix Oberdorf, Myriam Schaschek, Sven Weinzierl, Nikolai Stein, Martin Matzner,
+and Christoph M Flath. Predictive end-to-end enterprise process network monitoring. Business & Information Systems Engineering, 65(1):49–64, 2023.
+5. Ola Salman, Imad H Elhajj, Ayman Kayssi, and Ali Chehab. A review on machine
+learning–based approaches for internet traffic classification. Annals of Telecommunications, 75(11):673–710, 2020.
+6. Roy Setiawan, Ramakoteswara Rao Ganga, Priya Velayutham, Kumaravel
+Thangavel, Dilip Kumar Sharma, Regin Rajan, Sujatha Krishnamoorthy, and Sudhakar Sengan. Encrypted network traffic classification and resource allocation with
+deep learning in software defined network. Wireless Personal Communications,
+pages 1–17, 2022.
+7. Pat Bosshart, Dan Daly, Glen Gibb, Martin Izzard, Nick McKeown, Jennifer Rexford, Cole Schlesinger, Dan Talayco, Amin Vahdat, George Varghese, et al. P4:
+Programming Protocol-independent Packet Processors. ACM SIGCOMM Computer Communication Review, 44(3):87–95, 2014.
+
+18
+
+Yaying Chen et al.
+
+8. Frederik Hauser, Marco Häberle, Daniel Merling, Steffen Lindner, Vladimir Gurevich, Florian Zeiger, Reinhard Frank, and Michael Menth. A survey on data plane
+programming with p4: Fundamentals, advances, and applied research. Journal of
+Network and Computer Applications, 212:103561, 2023.
+9. Rajdeep Das and Alex C Snoeren. Memory management in activermt: Towards
+runtime-programmable switches. In Proceedings of the ACM SIGCOMM 2023
+Conference, pages 1043–1059, 2023.
+10. Diogo Gonçalves, Salvatore Signorello, Fernando MV Ramos, and Muriel
+Médard. Random linear network coding on programmable switches. In 2019
+ACM/IEEE Symposium on Architectures for Networking and Communications
+Systems (ANCS), pages 1–6. IEEE, 2019.
+11. Adrian Pekar, Laszlo A Makara, Yuan-Cheng Lai, Ying-Dar Lin, and Winston
+Seah. P4tonfv: Offloading from p4 switches to nfv in programmable data planes.
+International Journal of Communication Systems, 37(5):e5687, 2024.
+12. Bingdong Li, Jeff Springer, George Bebis, and Mehmet Hadi Gunes. A Survey
+of Network Flow Applications. Journal of Network and Computer Applications,
+36(2):567–581, 2013.
+13. Liam Daly Manocchio, Siamak Layeghy, and Marius Portmann. Network Intrusion
+Detection System in a Light Bulb. 10 2022.
+14. The P4 Language Consortium. The p4 compiler, 2024.
+15. Open Networking Foundation. Announcing P4Runtime – A Contribution by the
+P4 API Working Group, 2017. Accessed: 2024-11-02.
+16. The P4 Language Consortium. P4 16 language specification, 2024.
+17. Bingdong Li, Jeff Springer, George Bebis, and Mehmet Hadi Gunes. A Survey
+of Network Flow Applications. Journal of Network and Computer Applications,
+36(2):567–581, 2013.
+18. Cisco Systems. Cisco IOS NetFlow Version 9 Flow-Record Format - White
+Paper.
+https://www.cisco.com/en/US/technologies/tk648/tk362/technologies
+white paper09186a00800a3db9.pdf, 2011.
+19. Lucas Castanheira, Ricardo Parizotto, and Alberto E. Schaeffer-Filho. FlowStalker:
+Comprehensive Traffic Flow Monitoring on the Data Plane using P4. In ICC 2019 2019 IEEE International Conference on Communications (ICC), pages 1–6, 2019.
+20. BMv2. Implementing Your Switch Target with BMv2, 1 2017.
+21. Habib Mostafaei and Shafi Afridi. P4flow: Monitoring traffic flows with programmable networks. IEEE Communications Letters, 25(11):3546–3550, 2021.
+22. Bong-Hwan Oh. P4-based proactive monitoring scheme in software-defined networks. IEEE Transactions on Network and Service Management, 2024.
+23. Zhaoqi Xiong and Noa Zilberman. Do switches dream of machine learning? toward
+in-network classification. In Proceedings of the 18th ACM Workshop on Hot Topics
+in Networks, pages 25–33, 2019.
+24. Syed Usman Jafri, Sanjay Rao, Vishal Shrivastav, and Mohit Tawarmalani. Leo:
+Online ML-based Traffic Classification at Multi-Terabit Line Rate. 2024.
+25. Bruno Missi Xavier, Rafael Silva Guimarães, Giovanni Comarela, and Magnos Martinello. Map4: A pragmatic framework for in-network machine learning traffic classification. IEEE Transactions on Network and Service Management, 19(4):4176–
+4188, 2022.
+26. Mohanad Sarhan, Siamak Layeghy, and Marius Portmann. Evaluating standard
+feature sets towards increased generalisability and explainability of ml-based network intrusion detection. Big Data Research, 30:100359, 2022.
+27. ETH Zurich NSG. P4-Utils: Extension to Mininet that makes P4 networks easier
+to build, run and debug, 9 2021.
+
+P4-NIDS, Intrusion Detection in P4
+
+19
+
+28. Paolini, Emilio and De Marinis, Lorenzo and Scano, Davide and Paolucci,
+Francesco. In-Line Any-Depth Deep Neural Networks Using P4 Switches. IEEE
+Open Journal of the Communications Society, 5(May):3556–3567, 2024.
+29. Bob Lantz, Brandon Heller, and Nick McKeown. A Network in a Laptop: Rapid
+Prototyping for Software-Defined Networks. In Proceedings of the 9th ACM SIGCOMM Workshop on Hot Topics in Networks, pages 1–6, 2010.
+30. The P4 Language Consortium. P4 16 language specification, 5 2017.
+31. iPerf3: A TCP, UDP, and SCTP network bandwidth measurement tool. https:
+//github.com/esnet/iperf. Accessed: 24-05-2024.
+32. Iman Sharafaldin, Arash Habibi Lashkari, and Ali A. Ghorbani. Toward generating
+a new intrusion detection dataset and intrusion traffic characterization. ICISSP
+2018 - Proceedings of the 4th International Conference on Information Systems
+Security and Privacy, 2018-January:108–116, 2018.
+33. Nour Moustafa and Jill Slay. UNSW-NB15: A Comprehensive Data set for Network Intrusion Detection systems (UNSW-NB15 Network Data Set). In Military
+communications and information systems conference (MilCIS) (pp. 1-6). IEEE.,
+pages 1–6. IEEE, 2015.
+34. Pktgen Project. Pktgen-DPDK: DPDK Based Packet Generator, 2024. Accessed:
+2024-11-02.
+35. DPDK Project. DPDK: Data Plane Development Kit, 2024. Accessed: 2024-11-02.
+36. Netronome Support. Software development - p4c sdk. Accessed: 2024-11-15.
+37. Netronome Support. Software development - nfp toolchain. Accessed: 2024-11-15.
+38. Zijun Hang, Mei Wen, Yang Shi, and Chunyuan Zhang. Programming protocolindependent packet processors high-level programming (p4hlp): Towards unified
+high-level programming for a commodity programmable switch. Electronics,
+8(9):958, 2019.
+
+

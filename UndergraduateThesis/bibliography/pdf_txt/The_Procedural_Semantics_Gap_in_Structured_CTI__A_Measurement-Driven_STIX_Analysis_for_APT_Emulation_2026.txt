@@ -1,0 +1,2982 @@
+The Procedural Semantics Gap in Structured CTI: A
+Measurement-Driven STIX Analysis for APT Emulation
+
+arXiv:2512.12078v2 [cs.CR] 27 Feb 2026
+
+Ágney Lopes Roth Ferraz∗
+
+Sidnei Barbieri∗†
+
+Aeronautics Institute of Technology
+São José dos Campos, SP, Brazil
+roth@ita.br
+
+Carnegie Mellon University
+Pittsburgh, PA, USA
+sbarbier@andrew.cmu.edu
+
+Murray Evangelista de Souza
+
+Lourenço Alves Pereira Júnior
+
+Aeronautics Institute of Technology
+São José dos Campos, SP, Brazil
+murraymes@ita.br
+
+Abstract
+Cyber threat intelligence (CTI) encoded in Structured Threat Information Expression (STIX) and structured according to the MITRE
+ATT&CK framework has become a global reference for describing
+adversary behavior. However, ATT&CK was designed as a descriptive knowledge base rather than a procedural model. We therefore
+ask whether its structured artifacts contain sufficient behavioral
+detail to support multi-stage adversary emulation. Through systematic measurements of the ATT&CK Enterprise bundle, we show
+that campaign objects encode just fragmented slices of behavior.
+Only 35.6% of techniques appear in at least one campaign, and
+neither clustering nor sequence analysis reveals any reusable behavioral structure under technique overlap or Longest Common
+Subsequence (LCS)-based analyses. Intrusion sets cover a broader
+portion of the technique space, yet omit the procedural semantics
+required to transform behavioral knowledge into executable chains,
+including ordering, preconditions, and environmental assumptions.
+These findings reveal a procedural semantic gap in current CTI
+standards: they describe what adversaries do, but not exactly how
+that behavior was operationalized.
+To assess how far this gap can be bridged in practice, we introduce a three-stage methodology that translates behavioral information from structured CTI into executable steps and makes the
+necessary environmental assumptions explicit. We demonstrate its
+viability by instantiating the resulting steps as operations in the
+MITRE Caldera framework. Case studies of ShadowRay and Soft
+Cell show that structured CTI can enable the emulation of multistage APT campaigns, but only when analyst-supplied parameters
+and assumptions are explicitly recorded. This, in turn, exposes
+∗ These authors contributed equally to this work.
+† Also with Aeronautics Institute of Technology.
+
+Permission to make digital or hard copies of all or part of this work for personal or
+classroom use is granted without fee provided that copies are not made or distributed
+for profit or commercial advantage and that copies bear this notice and the full citation
+on the first page. Copyrights for components of this work owned by others than the
+author(s) must be honored. Abstracting with credit is permitted. To copy otherwise, or
+republish, to post on servers or to redistribute to lists, requires prior specific permission
+and/or a fee. Request permissions from permissions@acm.org.
+ASIACCS ’26, Bangalore, India
+© 2026 Copyright held by the owner/author(s). Publication rights licensed to ACM.
+ACM ISBN 978-1-4503-XXXX-X/26/06
+https://doi.org/XXXXXXX.XXXXXXX
+
+Aeronautics Institute of Technology
+São José dos Campos, SP, Brazil
+ljr@ita.br
+
+the precise points at which current standards fail to support automation. Our results clarify the boundary between descriptive and
+machine-actionable CTI for adversary emulation.
+
+CCS Concepts
+• Security and privacy → Penetration testing; Intrusion/anomaly detection and malware mitigation; • General
+and reference → Measurement.
+
+Keywords
+Cyber Threat Intelligence, STIX, MITRE ATT&CK, Blue Team, Red
+Team, APT Emulation, Cybersecurity
+ACM Reference Format:
+Ágney Lopes Roth Ferraz, Sidnei Barbieri, Murray Evangelista de Souza,
+and Lourenço Alves Pereira Júnior. 2026. The Procedural Semantics Gap in
+Structured CTI: A Measurement-Driven STIX Analysis for APT Emulation.
+In Proceedings of Proceedings of the 21st ACM Asia Conference on Computer
+and Communications Security (ASIACCS 2026) (ASIACCS ’26). ACM, New
+York, NY, USA, 15 pages. https://doi.org/XXXXXXX.XXXXXXX
+
+1
+
+Introduction
+
+Advanced Persistent Threats (APTs) unfold as multi-stage campaigns that may span multiple hosts, adapt to the target environment, and frequently rely on “living-off-the-land” techniques that
+blend with legitimate activity [4]. Their distributed low-signal activities [41] and prolonged dwell times [28] make end-to-end reconstruction complex in Security Operations Centers (SOCs) [8, 15, 26].
+Provenance-based detection and learning-driven approaches show
+that reconstructing multi-step behaviors induces dependency explosion and yields large, multi-rooted provenance graphs [7, 18, 19, 39],
+and that short or synthetic traces fail to represent characteristic
+APT dependencies [17, 28, 41].
+Cyber Threat Intelligence (CTI) provides structured accounts
+of adversary tactics and techniques. Public feeds exhibit heterogeneous formats, uneven granularity, and inconsistent field usage [21, 38]. However, extracting actionable information from narrative reports requires substantial manual effort [32], and most CTI
+sources lack the procedural context and environmental constraints
+necessary for reproducible multi-host emulation [38]. Analyses of
+intrusion-detection rules additionally show rapid turnover, skewed
+
+ASIACCS ’26, June 1-5, 2026, Bangalore, India
+
+alert distributions, and weak links between rules, alerts, and incidents [40]. As a result, CTI is used for mapping and coverage but
+rarely as a direct source of executable adversary actions.
+The MITRE ATT&CK framework provides a widely adopted
+taxonomy of tactics and techniques, disseminated as STIX bundles
+consumed by defensive platforms [29, 37, 42]. These bundles integrate elements such as intrusion sets, campaigns, malware, tools,
+and relationships, but intrusion-set and campaign entries rarely
+encode temporal or causal information. Execution order, prerequisites, and environmental assumptions typically appear only in
+free text [29, 32, 38]. Prior work extracts partial behaviors from
+textual intelligence without producing executable actions [6, 32, 45]
+or reconstructs long-duration campaigns from telemetry [7, 39, 41],
+leaving open the question of how far ATT&CK-in-STIX can support
+APT emulation.
+Frameworks such as MITRE Caldera provide an execution substrate for emulating adversary behavior, but they do not provide
+procedural logic on their own. Capabilities must still be instantiated with an explicit sequence, parameters, and environmental
+assumptions. These elements depend on a concrete System Under Test (SUT), whose operating systems, services, identity model,
+and control stack determine which procedures are executable [35].
+Current CTI standards do not encode SUT-level information or
+execution constraints, and they cannot, on their own, automatically
+generate full operations. In our case studies, analyst input is limited
+to explicitly supplying such assumptions rather than reconstructing
+the original campaigns; this is sufficient to produce reproducible
+multi-step emulations. This gap motivates the central questions
+guiding this study:
+RQ1: How much adversarial behavior do current structured CTI
+formats capture for multi-step APT emulation?
+RQ2: How can structured CTI be transformed into computable
+multi-stage behavioral plans for emulation?
+RQ3: Which structural and semantic gaps in descriptive CTI prevent automation, and how can they be mitigated?
+Our contributions are as follows: ① we quantify the coverage,
+sparsity, and overlap of STIX objects in datasets derived from
+MITRE ATT&CK; ② we examine inconsistencies and techniquelevel heterogeneity across campaigns and associated intrusion sets,
+noting the absence of explicit behavioral structure for multi-stage
+and multi-host emulation; ③ we identify structural gaps, including
+the lack of sequencing, preconditions, and environmental assumptions, which limit the use of STIX data for automated execution;
+and ④ we present two case studies and discuss implications for CTIbased APT emulation and data improvements. Taken together, these
+results position our work as a boundary-mapping, measurementdriven study of what current CTI, as structured in STIX objects,
+can and cannot support for automation, rather than solely as an
+automation proposal. Using structured STIX intelligence to simulate adversary campaigns helps assess defensive controls, detection
+methods, and overall cybersecurity strength in controlled environments.
+The remainder of this paper is organized as follows. Section 2
+provides background. Section 3 reviews related work. Section 4
+defines entities and metrics. Section 5 presents the dataset. Section 6 describes the methodology. Section 7 presents the behavioral
+
+Roth et al.
+
+analysis. Section 8 introduces the emulation framework and experimental setup. Section 9 discusses case studies. Section 10 examines
+implications. Section 11 addresses threats to validity. Section 12
+concludes the paper.
+
+2
+
+Background
+
+CTI refers to evidence-based knowledge about cyber threats that
+supports analysts in decision-making, spanning from low-level
+artifacts (IoCs) to descriptions of tactics, techniques, and procedures (TTPs). In its unstructured form, CTI appears as narrative reports, blog posts, and vendor documents, requiring manual effort to deduplicate, normalize, and extract information before it can be used systematically. To address this heterogeneity, the STIX language was developed by defining a standardized schema for objects and relationships to represent CTI in a
+machine-readable format [29]. The STIX 2.1 specification, standardized by OASIS, defines 18 STIX Domain Objects (SDOs), covering both high-level entities (e.g., attack-pattern, campaign,
+intrusion-set, threat-actor) and operational elements (e.g.,
+malware, tool, infrastructure, indicator, observed-data,
+report, vulnerability). Each SDO includes required and optional
+fields. Relationships between objects are encoded using SDOs of
+type relationship and grouping, which, for example, link campaigns to intrusion sets or techniques to malware. STIX is a generic
+interchange format. Although the language originated in MITRE’s
+efforts, it is now independently standardized and used by multiple CTI providers. Sources such as CAPEC, DigitalSide, AlienVault
+Open Threat eXchange (OTX), and various TAXII servers described
+in [21] publish collections of STIX objects, often with heterogeneous
+schemas and reporting practices.
+We use a subset of STIX 2.x objects extracted from multiple
+CTI sources. The most relevant objects for modeling APTs are
+attack-pattern, campaign, intrusion-set, malware, tool, and
+relationship. These SDOs form the core of most mining, normalization, and knowledge graph construction efforts in CTI [6, 32, 38].
+Objects such as indicator, observed-data, note, opinion, and
+report complement this core with metadata, observational context,
+and detection artifacts, but do not, on their own, form a campaign
+procedure chain.
+Beyond STIX, other structured models have also been proposed.
+The MISP format, adopted by coalitions such as NATO (North Atlantic Treaty Organization) for its operational focus, offers a lighter,
+community-driven alternative that prioritizes the sharing of events
+and IoCs, with taxonomies and galaxies for categorization. The
+CASE (Cyber-investigation Analysis Standard Expression) model,
+based on the Unified Cyber Ontology (UCO), extends the scope to
+unify CTI with digital forensic and investigative data, providing
+greater semantic reasoning and traceability across domains. These
+models illustrate a common trade-off: STIX provides high expressivity (the “what”, “who”, “why”, and, to some extent, the “how”) at
+the cost of increased complexity; MISP emphasizes simplicity and
+operational agility but offers less detail and flexibility; and CASE
+focuses on semantic integration across evidence sources, which
+may require greater modeling effort and standardization.
+The use of STIX as a standardized CTI language mitigates the
+limitations of proprietary or purely textual formats. Structured
+
+The Procedural Semantics Gap in Structured CTI: A Measurement-Driven STIX Analysis for APT Emulation
+
+representation enables automated ingestion by security platforms,
+consistent mapping between entities (e.g., campaigns, threat actors,
+malware families), and data correlation across organizations, supported by transport protocols such as TAXII (Trusted Automated
+eXchange of Indicator Information). Widely used tools such as
+Elasticsearch, Splunk, MISP, ELK-based stacks, IBM Resilient, and
+CISA AIS already support STIX or provide connectors that convert proprietary formats into STIX. Libraries such as STIX-Shifter
+treat STIX as a pivot representation, translating queries and data
+between heterogeneous backends.
+Despite this adoption, the availability of structured feeds remains
+discontinuous. Longitudinal analyses show that several previously
+open sources have been discontinued or migrated to commercial
+models: Hail a TAXII, Unit42, and Anomali Limo no longer provide
+open data; PickUpSTIX and Cyware have shifted content to commercial offerings; DigitalSide has not been updated for over a year;
+and JamesBrine currently shares only IoCs [21]. There is a trend
+toward fewer free STIX feeds, with a direct impact on studies that
+rely on open, regularly maintained CTI.
+MITRE maintains the ATT&CK framework as a hierarchical
+knowledge base of TTPs observed in real campaigns, organized into
+matrices for different domains (Enterprise, Mobile, and ICS) [37].
+In this taxonomy, tactics capture the adversary’s objectives (the
+“why”), while techniques and sub-techniques describe the mode of
+operation (the “how”). In addition to the matrix of tactics and
+techniques, ATT&CK indexes threat groups, campaigns, software
+(malware and tools), telemetry sources, and mitigation recommendations [37]. Content from ATT&CK and other knowledge bases
+maintained by MITRE (such as CAPEC) is usually disseminated in
+STIX format; that is, MITRE publishes STIX bundles that instantiate the ATT&CK taxonomy using objects such as attack-pattern,
+intrusion-set, malware, tool, and relationship.
+Separating conceptual layers, we have: ATT&CK as the ontology
+of adversary behavior; STIX as the serialization language adopted
+to publish this ontology; and the specific bundle (e.g., the Enterprise
+ATT&CK bundle) as one among several STIX repositories in the
+CTI ecosystem. In ATT&CK, each technique or sub-technique is
+represented by an attack-pattern object, with structured fields
+for description, kill chain phases, external references, and tactic
+mappings. These techniques, mapped directly to attack-pattern,
+form the primary abstraction for structuring behavioral information extracted from reports and threat databases [38]. Extraction
+pipelines treat these objects as building blocks, aligning narrative
+texts with standardized technique identifiers [5, 32, 38], thereby
+making them central to constructing technique-level traces and
+mapping high-level descriptions to ATT&CK semantics.
+Objects of type campaign represent specific operations attributed
+to a threat actor. They generally encode time windows, objectives,
+targeted sectors, and a subset of associated techniques, malware,
+or tools. In practice, however, CTI feeds rarely enumerate all steps,
+prerequisites, or action sequences. Threat reports frequently omit
+steps, merge distinct phases, or present only fragments of the intrusion [32]; large-scale measurements report inconsistent field usage,
+missing attributes, and heterogeneous reporting practices across
+providers [21]. As a result, campaigns encoded in STIX tend to lack
+the procedural specificity required for direct replay.
+
+ASIACCS ’26, June 1-5, 2026, Bangalore, India
+
+intrusion-set objects aggregate long-term persistent behaviors of a threat group over multiple campaigns, including commonly
+used malware, techniques, infrastructure, and motivations [1]. In
+open STIX collections, campaigns are linked to intrusion sets via
+relationship objects that encode attribution, tool usage, or technique associations. This modeling reflects how CTI providers conceptualize APTs: intrusion sets capture the persistent adversary
+profile, while campaigns represent concrete operational instances.
+Studies on detection rules and ATT&CK annotations show that even
+relatively stable actor or technique categories are inconsistently
+labeled across vendors, which reduces interoperability [40].
+Despite its broad adoption, the STIX data model was designed
+to describe threat entities and relationships, rather than to serve as
+a mechanism for the automated reconstruction of multi-host adversary behavior [29]. Although ATT&CK content, as represented in
+STIX bundles, provides structured identifiers for techniques, tactics,
+campaigns, and intrusion sets, the schema does not directly encode
+temporal order, explicit prerequisites, detailed environmental constraints (such as specific OS configurations, network topology, minimum privileges, etc.), or intermediate goals and branching within
+a campaign. This disconnect constitutes a procedural semantic gap
+between descriptive CTI and machine-actionable representations,
+which we quantify in our analysis.
+Put differently, structured CTI encoded in STIX bundles provides
+enumerations of threat entities but not the procedural dependencies
+needed to assemble executable chains. Relationships are essentially
+associative: for example, a relationship might indicate that an intrusion set “uses” a given malware or that a campaign is “attributed
+to” a group, without specifying how to chain these entities into
+an executable sequence. Concrete procedures remain in free-text
+description fields or associated reports [32, 37, 38]. Thus, graphs
+constructed from ATT&CK data serialized as STIX bundles capture
+which techniques, tools, and campaigns are linked, but do not show
+exactly how to replay a campaign’s chain.
+Works such as CTI-Lense [21] have highlighted quality and consistency issues in open collections of structured CTI, including
+low coverage, delayed sharing, and uneven field usage, even in
+STIX feeds. Vermeer et al. [40] show that detection rules annotated with ATT&CK techniques exhibit inconsistent labeling across
+vendors and high turnover, making these annotations difficult to
+use as a stable basis for longitudinal analysis. Recent efforts focused on automatic behavioral extraction from structured CTI or
+reports [5, 6, 32, 38, 45] can map parts of descriptions to ATT&CK
+techniques, but still do not produce executable sequences with
+preconditions, parameters, and control logic.
+Even when specific commands or scripts are extracted from
+reports and converted into executable artifacts, as discussed in
+works on procedure reconstruction [12], there is a gap between
+the original textual representation and the fidelity of the resulting
+emulation. Research on detection systems based on the MITRE
+ATT&CK framework [33, 42] and rules annotated with ATT&CK
+primarily evaluates technique coverage and detection performance
+in isolated steps, rather than the ability to derive attack chains from
+structured CTI.
+Recent measurement studies of structured CTI encoded in
+STIX [21, 33, 42] focus on coverage and annotation quality, but
+
+ASIACCS ’26, June 1-5, 2026, Bangalore, India
+
+do not evaluate whether it contains the semantics required for automation. Even when emulation tools such as Caldera are used
+to evaluate controls, a manual step remains to transform CTI descriptions (including STIX bundles and ATT&CK pages) into executable, ordered, and parameterized plans. The current MITRE
+ATT&CK artifacts were designed to describe threat knowledge, not
+to serve directly as a programming language for adversary campaigns. From an emulation perspective, this absence of procedural
+structure is matched by the lack of any SUT representation. Assumptions about reachable services, directory layouts, privilege
+boundaries, deployed controls, or identity models, when present,
+appear only in free text and are not tied to a formal SUT abstraction.
+Consequently, current CTI contains no computable link between
+techniques and the environments in which they are expected to
+execute [35].
+
+3
+
+Related Work
+
+Recent advances in structured threat intelligence, technique extraction, and adversary emulation have expanded the range of available
+methodologies. Prior work analyzes the structure and quality of CTI
+feeds published in STIX, including aspects such as heterogeneity,
+coverage, and field consistency, as well as their impact on commercial platforms and detection evaluations [21, 29, 33, 37, 38, 40, 42].
+These studies quantify inconsistencies in field usage, rule annotations, and sharing practices, and show that both ATT&CKannotated rules and other STIX sources suffer from uneven coverage and vendor-specific practices. However, they do not assess
+whether public bundles contain sufficient procedural information
+to support automated multi-host emulation, nor do they systematically investigate sequencing, operational dependencies, or the
+environmental context required for automated execution. As a result, existing work falls short of directly converting descriptive CTI
+into executable multi-step representations, motivating the approach
+developed in this paper.
+Solutions for deriving adversary behavior from unstructured text,
+such as Extractor [32], CTI HAL [10], and NLP-based extraction
+pipelines [5, 6, 16, 45], as well as LLM-powered command and
+script reasoning [12], advance the identification and organization
+of techniques, entities, and relationships. These approaches include
+supervised and weakly supervised extraction, Systematization of
+Knowledge (SoK)-style evaluations of TTP extraction quality, and
+LLM-based knowledge graph construction from CTI. However, they
+do not directly produce executable sequences from the structure in
+CTI bundles, and they evaluate extraction quality rather than the
+completeness and sufficiency of the procedural structure encoded
+in STIX itself. Temporal relationships and execution conditions are
+inferred from narrative descriptions rather than assessed against the
+actual encoding in STIX bundles, or evaluated to determine whether
+those bundles alone provide the structure needed for replay.
+In the field of detection and investigation, systems based on
+telemetry and provenance graphs, including provenance-based
+EDR and endpoint monitoring, use ATT&CK as an annotation
+taxonomy but reconstruct attack structure from logs rather than
+from CTI. Provenance-based detectors such as HOLMES, UNICORN, and ATLAS [1, 17, 28], and later systems such as ALchemist and NODLINK [24, 47], demonstrate that correlating
+
+Roth et al.
+
+whole-system audit data is effective for reconstructing APT campaigns. Recent work on provenance graph learning and scalable
+detection, including Flash, Kairos, DistDet, PROGRAPHER, and
+ProvG-Searcher [2, 7, 14, 39, 46], improves the efficiency and
+accuracy of anomaly detection and search over large graphs.
+Other approaches focus on tactic and technique recognition or
+online segmentation, such as TREC, TAPAS, SLOT, and OCRAPT [3, 25, 31, 48], or address lateral movement detection in temporal network graphs [22, 23]. Complementary measurements highlight practical and industrial aspects of provenance-based EDR and
+auditing, including operating costs, triage effort, and logging limitations [13, 20]. Together, these works provide detailed visibility
+into campaign behavior and operational constraints. However, they
+do not examine the use of STIX as a primary procedural source
+for emulation: in these approaches, attack chains are reconstructed
+from telemetry rather than derived from CTI object structures.
+Adversary emulation and frameworks, such as Laccolith [30],
+PentestGPT [11], PentestAgent [34], and language model-driven
+proposals for offensive planning and cyber deception [35, 36], rely
+on manually curated procedures, environment models, and execution logic that specify ordering, preconditions, and cleanup. Their
+evaluations are conducted on fixed or parameterized SUTs, often
+using standardized lab topologies or web application environments
+as benchmarks, which shows that reproducibility depends on the
+description of attacker behavior and the explicit specification of
+the SUT. Structured CTI provides technique identifiers and highlevel behavioral context but requires an additional translation step
+before it can be executed as a multi-stage procedure. Our work
+asks whether such a model can be derived directly from the STIX
+representation itself. We evaluate the extent to which current STIXencoded ATT&CK data contains (or lacks) the procedural semantics
+required for automated emulation.
+Frameworks that operationalize adversary behavior help clarify
+what structured CTI does and does not provide. Planning-based systems such as AURORA [44] model actions through explicit preconditions and effects; the Effects Language (EL) formalism [9] demonstrates that executable coordination requires ordering and guarded
+effects; and knowledge graph approaches such as KNOWHOW [27]
+and MultiKG [43] enrich CTI with structure derived from telemetry or cross-source aggregation. These systems rely on procedural
+elements (ordering, parameters, bindings, and environment assumptions) that are not encoded in the current MITRE ATT&CK Enterprise bundle. Our methodology is therefore complementary: it identifies the procedural information missing from this bundle. It shows
+how descriptive CTI can be converted into representations suitable
+for multi-host emulation, while explicitly characterizing what current standards cannot automate. Additionally, to our knowledge, no
+prior work treats the ATT&CK Enterprise bundle itself as the object
+of measurement to assess its suitability for automated multi-step
+emulation.
+
+4
+
+Behavioral Metrics
+
+Our analysis is supported by two components: the structure of
+STIX objects representing intrusion sets, campaigns, and techniques, and a set of quantitative measures derived from binary
+representations of technique usage. In the MITRE ATT&CK
+
+The Procedural Semantics Gap in Structured CTI: A Measurement-Driven STIX Analysis for APT Emulation
+
+ASIACCS ’26, June 1-5, 2026, Bangalore, India
+
+Table 1: STIX sources in the consolidated dataset.
+Source
+MITRE Enterprise dataset
+MITRE CAPEC
+DigitalSide
+AlienVault OTX
+EclecticIQ
+Total (deduplicated)
+
+Type
+
+Objects
+
+Unique
+
+Duplicates
+
+Repository
+Repository
+Repository
+TAXII server
+TAXII server
+
+24,771
+2,666
+38,306
+17,303
+2,335
+
+24,771
+2,666
+38,306
+17,303
+2,043
+
+0.0%
+0.0%
+0.0%
+0.0%
+12.5%
+
+Broad collection including TTPs, adversaries, and campaigns.
+Attack patterns.
+Indicators, techniques, relationships, and malware with IOC focus.
+Diverse objects including attack-pattern and threat-actor.
+Threat actors, campaigns, and reports.
+
+85,381
+
+85,089
+
+0.0%
+
+Nearly duplicate-free consolidated dataset.
+
+Enterprise, adversary behavior is expressed as a heterogeneous graph of typed objects. The behavioral entities considered in this study are attack-pattern (techniques and subtechniques), x-mitre-tactic (tactics), campaign, intrusion-set,
+malware, tool, course-of-action, and relationship. Auxiliary entities such as indicator, identity, report, note, and
+x-mitre-data-source provide contextual metadata but do not
+encode procedural behavior. Table 1 lists the main freely available
+STIX sources included in the consolidated dataset.
+Before our qualitative evaluation, we first quantitatively characterize these entities. attack-pattern objects represent techniques and sub-techniques, and their hierarchy is encoded via
+the subtechnique-of relationship. Tactics are represented by
+x-mitre-tactic objects and are referenced by techniques via the
+kill_chain_phases field. The STIX schema does not include dedicated fields for procedural information; ordering, preconditions,
+environmental requirements, dependencies, and parameter flows
+appear only in natural-language descriptions and are not machinereadable. For the quantitative analysis, each campaign is encoded
+as a binary vector that indicates the presence or absence of each
+ATT&CK technique. The resulting campaign-technique matrix supports four metrics:
+Behavioral Metrics. Coverage: fraction of techniques and subtechniques observed at least once across campaigns; Sparsity: proportion of zero entries in the campaign-technique matrix; Overlap:
+similarity between campaigns computed from shared techniques; Clustering: stability of structural patterns measured by the silhouette coefficient.
+
+5
+
+Data Sources
+
+The selected dataset is the Enterprise bundle of MITRE ATT&CK
+in STIX format, which serves as the primary source of structured
+CTI for this study due to its broad adoption in academia and industry, open availability, and absence of usage restrictions. MITRE
+distributes ATT&CK datasets for the Enterprise, Mobile, and ICS
+domains, all encoded in STIX; the additional CTI collections examined here also follow the STIX object model. ATT&CK is widely
+regarded as a de facto standard for structuring CTI. It is relied
+
+Description
+
+upon by platforms such as Microsoft Sentinel, Microsoft Defender1 ,
+Falcon2 , and government initiatives such as CISA3 .
+We use this bundle (v18.1) as the authoritative source for all
+quantitative analyses in this study [37]. Additional non-versioned
+CTI sources were retrieved on 28 November 2025. Table 1 lists the
+objects obtained from each provider. The dataset will be released
+publicly after the completion of the double-blind review process.
+Although several feeds describe themselves as TTP collections, STIX
+does not define a structured procedure object; procedural behavior
+must therefore be reconstructed from contextual relationships such
+as uses, attributed-to, targets, delivers, and executes, or from narrative
+descriptions, particularly those found in campaign objects.
+To ensure reproducibility, we specify the object counts used in
+our analysis. The Enterprise bundle contains 52 campaign SDOs,
+but one (C0033) lacks any uses relationships and is excluded, leaving
+51 campaigns. The bundle also includes 20,048 relationship objects,
+which encode all links among campaigns, intrusion sets, malware,
+tools, and techniques. Similarly, although the bundle contains 916
+attack-pattern objects, only 835 correspond to techniques or
+sub-techniques with behavioral content, which underlie our quantitative metrics. All quantitative analyses presented in this paper
+(coverage, sparsity, overlap, clustering, campaign-group alignment)
+are computed exclusively on the Enterprise bundle. However, the
+broader structural pipeline was initially applied to the composed
+dataset, and the exploratory findings led us to focus the quantitative
+analysis on the Enterprise subset to ensure consistency and depth
+of behavioral analysis.
+We process STIX 2.x objects representing APT groups, their
+campaigns, observed behaviors, infrastructure, and kill-chain elements. This dataset catalogs indicators, tools, techniques, and
+sub-techniques, along with their associations with campaigns and
+intrusion sets. While these objects provide structured entities and
+links, they do not encode execution logic, ordering, or temporal
+constraints; such information must be inferred or reconstructed.
+Additionally, we performed a deduplication analysis using multiple
+comparison criteria across STIX objects. Apart from expected duplication in the EclecticIQ source, no redundant entries were found.
+The consolidated dataset contains 85,089 distinct objects.
+For the specific goal of this work, systematic behavioral analysis and subsequent adversary emulation, we therefore restrict
+1 Available at: https://learn.microsoft.com/en-us/azure/sentinel/mitre-coverage?tabs=
+
+defender-portal
+2 Available
+at: https://www.crowdstrike.com/en-us/press-releases/crowdstrikeachieves-100-percent-mitre-engenuity-attack-enterprise-evaluation/
+3 Available at: https://www.cisa.gov/news-events/news/best-practices-mitre-attckrmapping
+
+ASIACCS ’26,
+June
+Bangalore,
+India
+ASIACCS
+’26,1–5,
+June2026,
+1-5, 2026,
+Bangalore,
+India
+
+Normalize structured CTI
+into typed behavioral entities
+
+581
+
+582
+
+Roth et al. Anon.
+
+Human-curated minimal
+executable steps
+
+Execute and orchestrate plans
+in emulation environment
+
+63
+
+64
+
+583
+
+64
+
+584
+
+64
+
+585
+
+586
+
+587
+
+Structured
+CTI
+
+588
+
+Stage 1:
+Automated
+Structural
+Modeling
+
+Stage 2:
+Technique
+Translation
+Layer
+
+Stage 3:
+Emulation
+Integration
+
+Executable
+Multi-stage
+Adversary
+Emulation
+
+64
+
+64
+
+64
+
+64
+
+589
+
+64
+
+590
+
+64
+
+591
+
+592
+
+Structured CTI without
+execution semantics
+
+Automation limited to
+structural modeling
+
+Automation limited to
+deployment
+
+Reproducible multi-stage
+adversary emulation
+
+593
+
+594
+
+595
+
+596
+
+597
+
+600
+
+601
+
+602
+
+603
+
+604
+
+605
+
+606
+
+607
+
+608
+
+609
+
+610
+
+611
+
+612
+
+613
+
+614
+
+615
+
+616
+
+617
+
+618
+
+619
+
+620
+
+621
+
+622
+
+623
+
+624
+
+625
+
+626
+
+627
+
+628
+
+629
+
+630
+
+631
+
+632
+
+633
+
+634
+
+635
+
+636
+
+Human-in-the-loop
+
+1: High-level
+structure
+of the
+methodologyto
+toconvert
+convert descriptive
+into
+executable
+multi-stage
+adversary
+behavior.
+FigureFigure
+1: High-level
+structure
+of the
+methodology
+descriptiveCTI
+CTI
+into
+executable
+multi-stage
+adversary
+behavior.
+
+65
+
+65
+
+65
+
+65
+
+65
+
+quantitative campaign-level analysis to the ATT&CK Enterprise
+step that
+faithfully captures the behavioral intent without contrasubset. From now on, all results, including technique coverage,
+dicting the
+available
+intelligence.
+When (LCS)
+parameters,
+preconditions,
+sparsity,
+longest common
+subsequence
+analysis,
+clustering,
+or
+environmental
+bindings are
+absent are
+from the
+structured
+input,
+and
+campaign-to-group
+alignment,
+computed
+exclusively
+on
+they are
+documented.
+Provenance
+is sources
+recordedare
+in aused
+lighttheexplicitly
+Enterprise bundle.
+The remaining
+STIX
+to
+characterize
+ecosystem-level
+diversity
+and CTI
+coverage
+ratherand
+thanthe
+to
+weight form
+to preserve
+traceability
+between
+entities
+inform
+the emulation methodology.
+resulting
+steps.
+
+same time, campaigns or long-term threat operations are reprewere translated into minimal executable steps with explicit assumpsented as binary or categorical vectors denoting the presence of
+tions,
+resulting
+steps are
+weretranslated
+imported
+into
+Caldera
+and exerelevantand the
+techniques.
+Relationships
+into
+vector
+entries.
+cuted
+in anstructured
+isolated CTI
+environment.
+campaign was
+executed
+ten
+Because
+generallyEach
+lacks explicit
+temporal
+or
+times under
+identical
+conditions,
+and all executions
+completed
+causal
+ordering, we
+derive a
+conservative
+tactic-ordered list
+for suceach
+campaign
+intrusion set
+by aligning
+technique
+with CTI
+cessfully
+and or
+consistently.
+These
+results each
+show that
+descriptive
+its
+ATT&CK tactic
+and placing
+it along when
+the canonical
+canassociated
+support reproducible
+multi-host
+emulation
+supplemented
+progression
+fromanalyst-driven
+Reconnaissancereconstruction
+to Impact. Since of
+a technique
+may
+with explicit,
+missing procedural
+be
+related
+to
+multiple
+tactics
+via
+the
+kill_chain_phases
+field,
+elements, and they highlight the precise procedural gapswe
+that preassign it to one tactic by selecting the earliest tactic in this canonivent full automation under current CTI standards.
+cal order, with remaining ties broken deterministically using the
+Overall, the methodology provides a principled, format-agnostic
+technique’s external identifier. This ordering is used strictly as
+process
+for transforming
+descriptive
+into
+an organizational
+scaffold rather
+than as astructured
+temporal orCTI
+causal
+se-a computable
+behavioral
+representation
+suitable
+for
+multi-host
+adversary
+quence. The scaffold provides a stable organizational backbone
+emulation,
+while clearly
+delineating
+the absent
+limits from
+imposed
+existing
+without
+introducing
+procedural
+semantics
+the by
+origCTICTI.
+semantics.
+inal
+Sequence-comparison analyses (e.g., LCS) across these
+lists examine whether campaigns exhibit stable, reusable chains of
+techniques. In
+our analyses,
+we did not observe robust recurring
+7
+Behavioral
+Analysis
+chains, which we interpret as evidence that these CTI bundles are
+Our analysis starts from two complementary views of the data.
+best viewed as descriptive rather than executable. Stage 1 yields a
+The
+!rst is the composed STIX dataset introduced in Section 5,
+normalized behavioral graph, matrices linking campaigns or threat
+which to
+aggregates
+multiple public
+CTItechnique
+collections
+(including
+groups
+techniques, and
+tactic-ordered
+lists that
+serveMITRE
+ATT&CK
+CAPEC,
+DigitalSide,
+as
+structuralEnterprise,
+scaffolding for
+subsequent
+stages. AlienVault OTX, and
+
+Stage 2 produces context-aware, minimal executable steps, along
+6 Methodology
+with explicit
+documentation of assumptions and provenance linking
+To
+whether structured
+threat intelligence can be transeach stepevaluate
+to its supporting
+CTI sources.
+
+formed into machine-actionable representations for multi-stage adversary
+we propose
+a three-stage methodology defined
+6.3 Stageemulation,
+3: Emulation
+Integration
+at an abstract level. The approach is format- and platform-agnostic,
+Stage 3requiring
+convertsonly
+thestructured
+translatedbehavioral
+steps intoentities
+an executable
+adversary
+and explicit
+relationrepresentation.
+Any
+emulation
+environment
+capable
+of
+expressships among them. In this work, we instantiate the methodology
+ing actions,
+plans,
+controlled
+can instantiate
+this
+using STIX
+2.1and
+objects
+and the execution
+Caldera framework
+as a proof
+of
+concept
+demonstrating
+feasibility.
+stage. Each
+step
+becomes aits practical
+platform-aware
+action with optional
+Figure and
+1 presents
+the three conceptual
+of actions
+the methodolpreconditions
+post conditions.
+Orderedstages
+sets of
+form
+ogy.
+Stage
+1
+performs
+automated
+structural
+modeling
+of CTI
+data.
+a behavioral plan approximating a campaign or long-term
+threat
+Stage
+2
+introduces
+a
+human-in-the-loop
+translation
+from
+abstract
+operation, enabling consistency checks, validation of assumptions,
+behavioral descriptions to minimal executable steps. Stage 3 inteand telemetry collection.
+grates these steps into an emulation environment. The figure is
+In this
+study, we
+instantiate
+Stage 3 using diagram
+Caldera.and
+Translated
+conceptual
+rather
+than an implementation
+does not
+steps are
+mapped
+abilities,
+adversary pro!les, and operations.
+assume
+any to
+specific
+serialization.
+
+EclecticIQ). The second is the MITRE ATT&CK Enterprise bundle
+6.2
+Stage
+Technique
+Translation
+Layer
+itself, i.e.,
+the2:o"cial
+knowledge base
+maintained
+by MITRE for the
+Enterprise
+domain,
+serialized as
+STIX 2.x
+objects and
+periodically
+Stage
+2 bridges the
+gap between
+high-level
+behavioral
+descriptions
+and
+executable steps. Existing CTI typically states what occurred,
+updated.
+not It
+how,
+and therefore
+lacks the procedural
+needed for STIX
+is important
+to distinguish
+the roles semantics
+of these components.
+automation.
+Some
+interpretation
+is
+required
+to
+fill
+this
+gap.
+is a generic serialization language for CTI objects and relationships.
+For each technique
+in the tactic-ordered
+list asofshown
+on techniques,
+Figure 2,
+ATT&CK
+is a behavioral
+knowledge base
+tactics,
+inwe extract the behavior implied by the structured representation,
+trusion sets, campaigns, malware, and tools. The Enterprise bundle
+examine whether prior examples or public repositories (e.g., Atomic
+is one concrete instance of this knowledge base, exported in STIX
+Red Team - ART) offer templates, refine the action according to
+format. The
+composed
+dataset
+broadens this
+by adding other
+platform
+constraints,
+privilege
+requirements,
+and base
+environmental
+STIX
+feeds.
+assumptions, and define an executable step that captures the inWe !rst
+built
+and executed
+the full
+pipeline on the
+composed
+tended
+behavior
+without
+contradicting
+the available
+intelligence.
+dataset:
+parsing all
+bundles, or
+deduplicating
+objects,
+constructing a
+When
+parameters,
+preconditions,
+environmental
+bindings are
+typed graph, deriving campaign–technique vectors, and computing coverage, overlap, and clustering metrics across sources. This
+global analysis revealed that the additional feeds contribute more
+campaigns and more objects (e.g., indicators and malware families),
+but their textual descriptions are typically shorter, less structured,
+
+Abilities specify execution logic, expected output, and cleanup procedures;
+pro!les
+de!ne the ordered
+set of
+abilities; and
+6.1adversary
+Stage 1:
+Automated
+Structural
+Modeling
+operations
+orchestrate
+execution,
+assignment,
+and
+Structured
+CTI is modeled
+as atiming,
+typed agent
+behavioral
+graph, where
+logging.
+Support
+scripts
+automate
+ability
+ingestion,
+pro!le construcnodes
+represent
+entities
+such as
+techniques,
+campaigns,
+intrusion
+sets,repeated
+malware, and
+tools, and
+edgesREST
+encode
+relations
+such as
+uses,
+tion, and
+execution
+via the
+API.
+Once the
+humanattributed-to,
+and subtechnique-of.
+Any CTI
+representation
+curated
+steps are de!ned,
+all repetitive aspects
+of emulation
+are
+that exposes typed objects and explicit relationship fields can be
+automated.
+normalized
+into thisStage
+form. 1
+Each
+behavioral entity
+is mapped
+a
+In our
+experiments,
+is instantiated
+with
+STIX 2.1into
+Enuniform internal representation. Techniques or equivalent abstracterprise bundles; Stage 2 applies the translation procedure using
+tions are encoded as elements of a fixed behavioral space. At the
+ATT&CK entries and structured CTI as authoritative sources; and
+Stage 3 maps the translated steps into Caldera artifacts. This separation keeps the methodology independent of any speci!c CTI
+format or emulation framework while enabling us to assess the
+limitations of available structured intelligence.
+To evaluate the methodology, we instantiated two campaigns
+inspired by real-world ones, ShadowRay and Soft Cell. Techniques
+
+637
+
+638
+
+65
+
+65
+
+598
+
+599
+
+64
+
+6
+
+65
+
+65
+
+65
+
+66
+
+66
+
+66
+
+66
+
+66
+
+66
+
+66
+
+66
+
+66
+
+66
+
+67
+
+67
+
+67
+
+67
+
+67
+
+67
+
+67
+
+67
+
+67
+
+67
+
+68
+
+68
+
+68
+
+68
+
+68
+
+68
+
+68
+
+68
+
+68
+
+68
+
+69
+
+69
+
+69
+
+69
+
+69
+
+69
+
+69
+
+The Procedural Semantics Gap in Structured CTI: A Measurement-Driven STIX Analysis for APT Emulation
+
+absent from the structured input, they are explicitly documented.
+Provenance is recorded in a lightweight form to preserve traceability between CTI entities and the resulting steps. Stage 2 produces
+context-aware, executable steps, along with explicit documentation
+of assumptions and provenance, linking each step to its supporting
+CTI sources.
+
+format or emulation framework while enabling us to assess the
+limitations of available structured intelligence.
+To evaluate the methodology, we instantiated two campaigns inspired by structured CTI, ShadowRay and Soft Cell. Techniques were
+translated into executable steps with clearly stated assumptions,
+and the resulting steps were imported into Caldera and executed
+in an isolated environment. Each campaign was executed ten times
+under identical conditions, and all executions completed successfully and consistently. These results show that descriptive CTI can
+support reproducible execution chains: single-host or multi-host,
+depending on the campaign, when supplemented with analystdriven reconstruction of missing procedural elements. They also
+highlight the procedural gaps that prevent full automation under
+current CTI standards.
+Overall, the methodology provides a principled, format-agnostic
+process for transforming descriptive structured CTI into a computable behavioral representation suitable for multi-host adversary
+emulation, while clearly delineating the limits imposed by existing
+CTI semantics.
+
+7
+Figure 2: Bar chart showing the number of techniques by
+tactics contributed by MITRE ATT&CK source in the dataset.
+The analyst’s role is limited to fixing missing orders, environmental assumptions, and parameter binding. In our case studies,
+this process took about one hour for each campaign. Although this
+creates a scalability issue, it highlights structural gaps in the current
+CTI rather than a flaw in the transformation framework. This stage
+can be performed by someone with only a superficial understanding of adversary TTPs. However, deeper expertise usually leads to
+better and more accurate TTP implementation.
+
+6.3
+
+Stage 3: Emulation Integration
+
+Stage 3 converts the translated steps into an executable adversary
+representation. Any emulation environment capable of expressing
+actions, plans, and controlled execution can instantiate this stage.
+Each step becomes a platform-aware action with optional preconditions and postconditions. Ordered sets of actions form a behavioral
+plan that approximates a campaign or long-term threat operation,
+enabling consistency checks, assumption validation, and telemetry
+collection.
+In this study, we instantiate Stage 3 using Caldera. Translated
+steps are mapped to abilities, adversary profiles, and operations.
+Abilities specify execution logic, expected output, and cleanup procedures; adversary profiles define the ordered set of abilities; and
+operations orchestrate execution, timing, agent assignment, and
+logging. Support scripts automate ability ingestion, profile construction, and repeated execution via the REST API. Once the humancurated steps are defined, all repetitive aspects of emulation are
+automated.
+In our experiments, Stage 1 is instantiated with the STIX 2.1
+Enterprise bundle; Stage 2 applies our translation procedure using
+ATT&CK entries and structured CTI as authoritative sources; and
+Stage 3 maps the translated steps into Caldera artifacts. This separation keeps the methodology independent of any specific CTI
+
+ASIACCS ’26, June 1-5, 2026, Bangalore, India
+
+Behavioral Analysis
+
+Our analysis starts from two complementary views of the data.
+The first is the composed STIX dataset, which aggregates multiple public CTI collections (including MITRE ATT&CK Enterprise,
+CAPEC, DigitalSide, AlienVault OTX, and EclecticIQ). The second
+is the MITRE ATT&CK Enterprise bundle itself, i.e., the official
+knowledge base maintained by MITRE for the Enterprise domain,
+serialized as STIX 2.x objects and periodically updated. It is important to distinguish the roles of these components. STIX is a
+generic interchange format that defines object types and relationship structures for CTI. ATT&CK is a behavioral knowledge base
+that organizes tactics, techniques, intrusion sets, campaigns, malware, and tools. The Enterprise bundle is one concrete STIX export
+of this knowledge base. The composed dataset broadens this export
+by incorporating additional STIX feeds that follow the same data
+model.
+We first executed the whole processing pipeline on the composed
+dataset by parsing all bundles, deduplicating objects, constructing a
+typed graph, deriving campaign-technique vectors, and computing
+coverage, overlap, and clustering statistics across sources. The additional feeds increase breadth and redundancy by contributing more
+objects, including indicators and malware families. However, their
+campaign and intrusion-set descriptions are typically shorter and
+less structured than those found in MITRE ATT&CK Enterprise. As
+a result, while emulation scenarios can be synthesized from nonMITRE sources, the resulting procedures are often weakly specified
+due to missing operational detail and environmental context.
+Consistent with prior work on CTI quality, we confirm that,
+beyond the well-documented issues of sparsity, incompleteness,
+and inconsistency, most STIX-encoded artifacts lack the semantic
+and procedural structure required for emulation based solely on
+them. Campaign objects in particular contain limited procedural
+information, do not fully document the incident, and rarely describe
+the target environment or preconditions. These aspects must be
+inferred from narrative descriptions rather than from machineactionable fields, which constrains the degree of automation that
+
+ASIACCS ’26, June 1-5, 2026, Bangalore, India
+
+can be achieved. For emulation purposes, both the composed dataset
+and the Enterprise bundle suffer from the same structural limitation:
+STIX does not define a dedicated procedure object with explicit
+ordering, preconditions, and environment bindings, and none of
+the sources in our corpus introduces such a construct as a custom
+extension.
+Despite this limitation, the ATT&CK Enterprise bundle stands
+out by providing richer, more consistent behavioral descriptions
+of intrusion sets and campaigns than the other feeds in the composed dataset. This motivated our decision to use Enterprise as
+the basis for the detailed behavioral analysis and clustering that
+follows. We begin by quantifying how ATT&CK Enterprise campaigns and intrusion sets use techniques. Each campaign in the
+Enterprise bundle is represented as a binary vector over the set
+of Enterprise techniques, indicating which techniques appear at
+least once in that campaign. Intrusion sets are defined in the same
+way, based on STIX relationship objects linking intrusion sets
+to attack-pattern or technique identifiers. Analysis of the Enterprise data indicates that the number of documented threat groups
+exceeds the number of publicly available campaigns. Each group is
+linked to one or more sets of techniques covering phases such as
+Initial Access, Persistence, Privilege Escalation, Credential Access,
+Discovery, Lateral Movement, Command and Control, Collection,
+Exfiltration, and Impact. Taken together, these techniques form the
+group’s operational profile. Understanding this profile is essential
+for connecting activity across campaigns, attributing incidents to
+specific actors, and designing defensive measures that focus on
+behavior rather than isolated indicators.
+We then compare campaigns with their corresponding intrusion
+sets to assess the extent to which the Enterprise bundle maintains
+internal consistency. After determining that the most reliable way
+to extract meaningful behavioral information from campaigns is to
+treat each campaign as a set of techniques, we examined how the
+use of these techniques in each campaign relates to those attributed
+to the corresponding intrusion set. For this analysis, we rely on the
+Enterprise STIX bundle to ensure that both sides of the comparison
+(campaigns and groups) come from the same representation used
+for coverage and clustering. We then manually cross-check a sample
+of these relationships against the ATT&CK website to validate the
+reference technique sets.
+By comparing the techniques observed in each campaign with
+those listed for the associated intrusion set, we identify discrepancies in both directions. Some campaigns are linked to groups
+even though they exhibit limited overlap with the techniques documented for those groups. In other cases, campaign technique sets
+include behaviors that are not present in the intrusion-set profile. A
+representative example is the Juice Mix campaign, which is linked
+to the OilRig intrusion set(s): only 64.3% of the techniques attributed to OilRig are observed in the Juice Mix campaign, as encoded
+in the Enterprise bundle. Manual verification against the ATT&CK
+website confirms that the website-level information is internally
+consistent. At the same time, the corresponding STIX file, updated
+shortly before our analysis, does not fully reflect those associations.
+This illustrates that even frequently updated bundles can contain
+inconsistencies, because relationships are curated as data rather
+than derived automatically from a single authoritative model.
+
+Roth et al.
+
+These differences are likely a consequence of the update workflow: ATT&CK web content and downloadable STIX bundle follow
+separate publication pipelines. The website is updated first, and
+the Enterprise bundle is regenerated afterwards. During this window, relationships visible on the website may not yet be present in
+the latest STIX bundle. For emulation, this means that campaigngroup mappings in the bundle should not be treated as authoritative
+without cross-checking.
+The composed dataset from Section 5 expands the set of STIX
+objects and broadens coverage across threat domains, including
+malware, infrastructure, and indicators [21]. Additional feeds increase diversity and allow cross-checks between providers. They do
+not, however, change the fundamental structural properties of the
+data: all sources rely on the same STIX object types, and none introduces structured fields for procedure, ordering, or environment
+constraints beyond what the standard already provides.
+In other words, the composed dataset improves breadth and redundancy, but not procedural depth. Campaigns and intrusion sets
+from non-MITRE sources often have shorter, less detailed descriptions and fewer contextual hints about platform, prerequisites, or
+execution details. It is still possible to derive emulation scenarios
+from these sources, but the resulting procedures are necessarily
+more approximate.
+This explains why our quantitative behavioral analysis and emulation methodology is implemented on the ATT&CK Enterprise
+bundle: it offers the most coherent and detailed combination of campaigns, intrusion sets, and techniques in our corpus, even though
+it is not free of sparsity or inconsistency.
+
+Figure 3: Technique-based similarity of 187 MITRE ATT&CK
+Enterprise intrusion-sets.
+To better understand the behavioral structure encoded in Enterprise intrusion sets, we compute similarity from their technique
+vectors and apply principal component analysis (PCA), using the
+Jaccard distance as the similarity measure based on the presence
+or absence of the technique in the intrusion sets. Figure 3 presents
+
+816
+817
+818
+819
+820
+821
+822
+823
+824
+825
+826
+827
+828
+829
+830
+831
+832
+833
+834
+835
+836
+837
+838
+839
+840
+841
+842
+843
+844
+845
+846
+847
+848
+849
+850
+851
+852
+853
+854
+855
+856
+857
+858
+859
+860
+861
+862
+863
+864
+865
+866
+867
+868
+869
+870
+
+without cross-checking.
+The composed dataset from Section 5 expands the set of STIX
+objects and broadens coverage across threat domains, including
+malware, infrastructure, and indicators [21]. Figure 2 shows the
+number of TTPs contributed by each source. Additional feeds increase diversity and allow cross-checks between providers. They do
+The Procedural Semantics Gap in Structured CTI: A Measurement-Driven STIX Analysis for APT Emulation
+ASIACCS ’26, June 1-5, 2026, Bangalore, India
+not, however, change the fundamental structural properties of the
+data: all sources rely on the same STIX object types, and none inthe resulting
+PCA.!elds
+The for
+image
+shows a near-zero
+(inA common operational assumption is that APT campaigns share
+troduces
+structured
+procedure,
+ordering, concentration
+or environment
+dicating low
+similarity),
+suggesting
+intrusion
+sets do not form
+a stable behavioral backbone suitable for generating generic emuconstraints
+beyond
+what the
+standardthat
+already
+provides.
+behavioral
+families. Instead,
+intrusion
+set comprises
+lation profiles. Our analysis of the 51 Enterprise campaigns contraIncoherent
+other words,
+the composed
+dataseteach
+improves
+breadth
+and rea
+relatively
+small,
+idiosyncratic
+subset
+of
+techniques.
+Although
+indicts this view. No technique is universal; even the most frequent
+dundancy, but not procedural depth. Campaigns and intrusion sets
+trusion
+sets
+cover
+more
+techniques
+than
+individual
+campaigns,
+they
+ones are far from ubiquitous. Only 35.6% of all Enterprise techfrom non-MITRE sources often have shorter, less detailed descripdo not provide complete procedures. They usually do not capture
+niques appear in at least one campaign, leaving 64.4% unused in
+tions and fewer contextual hints about platform, prerequisites, or
+relationships or the operational context among techniques. Thereany campaign instance (Figure 5). The long-tailed frequency distriexecution details. It is still possible to derive emulation scenarios
+fore, while they are useful for high-level profiling, they are not
+bution and low-cohesion clusters both indicate that campaigns are
+from these sources, but the resulting procedures are necessarily
+adequate as standalone units for emulating adversaries without
+highly idiosyncratic. The most frequent technique, T1105 (Ingress
+more approximate.
+significant contextual reconstruction.
+Tool Transfer), appears in 28 campaigns (55%). No single technique
+ThisWe
+explains
+why our quantitative
+analysis
+emalso investigate
+whether it isbehavioral
+possible to
+derive and
+common
+appears in every campaign, and no pair of techniques co-occurs
+ulation
+methodology
+are
+instantiated
+on
+the
+ATT&CK
+Enterprise
+behavioral subsequences across campaigns. The underlying operauniversally. The frequency distribution exhibits a pronounced long
+bundle:
+it o"ers
+the most
+andifdetailed
+combination
+camtional
+assumption
+wecoherent
+test is that
+Enterprise
+campaignsofshared
+tail: a small number of behaviors, such as T1105, T1588.002, and
+Figure 3: Technique-based similarity of 51 MITRE ATT&CK
+paigns,
+intrusion
+sets, backbone,
+and techniques
+in our
+thougha
+a stable
+technique
+it should
+be corpus,
+possibleeven
+to identify
+T1071.001, appear in many campaigns, while most techniques are
+Enterprise
+it is not
+free from
+sparsity in
+ortactic-ordered
+inconsistency.technique lists and use it
+recurring
+subsequence
+rarely used. campaigns.
+To
+better
+understand
+the
+behavioral
+structure
+encoded
+in
+Enteras a generic emulation template. For structural ordering, we use the
+prise
+campaigns,
+we compute
+pairwise campaign
+similarity
+based
+canonical
+ATT&CK
+tactic progression.
+This respects
+the semantics
+Total Techniques: 835
+on of
+their
+technique
+vectors
+and apply
+hierarchicalwith
+clustering
+Enterprise,
+which
+associates
+each technique
+one or and
+more
+488 Intrusion Set Techniques
+principal
+component
+analysis
+(PCA), using Jaccard
+distance as
+the
+tactics, and
+provides a
+consistent
+reconnaissance-to-impact
+scaffold
+(58.4%)
+similarity
+measure.
+resulting
+dendrogram
+andof
+without
+claimingFigure
+that 3
+thispresents
+order the
+reflects the
+actual
+chronology
+297 Campaign Techniques
+projection.
+Bothincident.
+views show dispersed structures with no tightly
+any
+specific
+(35.6%)
+These
+resultsSilhouette
+are consistent
+with the
+coverage
+analysis
+in Figclustered
+regions.
+coe#cients
+remain
+below
+0.15 across
+4 and
+with
+prior
+studies that
+sparsity,
+inconsistency,
+all ure
+tested
+values
+of 𝐿,
+indicating
+thatreport
+campaigns
+do not form
+coand behavioral
+incomplete families.
+behavioralInstead,
+specification
+sources [21,
+32, a
+38].
+herent
+eachin CTI
+campaign
+combines
+29
+268
+220
+Those small
+works do
+the subset
+ATT&CK
+dataset specifirelatively
+andnot analyze
+idiosyncratic
+of campaign
+techniques.
+Campaign
+Intrusion Set
+Shared
+cally,
+but
+their
+observations
+on
+data
+quality
+align
+with
+the
+patterns
+These results are consistent with the coverage analysis in Fig(3.5%)
+(26.3%)
+(32.1%)
+see in
+the prior
+Enterprise
+bundle.
+practice,
+this analysis
+does not
+ure we
+4 and
+with
+studies
+that In
+report
+sparsity,
+inconsistency,
+a robust
+common subsequence
+campaigns.
+LCSandreveal
+incomplete
+behavioral
+speci!cationbetween
+in CTI sources
+[21, The
+32, 38].
+based
+analysis
+to identify
+pair of
+techniques
+thatspeci!appear
+Those
+works
+do notfails
+analyze
+the any
+ATT&CK
+campaign
+dataset
+together
+in all
+campaigns.on
+This
+reflects
+thealign
+variability
+andpatterns
+fragmencally,
+but their
+observations
+data
+quality
+with the
+tation
+of
+the
+available
+campaign
+data
+and
+limits
+the
+usefulness
+of
+Unused Techniques: 318
+we see in the Enterprise bundles.
+sequence-based similarity methods for constructing representative
+(38.1%)
+We also investigate whether it is possible to derive common
+templates.
+behavioral subsequences across campaigns. The underlying operaFigure4:
+5: Technique
+Technique usage
+usage across
+tional assumption we test is that if Enterprise campaigns shared
+Figure
+across 51
+51MITRE
+MITREATT&CK
+ATT&CKEnterEnterprise
+campaigns
+and
+187
+intrusion
+sets.
+a stable technique backbone, it should be possible to identify a
+prise campaigns and 187 intrusion sets.
+recurring subsequence in tactic-ordered technique lists and use it
+as a generic emulation template. For ordering, we use the canonical
+Jin et al. [21] conduct a quantitative study of extensive STIX colThe
+LCS-based
+analysis
+fails to and
+identify
+a single pair
+of techlections
+from multiple
+providers
+showeven
+that different
+collections
+ATT&CK tactic progression. This respects the semantics of Enterniques
+that
+appear
+together
+in
+all
+campaigns.
+This
+re$ects
+the
+variexhibit structural variability, including duplicated content under
+prise, which associates each technique with one or more tactics, and
+ability
+and
+fragmentation
+of
+the
+available
+campaign
+data
+and
+limits
+different
+identifiers,
+objects
+that
+are
+not
+used
+as
+intended,
+and
+atprovides a consistent reconnaissance-to-impact sca"old without
+the
+usefulness
+of
+sequence-based
+similarity
+methods
+for
+constructtributes
+that
+are
+defined
+in
+the
+standard
+but
+rarely
+populated
+in
+claiming that this order re$ects the exact chronology of any speci!c
+ing
+representative
+templates.
+practice.
+Satvat et al. [32]
+analyze long threat reports and find that
+incident.
+A a
+common
+operational
+assumption
+is that
+APT attack
+campaigns
+share
+only
+small fraction
+of sentences
+encode
+concrete
+behavior;
+In practice, this analysis does not reveal a robust common subrelevant
+sentences
+are linguistically
+and often
+mix sevathe
+stable
+behavioral
+backbone
+suitable fordense
+generating
+generic
+emusequence between campaigns. Many of them lack detailed, coneral
+events
+and
+relations,
+making
+precise
+extraction
+of
+temporal
+or
+lation
+pro!les.
+Our
+analysis
+of
+the
+51
+Enterprise
+campaigns
+contrasistently structured technique sequences, and the number of camcausal
+structure
+difficult.
+Sun
+et
+al.
+[38]
+survey
+CTI
+mining
+pipelines
+dicts
+this
+view.
+No
+technique
+is
+universal;
+even
+the
+most
+frequent
+paigns per group is insu#cient for reliable sequence comparison.
+and highlight that they frequently operate on incomplete threat
+intelligence that is unstructured, noisy, or internally inconsistent,
+8
+which directly affects data quality and downstream analysis.
+None of these works focuses specifically on ATT&CK campaigns.
+Still, their findings on structural variability, incomplete and noisy
+CTI, and the difficulty of isolating actionable behavior are consistent with the dispersion we observe in campaign technique vectors.
+Figure 4: Campaign clusters based on technique overlap.
+Taken together, they reinforce the idea that publicly available CTI
+often lacks the structural regularity required to derive generic adversary profiles. Our research proposes a methodology to overcome
+
+874
+875
+876
+877
+878
+879
+880
+881
+882
+883
+884
+885
+886
+887
+888
+889
+890
+891
+892
+893
+894
+895
+896
+897
+898
+899
+900
+901
+902
+903
+904
+905
+906
+907
+908
+909
+910
+911
+912
+913
+914
+915
+916
+917
+918
+919
+920
+921
+922
+923
+924
+925
+926
+927
+928
+
+ASIACCS ’26, June 1-5, 2026, Bangalore, India
+
+Roth et al.
+
+these difficulties and enable the use of structured CTI for a novel
+purpose.
+The main findings are synthesized as follows:
+
+are then arranged into an adversary profile using the conservative
+tactic ordering derived in Stage 1. No ability is auto-generated from
+STIX fields, and no implicit sequencing is assumed beyond that
+scaffold.
+Campaign heterogeneity: Enterprise campaigns employ sparse techExperiments were conducted in a fully isolated virtual testbed
+nique subsets: no single technique is universal, and clustering/LCS
+consisting
+of a Debian GNU/Linux 13 VM hosting the Caldera
+analyses reveal no common behavioral backbone across campaigns.
+server, a Kali Linux 2025.1c VM running the Caldera agent and
+Technique dispersion: Only 35.6% of MITRE ATT&CK Enterprise
+acting as the attacker-side execution agent, and a private virtual
+techniques appear in any campaign (Fig. 5), yielding a long-tailed
+network without outbound routing, and complete snapshot restorafrequency distribution with no dominant core of shared behavior.
+Intrusion-set coverage: Intrusion sets account for 58.44% of Entertion after each operation. In this setup, the Debian server functions
+prise techniques and form substantially richer, more stable behavioral
+as the emulation orchestrator, while the Kali VM serves as the
+profiles than individual campaign objects.
+attacker-side execution agent, consistent with the conceptual comStructural asymmetry: Across 51 campaigns, 297 techniques are
+ponents in Figure 6. The SUT may conceptually span single-host or
+used; however, 29 of them do not appear in the corresponding author
+multi-host target environments that are vulnerable to the sequence
+group intrusion set(s) as expected. Whereas intrusion sets use 488
+of techniques employed. This environment is not intended to aptechniques, including 220 that appear in no campaign. This asymmetry
+proximate the real-world target infrastructure but rather to meet
+shows that campaigns encode narrow episodic slices of activity, while
+the requirements for emulation. Its role is exclusively to provide a
+intrusion sets span a broader behavioral space.
+stable, reproducible substrate for validating whether CTI-derived
+Broken campaign-group mapping: Several campaigns are linked
+steps can be executed without contradiction. As a consequence,
+to intrusion sets with limited technique overlap, and some campaign
+technique sets contradict their group-level profiles, reflecting inconeven campaigns that historically involved multiple hosts, such as
+sistencies between website and Enterprise bundle relationships (e.g.,
+Soft Cell, are executed through a single attacker-side agent in our
+Juice Mix vs. OilRig).
+experiments, and lateral movement enables access to a non-directly
+IOC role: Although IoCs are not the focus of our quantitative analysis,
+connected
+host.
+STICK: Limits of Semantic CTI for Multi-Stage
+APT Emulation
+ASIACCS ’26, June 1–5, 2026, Bangalore, India
+our findings align with prior work that treats indicators primarily as
+short-lived signals for triage and hunting, rather than as sufficient
+input for reconstructing multi-step adversary behavior or for robust
+attribution.
+Modeling implication: For adversary emulation, intrusion-setcentric modeling is more robust and representative than campaigncentric approaches, and current STIX-encoded campaigns should be
+treated as partial behavioral hints rather than authoritative procedural
+templates.
+
+8
+
+Emulation Setup
+
+A!acker Infrastructure
+
+Target Environment
+
+Emulation
+Orchestrator
+
+System Under Test (SUT)
+
+Command & Control
+
+Execution
+Agent
+
+Host 1
+
+Host 2
+
+•••
+
+Host N
+
+A!acks & Operations
+
+Figure 7: Isolated environment used for executing CTI-derived multi-step behaviors.
+
+Figure 6: Isolated environment used for executing CTIIn Stage 1, all relevant information (intrusion sets, campaigns,
+and
+but their textual descriptions
+are typically
+shorter, less structured,
+Within this common structural limitation, the ATT&CK Enterderived
+behaviors.
+detailed than those found in MITRE ATT&CK Enterprise.
+prise bundle stands out by providing comparatively richer and more
+techniques) comes from the STIX file. As STIX does not and less
+explicitly
+In practice, it is possible to synthesize emulation scenarios from
+consistent behavioral descriptions of intrusion sets and campaigns
+specify the temporal order, the MITRE ATT&CK tactic phases
+these help
+non-MITRE sources, but the resulting procedures are coarser
+than the other feeds in the composed dataset. This motivated our
+because operational details and
+environmental
+context are often
+ecision to
+use Enterprise
+for the detailed
+behavioral
+Mapping
+each
+CTI-derived
+technique
+to anas the basis
+executable
+step reestablish a logical sequence of techniques. Given the scope
+of
+this
+missing.
+analysis and clustering that follows.
+quires
+addingbehavioral
+elements
+that areWenot
+present
+in how
+structured
+CTI: conFor thethe
+speci!c goal of this
+work, systematic
+analysis
+begin by
+quantifying
+ATT&CK Enterprise
+campaigns
+research and the unmet ordering gap, this approach addresses
+and subsequent adversary emulation, we therefore restrict our quanand intrusion sets use techniques. Each campaign in the Enterprise
+crete parameters (paths, hostnames,
+ports), privilege assumptions,
+ordering problem.
+titative campaign-level analysis to the ATT&CK Enterprise subset.
+bundle is encoded as a binary vector over Enterprise techniques,
+All
+results
+in
+this
+section
+(technique
+coverage,
+sparsity,
+longest
+indicating
+which (e.g.,
+techniques appear
+once in to
+that incampaign.
+environment
+checks,
+and
+some
+context
+whichat least
+process
+In Stage 2, the goal is not to reproduce historical APT campaigns
+common subsequence (LCS), clustering, and campaign–group alignIntrusion sets are represented in the same way, based on STIX
+spect
+or
+which
+directory
+to
+write
+to).
+Their
+purpose
+is
+to
+allow
+with forensic fidelity, but to test whether the abstractions ment)
+extracted
+are computed solely on the Enterprise bundle. The remaining
+relationship objects linking intrusion sets to attack-pattern
+sources are primarily
+used to characterize
+diversity
+and covor techniqueto
+identi!ers.
+execution
+while
+remaining
+faithful
+the technique’s behavioral
+from STIX once refined by a human analyst form coherent, STIX
+runnable
+erage
+at the ecosystem level (Figure 10) rather than as the basis for
+Analysis of the Enterprise data shows that the number of docuintent.
+our emulation
+mented threat groups (intrusion sets) exceeds the number of pubmulti-step behaviors. This serves as a procedural consistency
+checkmethodology.
+Our analysis con!rms, in line with prior work on CTI quality,
+licly available campaigns. Each group is linked to a set of techniques
+For each campaign instantiated
+in our proof-of-concept experirather than a historical reconstruction. At this stage, we that
+usebeyond
+ART
+the well-documented issues of sparsity and inconsiscovering phases such as initial access, persistence, privilege escalatency, most STIX-encoded
+artifacts lack
+the semantic
+and procetion, credential
+access,
+discovery,
+lateral
+movement,
+command and
+ments,
+the
+xecution
+workflow
+followed
+five
+fixed
+steps:
+① loads
+to implement the techniques using generic commands, dural
+which
+are
+structure needed for automated emulation. Campaign objects
+control, collection, ex!ltration, and impact. Taken together, these
+theprocedural
+intrusion
+sets, do not
+campaigns
+and
+techniques
+and
+orderspro!le.
+the last
+one this
+in particular
+information,
+fully
+techniques form
+the group’s
+operational
+Understanding
+subsequently refined or replaced through human analysis
+beforecontain limited
+document the incident, and rarely describe the target environment
+pro!le is essential for connecting activity across campaigns, attributin the campaigns and intrusions
+sets according to the tactic-aligned
+the next step.
+or preconditions. These aspects must be inferred from narrative
+ing incidents to speci!c actors, and designing defensive measures
+descriptions
+machine-actionable
+!elds,the
+which
+that
+focus on behavior
+than isolated
+indicators. descaffold
+(Stage 1 of
+methodology);
+② rather
+translate
+techniques
+This work instantiates Stage 3 using Caldera 5.3.0 strictly
+as anrather than from
+constrains the degree of automation that can be achieved.
+Figure 8 summarizes technique usage across the 51 Enterprise
+scriptions
+into
+executable
+commands
+(Stage
+2
+of
+the
+methodology);
+execution engine. Caldera does not interpret STIX objects,
+For infer
+emulation purposes, both the composed dataset and the
+campaigns in our dataset. Only 35.6% of Enterprise techniques
+bundle su"er from
+the same structural
+limitation:
+STIX
+appear
+at least
+one campaign, leaving
+64.4% unusedload
+in any cam③ create
+the VMs
+compatible
+withinthe
+techniques
+commands,
+sequencing, or supply missing parameters. Every actionEnterprise
+must
+be
+does
+not de!ne
+a dedicated procedure object with explicit ordering,
+paign instance. The most frequent technique, T1105 (Ingress Tool
+the bindings,
+adversaries
+and
+abilities into
+Caldera
+and28 create
+operations
+preconditions,
+and none
+of the sources
+Transfer),
+appears in
+campaigns (55%).
+No singlefrom
+technique is
+provided explicitly as a command. This property is essential for
+ourand environment
+in our corpus introduces such a construct as a custom extension.
+present in all campaigns, and no pair of techniques co-occurs uniadversaries
+3 ofcamthe methodology);
+④ collects
+operation
+out- long
+evaluation: if a step fails, the failure exposes a missing
+assumption,
+Most
+objects describe indicators,
+malware(Stage
+families, tools,
+versally. The frequency
+distribution exhibits
+a pronounced
+paigns, or intrusion sets, puts
+connected
+through
+relations
+number of
+such as T1105,
+T1588.002, and
+and
+logsassociative
+produced
+duringtail: a small
+execution
+forbehaviors,
+consistency
+checking;
+parameter, or precondition in the CTI-derived representation
+rather
+such as uses, attributed-to, or targets. When procedural hints
+T1071.001, appear in many campaigns, while most techniques are
+and ⑤
+restores
+both often
+VMsas to clean
+snapshots to reset the experimenare present,
+they appear in
+natural-language
+descriptions,
+rarely used.
+than an internal inference of the framework. Each technique
+translong paragraphs mixing context, motivation, and behavior. As a
+This sparsity leads to highly heterogeneous campaign vectors
+tal environment before the next
+run, ensuring comparability across
+lated in Stage 2 becomes a Caldera ability that contains a
+single
+result,
+multi-step campaigns cannot be reconstructed or executed
+and already suggests that there is no single “typical” campaign that
+!elds alone;
+human interpretacould serve as a generic emulation template.
+repeated
+executions.
+command and, when appropriate, cleanup logic. Theseautomatically
+abilitiesfrom the structured
+tion remains necessary to extract execution order, parameterization,
+We then compare campaigns with their corresponding intrusion
+and platform assumptions.
+
+sets to assess how well the Enterprise bundle maintains internal
+consistency. After determining that the most reliable way to extract
+
+The Procedural Semantics Gap in Structured CTI: A Measurement-Driven STIX Analysis for APT Emulation
+
+All executions completed without internal errors, indicating that
+the translated technique sequences are procedurally coherent under fixed conditions. Average runtimes were approximately one
+minute for ShadowRay and two minutes for Soft Cell. These results
+confirm only that the CTI-derived steps, once supplemented with
+analyst-driven procedural reconstruction of missing preconditions,
+parameters, and environment assumptions, form internally consistent executable chains; they do not imply fidelity to the original
+intrusions or that this reconstruction effort is negligible.
+The emulation experiments also highlight some of the identified
+structural limitations. All prerequisites and environmental dependencies must be manually introduced during translation. Branching
+or conditional logic cannot be directly recovered from the structured representation. That is, the current ATT&CK Enterprise bundle, serialized in STIX, can support reproducible multi-step execution when supplemented with procedural details provided by
+human analysts. Thus, the emulation experiments serve a dual role:
+they demonstrate that descriptive CTI contains sufficient semantic
+grounding to support procedural reconstruction when minimally
+enriched, and they precisely reveal where current CTI formats lack
+the structure required for automated adversary emulation.
+
+9
+
+Case Studies
+
+From a universe of 51 campaigns in the MITRE ATT&CK Enterprise dataset, 187 intrusion-sets, 168 of them (89.8%) have at least
+one associated technique, while 19 (10.2%) contain no technique
+relationships. Across the populated intrusion sets, we observe 4,362
+technique references, yielding an average of 26.0 techniques per
+intrusion set. All intrusion sets that include at least one technique
+are included in the technique-based measurements. On the technique side, we identified 30 techniques that are not translatable
+into executable commands because they are platform-agnostic. As
+a result, we were able to run 225 Caldera operations on a generic
+SUT.
+To ground our methodology, we selected one campaign that we
+instantiated in a single-host emulation environment (ShadowRay)
+and one campaign whose original intrusion spans multiple hosts
+(Soft Cell) to determine how much of their documented behavior can
+be operationalized from structured CTI and where analyst-supplied
+assumptions remain unavoidable. The goal was not to reproduce
+the historical intrusions, but to assess whether the technique-level
+behavioral structure encoded in STIX and ATT&CK is sufficient to
+instantiate coherent multi-step executions in an emulation environment.
+ShadowRay is associated with exploiting perimeter systems and
+abusing credentials, and it contains sufficient technique-level detail
+to outline a behavioral chain. Soft Cell, a multi-year intrusion into
+telecommunications networks, combines web exploitation, webshell persistence, Privilege Escalation, Credential Access, internal
+reconnaissance, Lateral Movement, and staged data Exfiltration.
+Despite differences in scope and tooling, both campaigns exhibit
+similar structural gaps.
+For each campaign, we extracted all relevant techniques from
+their STIX objects and aligned them with the canonical tactic ordering used throughout this work. Following the methodology of
+
+ASIACCS ’26, June 1-5, 2026, Bangalore, India
+
+Section 6, each technique was translated into an executable step. Discovery and enumeration actions required only generic commands,
+whereas steps related to Initial Access, Persistence, Privilege Escalation, and Exfiltration required parameters and assumptions not
+present in CTI (e.g., file paths, hostnames, credentials, and privilege
+levels).
+Table 2 summarizes the alignment between the translated behaviors and their corresponding ATT&CK tactics. The tactic-level
+overlap reflects standard APT tradecraft, while differences in associated techniques illustrate why campaign-level emulation cannot
+be derived solely from templates. Each translated step was implemented as a single Caldera ability, using explicit commands
+and cleanup logic. Both campaigns were executed ten times in
+the isolated two-VM testbed described in Section 8. All executions
+completed successfully and produced consistent outputs because,
+during SUT deployment, we ensured this. Because Caldera performs
+no inference or auto-correction, any missing parameter, privilege
+assumption, or ordering dependency would have resulted in immediate failure, making these experiments a direct test of procedural
+completeness.
+The results make explicit the structural limitations identified in
+Section 7. STIX objects do not encode execution order; they lack
+parameters, environment bindings, and privilege requirements; and
+they contain no branching logic or preconditions. Nevertheless, the
+case studies show that structured CTI provides sufficient behavioral grounding to support reproducible multi-host emulation when
+supplemented with a human-in-the-loop translation layer. This confirms the methodology’s viability and clarifies where current CTI
+standards fall short for automation.
+
+10
+
+Discussion and Implications
+
+Our results expose a structural gap at the core of current structured
+CTI practice. STIX and ATT&CK provide a taxonomy of adversary
+behavior, but they do not encode the procedural semantics required
+for automation, such as ordering, preconditions, parameterization,
+or environment bindings. This gap is distinct from previously studied limitations in CTI sharing [21], rule annotation variability [40],
+or EDR evaluation [33]. Our quantitative analysis shows that campaigns exhibit sparse and heterogeneous use of techniques, lack
+a stable behavioral backbone, and do not form meaningful clusters. The case studies further demonstrate that campaign objects
+omit crucial operational details, forbade any attempt to reproduce
+a campaign exactly how it happens. Each executable step requires
+assumptions about the target environment, platform constraints,
+or privilege levels that cannot be derived solely from structured
+CTI. At the same time, the experiments show that once a human
+analyst explicitly fills these gaps through non-trivial but bounded
+procedural reconstruction, the resulting chains are coherent and
+reproducible. Together, these findings clarify both the potential and
+the limits of current structured CTI for multi-step emulation. These
+results should be interpreted as measures of the semantic structure
+encoded in STIX, rather than as attempts to reconstruct historical
+campaign timelines or ground-truth procedures.
+The case studies reveal where structured CTI is strong and where
+it is silent. Technique associations provide behavioral grounding,
+but the steps required for execution, including parameters, privilege
+
+ASIACCS ’26, June 1-5, 2026, Bangalore, India
+
+Roth et al.
+
+Table 2: Mapping between ShadowRay and Soft Cell techniques and their corresponding MITRE ATT&CK tactics. An 𝑋 indicates
+that the tactic is absent from the campaign.
+ShadowRay technique(s)
+
+MITRE ATT&CK tactic
+
+Soft Cell technique(s)
+
+X
+T1588.002: Obtain Capabilities: Tool
+T1190: Exploit Public-Facing Application
+T1059.006: Command and Scripting Interpreter: Python
+X
+T1546.004: Event Triggered Execution: Unix Shell
+Configuration Modification
+T1068: Exploitation for Privilege Escalation
+T1027.013: Obfuscated Files or Information:
+Encrypted/Encoded File
+T1003.008: OS Credential Dumping: /etc/passwd and
+/etc/shadow
+
+Reconnaissance
+Resource Development
+Initial Access
+Execution
+Persistence
+
+X
+X
+T1190: Exploit Public-Facing Application
+T1059: Command and Scripting Interpreter
+T1505: Server Software Component
+
+Privilege Escalation
+
+T1068: Exploitation for Privilege Escalation
+
+Defense Evasion
+
+T1070: Indicator Removal
+
+Credential Access
+
+T1003: OS Credential Dumping
+
+T1016: System Network Configuration Discovery
+
+Discovery
+
+X
+X
+T1071.001: Application Layer Protocol; T1090: Proxy
+X
+T1496.001: Resource Hijacking: Compute Hijacking
+
+Lateral Movement
+Collection
+Command and Control
+Exfiltration
+Impact
+
+assumptions, supporting infrastructure, and platform-specific commands, are absent and must be supplied manually. This confirms
+that CTI-derived emulation is feasible only when supplemented
+with explicit analyst-driven or model-assisted enrichment.
+A second implication concerns environmental sensitivity. Real
+intrusions reflect the victim organization’s topology, identity model,
+security controls, and operational workflows. As shown in prior
+work on provenance-based detection [17, 28, 39], behavior is profoundly shaped by environmental constraints. Because STIX does
+not encode such context, emulations generated solely from CTI risk
+misrepresenting preconditions or producing unrealistic execution
+paths unless additional environment modeling is performed. This
+requirement is inherent to the current CTI standards, which do not
+encode SUT-level assumptions.
+These characteristics have practical consequences for defenders.
+CTI-derived emulations, once enriched, provide testable approximations of adversary workflows that can be used to expose visibility
+gaps, validate telemetry and detection pipelines, and measure the
+resilience of analytic rules. Variation in parameters, supporting
+tools, or execution timing, whether manual or LLM-generated, introduces realistic diversity that reduces overfitting to fixed patterns
+and supports the evaluation of detection robustness. This is particularly important because structured CTI alone does not provide
+the granularity required to express realistic operational diversity.
+The gap between descriptive CTI and operational automation
+suggests an agenda. First, enriching STIX with optional procedural
+fields would enable the community to share what adversaries do
+and also the structure needed to reproduce it. Such extensions
+need not modify the core STIX ontology; optional layers or companion schemas would suffice. Second, LLMs offer a promising
+intermediate layer: they can consolidate heterogeneous reports,
+
+T1018: Remote System Discovery; T1087: Account
+Discovery
+T1021: Remote Services
+T1005: Data from Local System
+X
+T1041: Exfiltration Over C2 Channel
+T1491: Defacement
+
+extract implicit preconditions, propose parameterizations consistent with technique semantics, and generate alternative procedural
+forms to improve diversity and resilience. Third, standardized procedural datasets that pair narrative descriptions, CTI objects, and executable steps would enable benchmarking of extraction pipelines,
+LLM-assisted emulation, and future orchestration frameworks. Finally, tighter integration among CTI producers, consumers, and
+emulation platforms is needed to enable structured intelligence to
+drive red/blue team preparation, continuous control validation, and
+threat-informed defense. Our findings should therefore be viewed as
+a boundary-mapping study: they quantify what current structured
+CTI can support and, equally notably, what it cannot.
+In summary, structured CTI provides essential behavioral semantics but lacks the procedural content required for direct automation.
+Our methodology demonstrates that, with analyst intervention,
+CTI can support reproducible multi-host emulation. Our analysis also identifies the structural modifications required to reduce
+the manual burden. These implications outline a roadmap toward
+machine-actionable CTI that supports scalable, threat-informed
+automation.
+
+11
+
+Threats to Validity
+
+Threats to construct validity arise because our measurements
+reflect the behavioral structure explicitly encoded in STIX objects rather than complete ground-truth campaign procedures.
+Campaign-technique vectors, sparsity, overlap, and clustering capture only what is documented in structured CTI, rather than complete execution sequences, causal dependencies, or operational
+context. Likewise, the tactic-ordered lists used in our methodology
+provide an organizational scaffold and are not intended to reconstruct actual temporal order. As a result, aspects such as failed
+
+The Procedural Semantics Gap in Structured CTI: A Measurement-Driven STIX Analysis for APT Emulation
+
+attempts, branching logic, concurrency, and environment-specific
+constraints are outside the scope of our analysis.
+Threats to internal validity stem primarily from data quality and
+curation practices. The downloadable ATT&CK Enterprise STIX
+bundle may lag behind website updates due to asynchronous publication pipelines, leading to incomplete or outdated campaign-group
+relationships. In addition, public CTI exhibits curation bias: only a
+subset of known operations is represented in structured form, and
+documentation quality varies across campaigns and intrusion sets.
+We mitigate these risks through deterministic parsing, consistent
+normalization of objects and relationships, validation of counts and
+links, and manual cross-checks against the authoritative ATT&CK
+website. During emulation, all experiments are conducted in an
+isolated testbed, using clean snapshot restoration and repeated
+runs to ensure that observed failures reflect missing procedural
+information in CTI rather than implementation artifacts.
+External validity is limited by both the scope of available CTI
+and the degree of abstraction in the emulation environment. Our
+quantitative analysis focuses on the ATT&CK Enterprise dataset
+and does not cover proprietary sources or other domains such as
+Mobile or ICS. The emulation environment is intentionally simplified and designed to test procedural coherence, not to reproduce
+historical victim infrastructures. Because STIX does not encode
+preconditions, parameters, privilege requirements, or environment
+bindings, the translation step necessarily involves explicit human
+assumptions. Different analysts may therefore derive slightly different, yet behaviorally consistent, executions. These limitations
+reflect structural properties of current CTI standards and bound the
+degree of automation achievable with publicly available structured
+intelligence.
+
+12
+
+Conclusion
+
+This study demonstrated that current structured CTI, as represented
+in publicly available STIX, provides only fragmented and partial
+coverage of adversarial behavior, making it insufficient for direct
+multi-stage APT emulation (RQ1). Both campaign entries and intrusion sets lack essential procedural elements, such as step ordering,
+preconditions, parameterization, and environment assumptions,
+thereby precluding executable automation. To address these limitations, we proposed a three-stage methodology that combines
+tactic-ordered behavioral scaffolds with analyst-driven procedural
+reconstruction to transform descriptive CTI into computable behavioral plans (RQ2). Our case studies showed that reproducible
+multi-stage execution relies on this supplementation, clarifying
+the operational boundaries of current standards. These results underscore that campaign-centric emulation cannot rely on generic
+templates, as public CTI does not encode reusable procedural chains.
+The main barriers to automation, namely the absence of ordering,
+preconditions, and environment context, can be mitigated by extending CTI schemas with optional procedural fields and incorporating translation layers (RQ3). We delineate the boundary between
+descriptive CTI and the procedural representations needed to support automated multi-step execution.
+
+ASIACCS ’26, June 1-5, 2026, Bangalore, India
+
+Acknowledgments
+This work was supported in part by the Coordenação de Aperfeiçoamento de Pessoal de Nível Superior (CAPES), National Council for Scientific and Technological Development (CNPq), and by
+the Programa de Pós-Graduação em Aplicações Operacionais (PPGAO), Aeronautics Institute of Technology (Instituto Tecnológico
+de Aeronáutica – ITA). It also received support from the São
+Paulo Research Foundation (FAPESP), Grants #2020/09850-0 and
+#2022/00741-0. We thank the C2-DC Laboratory for providing the
+experimental infrastructure.
+
+References
+[1] Abdulellah Alsaheel, Yuhong Nan, Shiqing Ma, Le Yu, Gregory Walkup, Z. Berkay
+Celik, Xiangyu Zhang, and Dongyan Xu. 2021. ATLAS: A Sequence-based Learning Approach for Attack Investigation. In Proceedings of the 30th USENIX Security
+Symposium (USENIX Security ’21). USENIX Association, Vancouver, BC, Canada,
+3005–3022. https://www.usenix.org/conference/usenixsecurity21/presentation/
+alsaheel
+[2] Enes Altinisik, Fatih Deniz, and Hüsrev Taha Sencar. 2023. ProvG-Searcher:
+A Graph Representation Learning Approach for Efficient Provenance Graph
+Search. In Proceedings of the 2023 ACM SIGSAC Conference on Computer and
+Communications Security (Copenhagen, Denmark) (CCS ’23). Association for
+Computing Machinery, New York, NY, USA, 2247–2261. doi:10.1145/3576915.
+3623187
+[3] Ahmed Aly, Essam Mansour, and Amr Youssef. 2025. OCR-APT: Reconstructing
+APT Stories from Audit Logs Using Subgraph Anomaly Detection and LLMs. In
+Proceedings of the 2025 ACM SIGSAC Conference on Computer and Communications
+Security (CCS ’25) (Taipei, Taiwan). Association for Computing Machinery, New
+York, NY, USA, 261–275. doi:10.1145/3719027.3765219
+[4] Frederick Barr-Smith, Xabier Ugarte-Pedrero, Mariano Graziano, Riccardo Spolaor, and Ivan Martinovic. 2021. Survivalism: Systematic Analysis of Windows
+Malware Living-Off-The-Land. In 2021 IEEE Symposium on Security and Privacy
+(SP). IEEE, Los Alamitos, CA, USA, 1557–1574. doi:10.1109/SP40001.2021.00047
+[5] Marvin Büchel, Tommaso Paladini, Stefano Longari, Michele Carminati, Stefano
+Zanero, Hodaya Binyamini, Gal Engelberg, Dan Klein, Giancarlo Guizzardi, Marco
+Caselli, Andrea Continella, Maarten van Steen, Andreas Peter, and Thijs van Ede.
+2025. SoK: Automated TTP Extraction from CTI Reports – Are We There Yet?. In
+Proceedings of the 34th USENIX Security Symposium (USENIX Security ’25) (SEC
+’25). USENIX Association, Seattle, WA, USA, Article 238, 21 pages.
+[6] Yutong Cheng, Osama Bajaber, Saimon Amanuel Tsegai, Dawn Song, and Peng
+Gao. 2025. CTINexus: Automatic Cyber Threat Intelligence Knowledge Graph
+Construction Using Large Language Models. In Proceedings of the 2025 IEEE 10th
+European Symposium on Security and Privacy (EuroS&P). IEEE, Dublin, Ireland,
+923–938. doi:10.1109/EuroSP63326.2025.00057
+[7] Zijun Cheng, Qiujian Lv, Jinyuan Liang, Yan Wang, Degang Sun, Thomas Pasquier,
+and Xueyuan Han. 2024. Kairos: Practical Intrusion Detection and Investigation
+using Whole-system Provenance. In 2024 IEEE Symposium on Security and Privacy
+(SP). IEEE, Los Alamitos, CA, USA, 3533–3551. doi:10.1109/SP54263.2024.00005
+[8] ClearSky Cyber Security. 2020. Fox Kitten: Widespread Iranian Espionage-Offensive
+Campaign. Technical Report. ClearSky Cyber Security. https://www.clearskysec.
+com/wp-content/uploads/2020/02/ClearSky-Fox-Kitten-Campaign.pdf Threat
+intelligence report.
+[9] Suresh K. Damodaran and Paul D. Rowe. 2025. Automated Repeatable Adversary
+Threat Emulation with Effects Language (EL). arXiv:2510.06420 arXiv:2510.06420.
+[10] Sofia Della Penna, Roberto Natella, Vittorio Orbinato, Lorenzo Parracino, and
+Luciano Pianese. 2025. CTI-HAL: A Human-Annotated Dataset for Cyber Threat
+Intelligence Analysis. arXiv preprint arXiv:2504.05866. https://arxiv.org/abs/
+2504.05866 Unpublished.
+[11] Gelei Deng, Yi Liu, Víctor Mayoral-Vilches, Peng Liu, Yuekang Li, Yuan Xu,
+Tianwei Zhang, Yang Liu, Martin Pinzger, and Stefan Rass. 2024. PENTESTGPT:
+Evaluating and Harnessing Large Language Models for Automated Penetration
+Testing. In Proceedings of the 33rd USENIX Security Symposium (Philadelphia, PA,
+USA) (SEC ’24). USENIX Association, USA, Article 48, 18 pages.
+[12] Jiangyi Deng, Xinfeng Li, Yanjiao Chen, Yijie Bai, Haiqin Weng, Yan Liu, Tao Wei,
+and Wenyuan Xu. 2024. RACONTEUR: A Knowledgeable, Insightful, and Portable
+LLM-Powered Shell Command Explainer. arXiv preprint arXiv:2409.02074. https:
+//arxiv.org/abs/2409.02074 Unpublished.
+[13] Feng Dong, Shaofei Li, Peng Jiang, Ding Li, Haoyu Wang, Liangyi Huang,
+Xusheng Xiao, Jiedong Chen, Xiapu Luo, Yao Guo, and Xiangqun Chen. 2023.
+Are we there yet? An Industrial Viewpoint on Provenance-based Endpoint Detection and Response Tools. In Proceedings of the 2023 ACM SIGSAC Conference on Computer and Communications Security (Copenhagen, Denmark) (CCS
+’23). Association for Computing Machinery, New York, NY, USA, 2396–2410.
+
+ASIACCS ’26, June 1-5, 2026, Bangalore, India
+
+doi:10.1145/3576915.3616580
+[14] Feng Dong, Liu Wang, Xu Nie, Fei Shao, Haoyu Wang, Ding Li, Xiapu Luo,
+and Xusheng Xiao. 2023. DISTDET: A Cost-Effective Distributed Cyber Threat
+Detection System. In Proceedings of the 32nd USENIX Security Symposium (USENIX
+Security ’23). USENIX Association, Anaheim, CA, USA, 6575–6592. https://www.
+usenix.org/conference/usenixsecurity23/presentation/dong-feng
+[15] FireEye Threat Intelligence. 2019.
+Double Dragon: APT41, a Dual
+Espionage and Cyber Crime Operation.
+Technical Report. FireEye.
+https://cloud.google.com/blog/topics/threat-intelligence/apt41-dualespionage-and-cyber-crime-operation Threat intelligence report.
+[16] Ryan Gabrys, Mark Bilinski, Sunny Fugate, and Daniel Silva. 2024. Using Natural
+Language Processing Tools to Infer Adversary Techniques and Tactics under
+the Mitre ATT&CK Framework. In Proceedings of the 2024 IEEE 14th Annual
+Computing and Communication Workshop and Conference (CCWC). IEEE, Las
+Vegas, NV, USA, 541–547. doi:10.1109/CCWC60891.2024.10427746
+[17] Xueyuan Han, Thomas Pasquier, Adam Bates, James W. Mickens, and Margo I.
+Seltzer. 2020. UNICORN: Runtime Provenance-Based Detector for Advanced
+Persistent Threats. arXiv preprint arXiv:2001.01525. https://arxiv.org/abs/2001.
+01525 Unpublished.
+[18] Md Nahid Hossain, Sanaz Sheikhi, and R. Sekar. 2020. Combating Dependence
+Explosion in Forensic Analysis Using Alternative Tag Propagation Semantics. In
+2020 IEEE Symposium on Security and Privacy (SP). IEEE, Los Alamitos, CA, USA,
+1139–1155. doi:10.1109/SP40000.2020.00064
+[19] Zian Jia, Yun Xiong, Yuhong Nan, Yao Zhang, Jinjing Zhao, and Mi Wen. 2024.
+MAGIC: Detecting Advanced Persistent Threats via Masked Graph Representation Learning. In 33rd USENIX Security Symposium (USENIX Security 24).
+USENIX Association, Philadelphia, PA, USA, 5197–5214. https://www.usenix.
+org/conference/usenixsecurity24/presentation/jia-zian
+[20] Peng Jiang, Ruizhe Huang, Ding Li, Yao Guo, Xiangqun Chen, Jianhai Luan,
+Yuxin Ren, and Xinwei Hu. 2023. Auditing Frameworks Need Resource Isolation:
+A Systematic Study on the Super Producer Threat to System Auditing and Its
+Mitigation. In Proceedings of the 32nd USENIX Security Symposium (USENIX
+Security ’23). USENIX Association, Anaheim, CA, USA, 355–372. https://www.
+usenix.org/conference/usenixsecurity23/presentation/jiang-peng
+[21] Beomjin Jin, Eunsoo Kim, Hyunwoo Lee, Elisa Bertino, Doowon Kim, and Hyoungshick Kim. 2024. Sharing Cyber Threat Intelligence: Does It Really Help?. In
+Proceedings of the 31st Annual Network and Distributed System Security Symposium
+(NDSS). Internet Society, San Diego, CA, USA, –.
+[22] Joseph Khoury, Ðorđe Klisura, Hadi Zanddizari, Gonzalo De La Torre Parra,
+Peyman Najafirad, and Elias Bou-Harb. 2024. Jbeil: Temporal Graph-Based
+Inductive Learning to Infer Lateral Movement in Evolving Enterprise Networks.
+In Proceedings of the 2024 IEEE Symposium on Security and Privacy (SP). IEEE, San
+Francisco, CA, USA, 3644–3660. doi:10.1109/SP54263.2024.00009
+[23] Isaiah J. King and H. Howie Huang. 2023. Euler: Detecting Network Lateral
+Movement via Scalable Temporal Link Prediction. ACM Transactions on Privacy
+and Security 26, 3, Article 35 (June 2023), 36 pages. doi:10.1145/3588771
+[24] Shaofei Li, Feng Dong, Xusheng Xiao, Haoyu Wang, Fei Shao, Jiedong Chen,
+Yao Guo, Xiangqun Chen, and Ding Li. 2024. NODLINK: An Online System for
+Fine-Grained APT Attack Detection and Investigation. In Proceedings of the 31st
+Annual Network and Distributed System Security Symposium (NDSS). Internet
+Society, San Diego, CA, USA, –. doi:10.14722/ndss.2024.23204 Online; pages not
+assigned.
+[25] Mingqi Lv, Hongzhe Gao, Xuebo Qiu, Tieming Chen, Tiantian Zhu, Jinyin Chen,
+and Shouling Ji. 2024. TREC: APT Tactic / Technique Recognition via FewShot Provenance Subgraph Learning. In Proceedings of the 2024 on ACM SIGSAC
+Conference on Computer and Communications Security (Salt Lake City, UT, USA)
+(CCS ’24). Association for Computing Machinery, New York, NY, USA, 139–152.
+doi:10.1145/3658644.3690221
+[26] Mandiant Consulting. 2025. Google Cloud Security 2025 Report: M-Trends. Technical Report. Mandiant, Google Cloud Security. https://services.google.com/fh/
+files/misc/google_cloud_m-trends_2025.pdf Threat intelligence report.
+[27] Yuhan Meng, Shaofei Li, Jiaping Gui, Peng Jiang, and Ding Li. 2025. KnowHow:
+Automatically Applying High-level CTI Knowledge for Interpretable and Accurate Provenance Analysis. arXiv:2509.05698 arXiv:2509.05698.
+[28] Sadegh M. Milajerdi, Rigel Gjomemo, Birhanu Eshete, R. Sekar, and V. N.
+Venkatakrishnan. 2019. HOLMES: Real-Time APT Detection through Correlation of Suspicious Information Flows. In 2019 IEEE Symposium on Security and
+Privacy (SP). IEEE, Los Alamitos, CA, USA, 1137–1152. doi:10.1109/SP.2019.00026
+[29] OASIS CTI Technical Committee. 2021. STIX Version 2.1: Committee Specification
+02. https://docs.oasis-open.org/cti/stix/v2.1/stix-v2.1.html [Online; accessed
+2024-06-01].
+[30] Vittorio Orbinato, Marco Carlo Feliciano, Domenico Cotroneo, and Roberto
+Natella. 2024. Laccolith: Hypervisor-based Adversary Emulation with Antidetection. IEEE Transactions on Dependable and Secure Computing 21, 6 (2024),
+5374–5387.
+[31] Wei Qiao, Yebo Feng, Teng Li, Zhuo Ma, Yulong Shen, Jianfeng Ma, and Yang Liu.
+2025. Slot: Provenance-Driven APT Detection through Graph Reinforcement
+Learning. In Proceedings of the 2025 ACM SIGSAC Conference on Computer and
+
+Roth et al.
+
+Communications Security (CCS ’25) (Taipei, Taiwan). Association for Computing
+Machinery, New York, NY, USA, 963–977. doi:10.1145/3719027.3744788
+[32] Kiavash Satvat, Rigel Gjomemo, and V. N. Venkatakrishnan. 2021. Extractor:
+Extracting Attack Behavior from Threat Reports. In 2021 IEEE European Symposium on Security and Privacy (EuroS&P). IEEE, Los Alamitos, CA, USA, 598–615.
+doi:10.1109/EuroSP51992.2021.00046
+[33] Xiangmin Shen, Zhenyuan Li, Graham Burleigh, Lingzhi Wang, and Yan Chen.
+2024. Decoding the MITRE Engenuity ATT&CK Enterprise Evaluation: An
+Analysis of EDR Performance in Real-World Environments. In Proceedings of the
+19th ACM Asia Conference on Computer and Communications Security (Singapore,
+Singapore) (ASIA CCS ’24). Association for Computing Machinery, New York,
+NY, USA, 96–111. doi:10.1145/3634737.3645012
+[34] Xiangmin Shen, Lingzhi Wang, Zhenyuan Li, Yan Chen, Wencheng Zhao, Dawei
+Sun, Jiashui Wang, and Wei Ruan. 2025. PentestAgent: Incorporating LLM
+Agents to Automated Penetration Testing. In Proceedings of the 20th ACM Asia
+Conference on Computer and Communications Security (ASIA CCS ’25). Association
+for Computing Machinery, New York, NY, USA, 375–391. doi:10.1145/3708821.
+3733882
+[35] Brian Singer, Keane Lucas, Lakshmi Adiga, Meghna Jain, Lujo Bauer, and Vyas
+Sekar. 2025. On the Feasibility of Using LLMs to Autonomously Execute Multihost Network Attacks. arXiv preprint arXiv:2501.16466. https://arxiv.org/abs/
+2501.16466 Unpublished.
+[36] Brian Singer, Yusuf Saquib, Lujo Bauer, and Vyas Sekar. 2025. Perry: A High-level
+Framework for Accelerating Cyber Deception Experimentation. arXiv preprint
+arXiv:2506.20770. https://arxiv.org/abs/2506.20770 Unpublished.
+[37] Blake E Strom, Andy Applebaum, Doug P Miller, Kathryn C Nickels, Adam G
+Pennington, and Cody B Thomas. 2018. MITRE ATT&CK: Design and Philosophy.
+Technical Report. The MITRE Corporation, McLean, VA, USA. – pages.
+[38] Nan Sun, Ming Ding, Jiaojiao Jiang, Weikang Xu, Xiaoxing Mo, Yonghang Tai, and
+Jun Zhang. 2023. Cyber Threat Intelligence Mining for Proactive Cybersecurity
+Defense: A Survey and New Perspectives. IEEE Communications Surveys &
+Tutorials 25, 3 (2023), 1748–1774. doi:10.1109/COMST.2023.3273282
+[39] Mati Ur Rehman, Hadi Ahmadi, and Wajih Ul Hassan. 2024. Flash: A Comprehensive Approach to Intrusion Detection via Provenance Graph Representation
+Learning. In 2024 IEEE Symposium on Security and Privacy (SP). IEEE, Los Alamitos, CA, USA, 3552–3570. doi:10.1109/SP54263.2024.00139
+[40] Mathew Vermeer, Michel van Eeten, and Carlos Gañán. 2022. Ruling the Rules:
+Quantifying the Evolution of Rulesets, Alerts and Incidents in Network Intrusion
+Detection. In Proceedings of the 2022 ACM on Asia Conference on Computer and
+Communications Security (Nagasaki, Japan) (ASIA CCS ’22). Association for Computing Machinery, New York, NY, USA, 799–814. doi:10.1145/3488932.3517412
+[41] Caio M. C. Viana, Carlos H. G. Ferreira, Fabricio Murai, Aldri Luiz Dos Santos,
+and Lourenço Alves Pereira Júnior. 2024. Devil in the Noise: Detecting Advanced Persistent Threats with Backbone Extraction. In 2024 IEEE Symposium
+on Computers and Communications (ISCC). IEEE, Los Alamitos, CA, USA, 1–7.
+doi:10.1109/ISCC61673.2024.10733665
+[42] Apurva Virkud, Muhammad Adil Inam, Andy Riddle, Jason Liu, Gang Wang,
+and Adam Bates. 2024. How Does Endpoint Detection Use the MITRE ATT&CK
+Framework?. In 33rd USENIX Security Symposium (USENIX Security 24). USENIX
+Association, Philadelphia, PA, 3891–3908. https://www.usenix.org/conference/
+usenixsecurity24/presentation/virkud
+[43] Jian Wang, Tiantian Zhu, Chunlin Xiong, and Yan Chen. 2024. MultiKG: Multisource Threat Intelligence Aggregation for High-quality Knowledge Graph Representation of Attack Techniques. arXiv:2411.08359 arXiv:2411.08359.
+[44] Lingzhi Wang, Zhenyuan Li, Yi Jiang, Zhengkai Wang, Zonghan Guo, Jiahui
+Wang, Yangyang Wei, Xiangmin Shen, Wei Ruan, and Yan Chen. 2024. From
+Sands to Mansions: Towards Automated Cyberattack Emulation with Classical
+Planning and Large Language Models. arXiv:2407.16928 arXiv:2407.16928.
+[45] Ming Xu, Hongtai Wang, Jiahao Liu, Yun Lin, Chenyang Xu, Yingshi Liu,
+Hoon Wei Lim, and Jin Song Dong. 2024. IntelEX: A LLM-driven Attack-level
+Threat Intelligence Extraction Framework. arXiv preprint arXiv:2412.10872.
+https://arxiv.org/abs/2412.10872 Unpublished.
+[46] Fan Yang, Jiacen Xu, Chunlin Xiong, Zhou Li, and Kehuan Zhang. 2023. PROGRAPHER: An Anomaly Detection System Based on Provenance Graph Embedding.
+In Proceedings of the 32nd USENIX Security Symposium (USENIX Security ’23).
+USENIX Association, Anaheim, CA, USA, 4355–4372. https://www.usenix.org/
+conference/usenixsecurity23/presentation/yang-fan
+[47] Le Yu, Shiqing Ma, Zhuo Zhang, Guanhong Tao, Xiangyu Zhang, Dongyan Xu,
+Vincent E. Urias, Han Wei Lin, Gabriela F. Ciocarlie, Vinod Yegneswaran, et al.
+2021. ALchemist: Fusing Application and Audit Logs for Precise Attack Provenance without Instrumentation. In Proceedings of the Network and Distributed
+System Security Symposium (NDSS). Internet Society, San Diego, CA, USA, –.
+[48] Bo Zhang, Yansong Gao, Changlong Yu, Boyu Kuang, Zhi Zhang, Hyoungshick
+Kim, and Anmin Fu. 2025. TAPAS: An Efficient Online APT Detection with Taskguided Process Provenance Graph Segmentation and Analysis. In Proceedings of
+the 34th USENIX Security Symposium (USENIX Security ’25). USENIX Association,
+Seattle, WA, USA, 607–624.
+
+The Procedural Semantics Gap in Structured CTI: A Measurement-Driven STIX Analysis for APT Emulation
+
+Received 12 December 2025
+
+ASIACCS ’26, June 1-5, 2026, Bangalore, India
+
+

@@ -1,0 +1,282 @@
+
+\par{
+	Nas últimas décadas, o avanço tecnológico tem promovido transformações
+	significativas na sociedade, especialmente no que diz respeito à capacidade
+	de comunicação, processamento e compartilhamento de informações. Esse
+	processo de evolução tornou-se particularmente acelerado nos últimos anos,
+	impulsionado pelo desenvolvimento de novas tecnologias computacionais e pela
+	crescente integração entre dispositivos, sistemas e usuários em escala global.
+	Entretanto, a ampliação dessas capacidades também introduz novos desafios: à
+	medida que os ambientes computacionais se tornam mais conectados e acessíveis,
+	aumenta igualmente a superfície potencialmente exposta a ameaças cibernéticas \cite{cyberrisk2025}.
+	Dessa forma, a expansão da conectividade, embora essencial para o desenvolvimento
+	tecnológico contemporâneo, também proporciona novas oportunidades para a
+	exploração maliciosa de sistemas e infraestruturas digitais \cite{aiimpact2026}.
+}
+
+\par{
+	Nesse contexto de vulnerabilidade contínua, os Sistemas de Detecção de Intrusão de
+	Rede (NIDS) desempenham um papel fundamental na proteção das infraestruturas de
+	informação \cite{advancedids2024, p4nids2025}. Tradicionalmente, a identificação de tráfego malicioso baseava-se,
+	entre outras estratégias, na inspeção de portas e na análise da carga útil
+	(\emph{payload}) dos pacotes. Entretanto, a ampla adoção de mecanismos de
+	criptografia de ponta a ponta, como o TLS 1.3, o emprego de túneis de Redes
+	Privadas Virtuais (VPN) e a utilização dinâmica de portas impõem limitações a
+	abordagens baseadas exclusivamente em características estáticas ou na inspeção
+	direta do conteúdo do tráfego \cite{standard2021}, tornando necessária a utilização de métodos capazes
+	de identificar padrões maliciosos a partir de diferentes características observáveis
+	da comunicação \cite{trafficmoe2026}.
+}
+
+\par{
+	Como resposta a essas limitações, abordagens fundamentadas em Aprendizado de Máquina
+	(\emph{Machine Learning} -- ML) e Aprendizado Profundo (\emph{Deep Learning} -- DL)
+	passaram a ser amplamente empregadas na identificação de padrões complexos em tráfego
+	de rede \cite{survey2025dl, neuralcyber2025}. Apesar dos resultados obtidos por diferentes modelos de DL, parte das soluções
+	existentes concentra-se em perspectivas específicas dos dados, explorando predominantemente
+	características espaciais, temporais ou estatísticas do tráfego \cite{timematters2025, temporal2025}. Essa abordagem pode
+	limitar a capacidade dos modelos de representar a natureza multifacetada e heterogênea
+	das comunicações em rede, nas quais diferentes categorias de ataques, como \emph{Botnets},
+	DoS, DDoS e \emph{Scans}, podem apresentar comportamentos distintos em diferentes domínios
+	de características \cite{ciciot2023, ugr162021}.
+}
+
+\par{
+	Embora métodos baseados em \emph{Ensemble Learning} busquem mitigar essa limitação por
+	meio da combinação de múltiplos classificadores \cite{hsae2025}, estratégias convencionais frequentemente
+	recorrem à combinação estática ou tardia (\emph{late fusion}) das representações ou
+	predições produzidas pelos diferentes modelos \cite{alfmoe2026}. Essa abordagem reduz a capacidade de coordenação
+	entre os diferentes processos de extração de características e pode limitar a adaptação do
+	modelo às propriedades específicas de cada fluxo de entrada \cite{trafficmoe2026}.
+}
+
+\par{
+	Como alternativa a essas limitações, a arquitetura ALF-MoE (\emph{Attention-Based Learnable Fusion of Specialized Expert Networks}), 
+    proposta por Chandroth, Stoian e Danciulescu (2026), introduz uma abordagem baseada no paradigma de Mistura de Especialistas 
+    (\emph{Mixture of Experts} -- MoE), aplicada à classificação multiclasse de tráfego de rede. O modelo decompõe o processo de extração 
+    de características em cinco redes especialistas, cada uma direcionada à representação de uma modalidade distinta dos atributos do tráfego:
+	\begin{itemize}
+		\item \textbf{Dense Neural Network (DNN):} O especialista DNN foi projetado para capturar características estatísticas globais e não sequenciais a partir de dados de tráfego.; 
+		\item \textbf{Convolutional Neural Network (CNN):} O especialista CNN foi projetado para capturar características espaciais inerentes aos dados de tráfego de rede;
+		\item \textbf{Gated Recurrent Unit (GRU):} O especialista GRU foi projetado para capturar padrões estatísticos nos dados de tráfego ao longo do tempo;
+		\item \textbf{Convolutional Autoencoder (CAE):} O especialista em CAE foi projetado para extrair características no domínio da frequência $x_{f,i}$, tipicamente obtidas pela aplicação de uma Transformada Rápida de Fourier (FFT) em sequências de tráfego brutas $x_i$;
+		\item \textbf{Long Short-Term Memory (LSTM):} O especialista LSTM foi projetado especificamente para extrair sequências temporais $x_{t,i} = { x_{t,i}^{(1)} , x_ {t,i}^{(2)} , \dots , x_{t,i}^{T} }$, onde cada $x_{t,i}$ representa um vetor de características ordenado no tempo (por exemplo, intervalos entre chegadas de pacotes ou linhas do tempo de sessão).
+	\end{itemize}
+}
+
+\par{
+Uma característica central da arquitetura ALF-MoE consiste na utilização de um mecanismo de roteamento dinâmico (\emph{Gating Network}) associado a um módulo de Fusão Aprendível Baseada em Atenção (\emph{Attention-Based Learnable Fusion} -- ALF). Esse mecanismo permite determinar, durante o processo de inferência, pesos contextuais para as contribuições dos diferentes especialistas, possibilitando que as predições sejam agregadas de acordo com as características específicas do fluxo analisado.
+}
+
+\section{Problema e Justificativa}
+\label{sec:problema}
+
+Estudos recentes demonstram que a arquitetura ALF-MoE apresenta resultados elevados de acurácia em conjuntos de dados de referência, como ISCX VPN-nonVPN, Unicauca e UNSW-IoTraffic. Embora a arquitetura tenha sido originalmente proposta para uma tarefa de classificação de tráfego distinta daquela considerada neste trabalho, sua estrutura baseada na especialização de diferentes redes e na fusão adaptativa de suas representações apresenta características potencialmente aplicáveis à classificação multiclasse de ataques cibernéticos.
+
+Nesse sentido, investigar a capacidade de uma arquitetura composta por múltiplos especialistas em representar diferentes características do tráfego de rede constitui uma oportunidade para avaliar sua aplicabilidade à identificação de diferentes categorias de intrusão. A heterogeneidade observada no comportamento dos ataques cibernéticos torna particularmente relevante a utilização de modelos capazes de explorar simultaneamente diferentes perspectivas dos dados e de ajustar dinamicamente a contribuição de cada especialista durante o processo de classificação.
+
+Dessa forma, a avaliação e eventual adaptação da arquitetura ALF-MoE para a classificação de ataques cibernéticos justificam-se pela necessidade de desenvolver mecanismos de defesa capazes de apresentar elevada capacidade de discriminação entre diferentes classes de ameaças, mantendo, simultâneamente, capacidade de adaptação às características específicas do tráfego analisado. Além da classificação, a integração desse mecanismo a uma aplicação capaz de operar sobre fluxos de rede em tempo real permite investigar sua aplicabilidade em um cenário mais próximo de uma infraestrutura de defesa operacional.
+
+\section{Objetivo do Trabalho}
+\label{sec:objetivos}
+
+O objetivo principal deste trabalho é implementar a arquitetura ALF-MoE e, adicionalmente mitigar um ataque cibernético emulado de um agente LLM (Large Language Model) previamente preparado para utilização de ferramentas MITRE ATT\&CK. Para alcançar esse objetivo geral, são definidos os seguintes objetivos específicos:
+
+\begin{enumerate}
+\item Implementar o fluxo de pré-processamento e extração de atributos heterogêneos, abrangendo características estatísticas, espaciais, temporais e de frequência, a partir de datasets disponíveis na literatura;
+\item Construir e treinar um modelo composto por cinco redes especialistas (DNN, CNN, GRU, CAE e LSTM), um mecanismo de roteamento dinâmico (\emph{Gating Network}) e o módulo de Fusão Aprendível Baseada em Atenção (\emph{Attention-Based Learnable Fusion} -- ALF);
+\item Avaliar o desempenho do modelo ALF-MoE na classificação de ataques cibernéticos comparado a modelos monolíticos;
+\item Avaliar o impacto do mecanismo de roteamento dinâmico e do módulo de fusão ALF sobre o desempenho do modelo, considerando métricas como acurácia, \emph{F1-Score} precisão e recall, em comparação com os classificadores monolíticos;
+\item Analisar o desempenho computacional e o tempo de inferência do modelo no cenário de classificação multiclasse de intrusões;
+\item Testar o modelo gerado em cenários emulados utilizando o framework MITRE ATT\&CK, bem como em cenários nos quais as ações ofensivas são automatizadas por meio de Agentes Baseados em Modelos de Linguagem de Grande Escala (\emph{Large Language Models} -- LLMs).
+
+\end{enumerate}
+
+\section{Contribuições}
+
+Ao longo do desenvolvimento desse trabalho, houve muitos testes empíricos e adaptações realizadas e documentadas que estarão livremente disponíveis para a comunidade acadêmica e Open-Source. Dentre elas destaca-se as mais significativas:
+
+\begin{enumerate}
+    \item \textbf{Análise de ferramenta}: Fornece uma análise sobre as características do NFStream, um \emph{framework} multiplataforma python projetado para tornar o trabalho com dados de rede fácil e intuitivo \cite{AOUINI2022108719};
+    \item \textbf{Plugins para a biblioteca NFStream}:
+        \par{
+            Dada a necessidade de processar arquivos brutos do tráfego de rede, foi necessária a criação de três plugins para a biblioteca NFStream:
+            \begin{itemize}
+                \item Extração das características de domínio para cada especialista;
+                \item Adicionar o rótulo de acordo com as configurações de cada ataque \cite{Sharafaldin2018TowardGA};
+                \item Inferência do modelo gerado em tempo de execução.
+            \end{itemize}
+        }
+\end{enumerate}
+
+
+\section{Estrutura do Trabalho}
+
+O restante deste trabalho está organizado da seguinte maneira 
+
+% TODO: Refatorar essa parte, está muito focada em IoT
+% \par{
+% 	Tecnologicamente, a gente evoluiu para caralho nos últimos 50 anos, e
+% 	nos últimos 5 anos passamos a dar saltos evolutivos cada vez maiores.
+% 	Só que sempre que a gente resolve um problema gera outro né, por exemplo,
+% 	estamos cada vez mais conectados a todos os cantos do mundo mas em contrapartida
+% 	os outros também se conectam com a gente. A estimativa mais recente da
+% 	União Internacional de Telecomunicações é que 26\% da população mundial continua
+% 	totalmente \emph{offline}. O que acarreta aquela frase: "Se tá na internet, dá pra atacar."
+% 	Daí pra piorar veio os agentes de IA generativa que executam comandos, analisam contexto,
+% 	toma decisão baseada no contexto, testa umas coisas que nunca passou pela cabeça dos
+% 	seres humanos, ai tipo como, a gente fica gag de la gag porque ela consegue chegar nuns
+% 	resultados bizarros. Então meio que tipo, a tecnologia evolui rápido pra caralho,
+% 	mas os cara que ganha dinheiro sendo hacker do mal roubando dinheiro de aposentado
+% 	evolui tão rápido quanto, a diferença é que agora eles podem mandar um agente de IA
+% 	fazer essa merda. Mano, no Brasil o CERT.br recebe uma média de 500 mil notificações
+% 	de incidentes anualmente, fora as merda que dá e as empresa não reporta.
+
+% 	% A constante aceleração da transformação digital e a expansão da
+% 	% Internet das Coisas (IoT) redefiniram a infraestrutura global de
+% 	% comunicação, conectando bilhões de dispositivos e serviços
+% 	% heterogêneos. Contudo, essa rápida adoção tecnológica é
+% 	% acompanhada por uma evolução equivalente na frequência, sofisticação
+% 	% e impacto das ameaças cibernéticas. O custo global do
+% 	% cibercrime tem apresentado estimativas alarmantes, com projeções
+% 	% indicando perdas financeiras na ordem de 10,5 trilhões de dólares em
+% 	% 2025, além de impactos econômicos diretos e sistêmicos
+% 	% significativos sobre a cadeia de suprimentos corporativa. No
+% 	% cenário nacional, dados do CERT.br evidenciam a criticidade do
+% 	% problema, mantendo uma média superior a 500 mil incidentes de
+% 	% segurança notificados anualmente.
+% }
+% % TODO: Revisar esse paragráfo revendo a parte "Tradicionalmente..."
+% \par{
+% 	Nesse contexto de vulnerabilidade contínua, os Sistemas de Detecção
+% 	de Intrusão de Rede (NIDS) desempenham um papel crucial na
+% 	salvaguarda das infraestruturas de informação.
+% 	Tradicionalmente, a identificação de tráfego malicioso baseava-se na
+% 	inspeção de portas e análise de carga útil (\emph{payload}). No
+% 	entanto, a ampla adoção de protocolos de criptografia de ponta a
+% 	ponta (como TLS 1.3), o uso de túneis de Redes Privadas Virtuais
+% 	(VPN) e a alocação dinâmica de portas tornaram os métodos estáticos
+% 	legados ineficazes para os ambientes operacionais modernos.
+% }
+
+% \par{
+% 	Como resposta a essas limitações, abordagens baseadas em Aprendizado
+% 	de Máquina (\emph{Machine Learning} -- ML) e Aprendizado Profundo (\emph{Deep
+% 	Learning} -- DL) emergiram como o padrão para a extração automática
+% 	de padrões complexos a partir do tráfego de rede. Apesar
+% 	do sucesso demonstrado por diversos modelos de DL, a maioria das
+% 	soluções atuais enfrenta um gargalo estrutural: a dependência de uma
+% 	perspectiva única de atributos (\emph{single-feature view}), focando
+% 	exclusivamente em padrões espaciais, temporais ou estatísticos do
+% 	tráfego. Redes monocamadas ou modelos isolados falham em
+% 	capturar a natureza multifacetada e altamente heterogênea do tráfego
+% 	de rede, no qual diferentes categorias de ataques (como \emph{Botnets},
+% 	DoS, DDoS e \emph{Scans} e degradação de QoS) manifestam assinaturas distintas em
+% 	múltiplos domínios.
+% }
+
+% \par{
+% 	Embora métodos do tipo \emph{Ensemble Learning} busquem mitigar essa
+% 	limitação combinando múltiplos classificadores, as estratégias
+% 	convencionais frequentemente recorrem a fusões estáticas e tardias
+% 	(\emph{late fusion}) dos resultados das sub-redes. Esse design
+% 	estático carece de coordenação contínua entre o aprendizado de
+% 	atributos e não consegue se adaptar dinamicamente às propriedades
+% 	específicas de cada fluxo de entrada individual.
+
+% }
+
+% \par{
+% 	Para superar essas lacunas, a arquitetura ALF-MoE (\emph{Attention-Based
+% 	Learnable Fusion of Specialized Expert Networks}), proposta por
+% 	Chandroth, Stoian e Danciulescu (2026), introduz o paradigma de
+% 	Mistura de Especialistas (\emph{Mixture of Experts} -- MoE) adaptado à
+% 	classificação multiclasse de tráfego de rede. O modelo
+% 	decompõe a extração de características em cinco redes especialistas
+% 	dedicadas, cada uma especializada em uma modalidade distinta de
+% 	atributos do tráfego:
+% 	\begin{itemize}
+% 		\item \textbf{Dense Neural Network:} especializada na captura de
+% 			atributos estatísticos e globais da rede;
+% 		\item \textbf{Convolutional Neural Network (CNN):} dedicada ao
+% 			aprendizado de padrões espaciais e assinaturas no nível de
+% 			bytes/payload;
+% 		\item \textbf{Gated Recurrent Unit (GRU):} focada em variações
+% 			estatísticas ao longo do tempo;
+% 		\item \textbf{Convolutional Autoencoder (CAE):} projetado para a
+% 			extração de representações no domínio da frequência;
+% 		\item \textbf{Long Short-Term Memory (LSTM):} especializada no
+% 			modelamento de dependências e correlações temporais de longa duração.
+% 	\end{itemize}
+
+% 	O grande diferencial do ALF-MoE reside no uso de um mecanismo de
+% 	roteamento dinâmico (\emph{gating network}) combinado a um módulo de Fusão
+% 	Aprendível Baseada em Atenção (\emph{Attention-based Learnable Fusion} --
+% 	ALF), que calcula pesos contextuais em tempo de execução para agregar
+% 	de forma adaptativa as predições dos especialistas com base nas
+% 	características específicas do fluxo analisado.
+
+% }
+
+% \section{Problema e Justificativa}
+% \label{sec:problema}
+
+% A literatura recente demonstrou que a arquitetura ALF-MoE atinge taxas elevadas de acurácia em
+% \emph{datasets} de referência como ISCX VPN-nonVPN, Unicauca e UNSW-IoTraffic.
+% Embora a arquitetura proposta pelos autores tenha sido criada com o objetivo distinto à classificação de
+% ataques cibernéticos, ela ainda pode ser validada para tal fim, de modo a realizar análises empíricas e, caso
+% necessário, adaptações.
+% Avaliar como uma estrutura complexa de múltiplos especialistas responde à heterogeneidade de ataques de rede
+% modernos justifica-se pela necessidade de desenvolver defesas cibernéticas proativas, precisas e adaptáveis
+% em tempo real.
+
+% \section{Objetivo do Trabalho}
+% \label{sec:objetivos}
+
+% O objetivo principal deste trabalho é a construção de uma ferramenta de identificação e mitigação de ataques
+% cibernéticos em tráfego de rede. Para alcançar esse objetivo geral, definem-se os seguintes objetivos específicos:
+% \begin{enumerate}
+% 	\item Implementar o fluxo de pré-processamento e extração de atributos heterogêneos (estatísticos,
+% 		espaciais, temporais e de frequência) a partir de conjuntos de dados de tráfego de rede;
+% 	\item Construir e treinar um modelo com cinco especialistas (Dense, CNN, GRU, CAE e LSTM), roteamento
+% 		dinâmico (\emph{Gating Network}) e o módulo de fusão ALF (\emph{Attention Learneable Fusion});
+% 	\item Avaliar o impacto da rede de roteamento dinâmico e do módulo de fusão ALF na acurácia e no
+% 		\emph{F1-Score} em comparação com classificadores monolíticos;
+% 	\item Análisar o desempenho e o tempo de inferência do modelo no cenário de classificação multiclasse de intrusões;
+% 	\item Implementar uma aplicação que seja capaz de:
+% 		\begin{enumerate}
+% 			\item Extrair informações de pacotes brutos de rede em tempo real e monta-los em um fluxo de pacotes (\emph{flow});
+% 			\item Carregar o modelo treinado e suas configurações e utilizá-lo para classificar o fluxo de pacotes;
+% 			\item Adotar estratégias de mitigação baseado no tipo de ataque identificado.
+% 		\end{enumerate}
+% 	\item Avaliar o desempenho da aplicação, tanto em cenários emulados utilizando o framework MITTRE ATTACK©, quanto em cenários automatizados por LLMs (\emph{Large Language Models})
+% \end{enumerate}
+% % O objetivo principal deste trabalho é investigar e avaliar a
+% % usabilidade e o desempenho da arquitetura ALF-MoE na classificação de
+% % ataques cibernéticos em tráfego de rede. Para alcançar este objetivo
+% % geral, definem-se os seguintes objetivos específicos:
+% % \begin{enumerate}
+% % 	\item Implementar o fluxo de pré-processamento e extração de
+% % 		atributos heterogêneos (estatísticos, espaciais, temporais e de
+% % 		frequência) a partir de conjuntos de dados de tráfego de rede;
+% % 	\item Construir e treinar os cinco módulos especialistas (Dense,
+% % 		CNN, GRU, CAE e LSTM) conforme a especificação do ALF-MoE;
+% % 	\item Avaliar o impacto da rede de roteamento dinâmico (*Gating
+% % 		Network*) e do módulo de fusão *ALF* na acurácia e no *F1-score* em
+% % 		comparação com classificadores monolíticos e abordagens de
+% % 		*ensemble* tradicionais;
+% % 	\item Analisar o desempenho e o tempo de inferência do modelo no
+% % 		cenário de classificação multiclasse de intrusões.
+% % \end{enumerate}
+
+% \section{Estrutura do Trabalho}
+% \label{sec:estrutura}
+
+% % O restante deste trabalho está organizado da seguinte forma: o
+% % Capítulo~\ref{cap:fundamentacao} apresenta o referencial teórico e os
+% % trabalhos correlatos. O Capítulo~\ref{cap:metodologia} descreve a
+% % metodologia empregada, a preparação dos dados e os detalhes de
+% % implementação do modelo. O Capítulo~\ref{cap:experimentos} detalha os
+% % experimentos realizados e analisa os resultados obtidos. Por fim, o
+% % Capítulo~\ref{cap:conclusao} apresenta as considerações finais,
+% % limitações e sugestões para trabalhos futuros.

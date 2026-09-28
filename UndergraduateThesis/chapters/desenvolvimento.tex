@@ -1,0 +1,57 @@
+\section{Trabalhos Correlatos}
+
+\par{
+
+  \enumerate
+
+    \item \emph{Classificação de Ataques de Rede}:
+      Com o avanço e melho
+
+  \endenumerate
+
+}
+
+\section{Metodologia}
+
+Essa seção faz a introdução a arquitetura ALF-MoE, os datasets utilizados para treinar e testar o modelo, os resultados obtidos dos processos anteriores, introduz aos ataques testados utilizando LLMs e os resultados obtidos ao utilizar o modelo obtido para inferência do tráfego de rede.
+
+\subsection{ALF-MoE}
+
+\subsubsection{Pré-processamento}
+
+Para prevenir vazamento de dados identificadores diretos (como FlowID, Timestamp, Src IP, Dst IP, Src Port, Dst Port) foram removidos.
+
+\par{
+    O conjunto de dados CSE-CIC-IDS2018 é uma coleção robusta de tráfego de rede criado em um projeto colaborativo entre a Canadian Institute for Cybersecurity (CIC) e a Communications Security Establishment (CSE). Para este trabalho foi utilizado a versão CSV gerada com a ferramenta CICFlowMeter-v3 a partir dos dados brutos do tráfego de rede coletado ao longo de 10 dias, disponibilizada na AWS. O dataset completo pode ser encontrado em (--INSERIR CITAÇÃO--).
+}
+\par{
+    Os dados foram divididos em 10 arquivos baseados na data de captura e abrange os ataques \textbf{Botnet}, \textbf{Brute Force}, \textbf{DoS}, \textbf{DDoS}, \textbf{Infiltration} e \textbf{Web}
+}
+
+
+
+% -----------------------------
+\section{Captura de Pacotes}
+
+\par{
+Há ferramentas consolidadas para a captura de pacotes, como o CICFlowMeter e o RustiFlow. 
+Há também bibliotecas para a captura de pacotes, como o NFStream (--citar também o que o wireshark usa--). 
+Cada uma possui suas vantagens e desvantagens em relação aos objetivos presentes nesse trabalho.
+Por exemplo, em relação a ferramentas prontas, é vantajosa no sentido de já estar sendo necessário apenas configurar e executar, a desvantagem é que não é possível integrar um modelo de inferência treinado que trabalha paralelamente à captura dos fluxos, e em relação a bibliotecas que podem ser utilizadas, possuem a vantagem de possuir a integração a um modelo treinado porém não é possível ter-se um controle refinado das configurações, arquitetura de coleta dos fluxos, além de não fornecer garantias que a coleta é feita em tempo real.
+}
+
+\par{
+Para contornar as desvantagens apresentadas em ambos os casos foi desenvolvido uma aplicação \emph{Open-Source} projetada para Linux e codificada em C, C++ e Python, que foi batizada de \textbf{UEMSeeFlow}. 
+Sua arquitetura foi pensada para manter as vantagens de ambos os casos supracitados, ou seja, ela é capaz de carregar e utilizar modelos e suas configurações (\emph{.keras}, \emph{encoder.pkl}, \emph{scaler.pkl}), realizar captura de pacotes e montagem de fluxos \emph{real-time}, pode ser utilizada tanto como biblioteca C++ e Python ou via CLI, através da compilação.
+}
+
+\subsection{Arquitetura}
+
+\par{
+
+A interceptação do tráfego de rede ocorre no mais baixo nível possível, no kernel Linux, dessa forma minmizando o overhead e a perda de pacotes sob altas taxas de tráfego. Atuando sob duas camadas principais:
+    \begin{itemize}
+        \item \textbf{Kernel-Space}: Programas eBPF que filtram, parseiam e encaminham os metadados essênciais de pacotes IPv4 e IPv6;
+        \item \textbf{User-Space}: Um motor em C++ que gerencia o ciclo de vida dos fluxos ativos, calcula métricas e estatísticas e expõe os resultados tanto para a execução em CLI quanto para integração direta com Python.
+    \end{itemize}
+}

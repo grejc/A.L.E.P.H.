@@ -1,0 +1,108 @@
+\changetocdepth {4}
+\babel@toc {brazil}{}\relax 
+\setlength {\cftchapterindent }{\cftlastnumwidth } \setlength {\cftchapternumwidth }{2em}
+\setlength {\cftchapterindent }{\cftlastnumwidth } \setlength {\cftchapternumwidth }{2em}
+\setlength {\cftchapterindent }{\cftlastnumwidth } \setlength {\cftchapternumwidth }{2em}
+\setlength {\cftchapterindent }{\cftlastnumwidth } \setlength {\cftchapternumwidth }{2em}
+\setlength {\cftchapterindent }{\cftlastnumwidth } \setlength {\cftchapternumwidth }{2em}
+\setlength {\cftchapterindent }{\cftlastnumwidth } \setlength {\cftchapternumwidth }{2em}
+\setlength {\cftchapterindent }{0em} \setlength {\cftchapternumwidth }{\cftlastnumwidth }
+\contentsline {chapter}{\chapternumberline {1}\MakeTextUppercase []{Introdução}}{16}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Contextualização e Motivação}{16}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Definição do Problema}{20}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Objetivos}{21}{section.1.3}%
+\contentsline {subsection}{\numberline {1.3.1}Objetivo Geral}{21}{subsection.1.3.1}%
+\contentsline {subsection}{\numberline {1.3.2}Objetivos Específicos}{21}{subsection.1.3.2}%
+\contentsline {section}{\numberline {1.4}Principais Contribuições}{22}{section.1.4}%
+\contentsline {section}{\numberline {1.5}Organização do Trabalho}{23}{section.1.5}%
+\setlength {\cftchapterindent }{0em} \setlength {\cftchapternumwidth }{\cftlastnumwidth }
+\contentsline {chapter}{\chapternumberline {2}\MakeTextUppercase []{Fundamentação Teórica e Trabalhos Correlatos}}{25}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Ataques Cibernéticos e Sistemas de Detecção de Intrusão (NIDS)}{25}{section.2.1}%
+\contentsline {subsection}{\numberline {2.1.1}Taxonomia de Ataques de Rede}{25}{subsection.2.1.1}%
+\contentsline {subsection}{\numberline {2.1.2}Métodos de Identificação e Mitigação}{28}{subsection.2.1.2}%
+\contentsline {subsubsection}{\numberline {2.1.2.1}Paradigmas de Detecção de Intrusão}{28}{subsubsection.2.1.2.1}%
+\contentsline {subsubsection}{\numberline {2.1.2.2}Granularidade de Inspeção: DPI versus Análise Baseada em Fluxos}{29}{subsubsection.2.1.2.2}%
+\contentsline {subsubsection}{\numberline {2.1.2.3}Mecanismos de Resposta e Mitigação}{30}{subsubsection.2.1.2.3}%
+\contentsline {section}{\numberline {2.2}Aprendizado Profundo para Segurança de Redes}{31}{section.2.2}%
+\contentsline {subsection}{\numberline {2.2.1}Redes Convolucionais e Recorrentes (CNN, LSTM, GRU)}{31}{subsection.2.2.1}%
+\contentsline {subsubsection}{\numberline {2.2.1.1}Redes Neurais Convolucionais (CNN)}{31}{subsubsection.2.2.1.1}%
+\contentsline {subsubsection}{\numberline {2.2.1.2}Redes Neurais Recorrentes e a Modelagem Temporal (LSTM e GRU)}{33}{subsubsection.2.2.1.2}%
+\contentsline {paragraph}{\numberline {2.2.1.2.1}Long Short-Term Memory (LSTM):}{33}{paragraph.2.2.1.2.1}%
+\contentsline {paragraph}{\numberline {2.2.1.2.2}Gated Recurrent Unit (GRU):}{34}{paragraph.2.2.1.2.2}%
+\contentsline {subsection}{\numberline {2.2.2}Redes Densas, Autoencoders e Análise Espectral}{35}{subsection.2.2.2}%
+\contentsline {subsubsection}{\numberline {2.2.2.1}Redes Neurais Totalmente Conectadas (DNN)}{35}{subsubsection.2.2.2.1}%
+\contentsline {subsubsection}{\numberline {2.2.2.2}Autoencoders Convolucionais 1D (1D-CAE) e Processamento Espectral Integrado}{35}{subsubsection.2.2.2.2}%
+\contentsline {paragraph}{\numberline {2.2.2.2.1}1. Seleção de Subdomínio e Janelamento de Hann:}{36}{paragraph.2.2.2.2.1}%
+\contentsline {paragraph}{\numberline {2.2.2.2.2}2. Transformada Rápida de Fourier Discreta para Sinais Reais (RFFT):}{36}{paragraph.2.2.2.2.2}%
+\contentsline {paragraph}{\numberline {2.2.2.2.3}3. Codificação Convolucional 1D:}{36}{paragraph.2.2.2.2.3}%
+\contentsline {paragraph}{\numberline {2.2.2.2.4}4. Decodificação por Convolução Transposta 1D:}{36}{paragraph.2.2.2.2.4}%
+\contentsline {paragraph}{\numberline {2.2.2.2.5}5. Função de Perda Composta do CAE com Supervisão Profunda:}{37}{paragraph.2.2.2.2.5}%
+\contentsline {subsection}{\numberline {2.2.3}Tratamento de Desbalanceamento Extremo via Focal Loss}{37}{subsection.2.2.3}%
+\contentsline {subsection}{\numberline {2.2.4}Mixture of Experts (MoE) e Mecanismos de Fusão Atencional}{38}{subsection.2.2.4}%
+\contentsline {subsubsection}{\numberline {2.2.4.1}Rede de Roteamento Dinâmico (Gating Network)}{38}{subsubsection.2.2.4.1}%
+\contentsline {subsubsection}{\numberline {2.2.4.2}Mecanismo de Refinamento Atencional Aprendível (ALF)}{38}{subsubsection.2.2.4.2}%
+\contentsline {paragraph}{\numberline {2.2.4.2.1}1. Transformação Logarítmica Estabilizada:}{39}{paragraph.2.2.4.2.1}%
+\contentsline {paragraph}{\numberline {2.2.4.2.2}2. Camada de Refinamento de Atenção com Pesos Afins:}{39}{paragraph.2.2.4.2.2}%
+\contentsline {paragraph}{\numberline {2.2.4.2.3}3. Calibração de Confiança via Escalonamento Paramétrico (\emph {Vector Scaling}):}{39}{paragraph.2.2.4.2.3}%
+\contentsline {paragraph}{\numberline {2.2.4.2.4}4. Fusão por Soma Ponderada (\emph {Weighted Sum Fusion}):}{40}{paragraph.2.2.4.2.4}%
+\contentsline {paragraph}{\numberline {2.2.4.2.5}5. Projeção Classificatória Final Consolidada:}{40}{paragraph.2.2.4.2.5}%
+\contentsline {section}{\numberline {2.3}Trabalhos Correlatos}{40}{section.2.3}%
+\contentsline {subsection}{\numberline {2.3.1}NIDS Baseados em Aprendizado Profundo}{40}{subsection.2.3.1}%
+\contentsline {subsection}{\numberline {2.3.2}Abordagens Ensemble e Mixture of Experts em Cibersegurança}{42}{subsection.2.3.2}%
+\contentsline {subsection}{\numberline {2.3.3}Síntese Comparativa}{43}{subsection.2.3.3}%
+\setlength {\cftchapterindent }{0em} \setlength {\cftchapternumwidth }{\cftlastnumwidth }
+\contentsline {chapter}{\chapternumberline {3}\MakeTextUppercase []{Materiais e Metodologia}}{47}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Datasets Utilizados}{47}{section.3.1}%
+\contentsline {subsection}{\numberline {3.1.1}CSE-CIC-IDS2018: Origem, Geração, Atributos e Distribuição Amostral}{48}{subsection.3.1.1}%
+\contentsline {subsubsection}{\numberline {3.1.1.1}Topologia e Infraestrutura de Rede}{49}{subsubsection.3.1.1.1}%
+\contentsline {subsubsection}{\numberline {3.1.1.2}Metodologia de Geração de Tráfego}{49}{subsubsection.3.1.1.2}%
+\contentsline {subsubsection}{\numberline {3.1.1.3}Atributos Extraídos e Estrutura Tabular}{50}{subsubsection.3.1.1.3}%
+\contentsline {subsubsection}{\numberline {3.1.1.4}Estatísticas e Distribuição Amostral}{51}{subsubsection.3.1.1.4}%
+\contentsline {subsection}{\numberline {3.1.2}CIC-BCCC-NRC-2024: Origem, Geração, Atributos e Distribuição Amostral}{52}{subsection.3.1.2}%
+\contentsline {subsubsection}{\numberline {3.1.2.1}Infraestrutura e Topologia do Banco de Testes}{52}{subsubsection.3.1.2.1}%
+\contentsline {subsubsection}{\numberline {3.1.2.2}Taxonomia dos Vetores de Ataque}{52}{subsubsection.3.1.2.2}%
+\contentsline {subsubsection}{\numberline {3.1.2.3}Atributos Extraídos e Distribuição Amostral}{54}{subsubsection.3.1.2.3}%
+\contentsline {subsection}{\numberline {3.1.3}UNSW-NB15: Origem, Geração, Atributos e Distribuição Amostral}{54}{subsection.3.1.3}%
+\contentsline {subsubsection}{\numberline {3.1.3.1}Ambiente de Simulação e Infraestrutura de Captura}{55}{subsubsection.3.1.3.1}%
+\contentsline {subsubsection}{\numberline {3.1.3.2}Taxonomia das Classes de Ataque}{55}{subsubsection.3.1.3.2}%
+\contentsline {subsubsection}{\numberline {3.1.3.3}Espaço de Atributos e Alinhamento no ALF-MoE}{56}{subsubsection.3.1.3.3}%
+\contentsline {subsubsection}{\numberline {3.1.3.4}Estatísticas e Distribuição Amostral}{57}{subsubsection.3.1.3.4}%
+\contentsline {section}{\numberline {3.2}Pipeline de Pré-processamento e Engenharia de Features}{58}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}Seleção, Normalização e Codificação}{58}{subsection.3.2.1}%
+\contentsline {subsection}{\numberline {3.2.2}Tratamento de Desbalanceamento de Classes}{58}{subsection.3.2.2}%
+\contentsline {section}{\numberline {3.3}Arquitetura Proposta: ALF-MoE}{58}{section.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}Visão Geral do Sistema e Fluxo de Dados}{58}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.3.2}Modelos Especialistas (DNN, CNN, GRU, CAE, LSTM)}{58}{subsection.3.3.2}%
+\contentsline {subsection}{\numberline {3.3.3}Gating Network}{58}{subsection.3.3.3}%
+\contentsline {subsection}{\numberline {3.3.4}Mecanismo Attention-based Learnable Fusion (ALF)}{58}{subsection.3.3.4}%
+\contentsline {section}{\numberline {3.4}Protocolo Experimental de Treinamento e Avaliação}{58}{section.3.4}%
+\contentsline {subsection}{\numberline {3.4.1}Funções de Perda e Otimização}{58}{subsection.3.4.1}%
+\contentsline {subsection}{\numberline {3.4.2}Métricas de Avaliação (Acurácia, Precision, Recall, F1-Score, Latência)}{58}{subsection.3.4.2}%
+\setlength {\cftchapterindent }{0em} \setlength {\cftchapternumwidth }{\cftlastnumwidth }
+\contentsline {chapter}{\chapternumberline {4}\MakeTextUppercase []{Pipeline de Extração e Ambiente de Inferência}}{59}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Captura e Processamento de Tráfego}{59}{section.4.1}%
+\contentsline {subsection}{\numberline {4.1.1}Extração com NFStream}{59}{subsection.4.1.1}%
+\contentsline {subsection}{\numberline {4.1.2}Mapeamento e Alinhamento de Features (NFStream $\to $ CICFlowMeter)}{59}{subsection.4.1.2}%
+\contentsline {section}{\numberline {4.2}Setup de Inferência em Tempo Real}{59}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Arquitetura do Ambiente de Execução}{59}{subsection.4.2.1}%
+\contentsline {subsection}{\numberline {4.2.2}Cenários de Teste de Estresse (Benigno, Ataques Humanos e Agentes via LLM)}{59}{subsection.4.2.2}%
+\setlength {\cftchapterindent }{0em} \setlength {\cftchapternumwidth }{\cftlastnumwidth }
+\contentsline {chapter}{\chapternumberline {5}\MakeTextUppercase []{Resultados e Discussão}}{60}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Desempenho nos Datasets de Benchmark (Resultados Offline)}{60}{section.5.1}%
+\contentsline {subsection}{\numberline {5.1.1}Análise por Classe e Desempenho Global}{60}{subsection.5.1.1}%
+\contentsline {subsection}{\numberline {5.1.2}Estudo de Ablação (Contribuição de cada especialista e do bloco ALF)}{60}{subsection.5.1.2}%
+\contentsline {section}{\numberline {5.2}Avaliação da Extração e Inferência em Tráfego Real/PCAPs}{60}{section.5.2}%
+\contentsline {subsection}{\numberline {5.2.1}Impacto do Mapeamento NFStream $\to $ CICFlowMeter}{60}{subsection.5.2.1}%
+\contentsline {subsection}{\numberline {5.2.2}Throughput, Latência e Consumo Computacional}{60}{subsection.5.2.2}%
+\contentsline {section}{\numberline {5.3}Avaliação sob Cenários Adversariais}{60}{section.5.3}%
+\contentsline {subsection}{\numberline {5.3.1}Desempenho sob Tráfego Estritamente Benigno (Taxa de Falsos Positivos)}{60}{subsection.5.3.1}%
+\contentsline {subsection}{\numberline {5.3.2}Robustez Contra Adversários Humanos}{60}{subsection.5.3.2}%
+\contentsline {subsection}{\numberline {5.3.3}Robustez Contra Adversários Guiados por LLMs}{60}{subsection.5.3.3}%
+\setlength {\cftchapterindent }{0em} \setlength {\cftchapternumwidth }{\cftlastnumwidth }
+\contentsline {chapter}{\chapternumberline {6}\MakeTextUppercase []{Conclusão}}{61}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Síntese do Trabalho}{61}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Limitações Identificadas}{61}{section.6.2}%
+\contentsline {section}{\numberline {6.3}Trabalhos Futuros}{61}{section.6.3}%
+\vspace {\cftbeforechapterskip }
+\setlength {\cftchapterindent }{\cftlastnumwidth } \setlength {\cftchapternumwidth }{2em}
+\contentsline {chapter}{\MakeTextUppercase []{Refer\^encias}}{62}{section*.26}%

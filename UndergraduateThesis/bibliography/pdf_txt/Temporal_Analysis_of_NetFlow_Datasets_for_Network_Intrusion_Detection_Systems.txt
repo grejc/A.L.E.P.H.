@@ -1,0 +1,2599 @@
+Temporal Analysis of NetFlow Datasets for
+Network Intrusion Detection Systems
+
+arXiv:2503.04404v2 [cs.LG] 9 Mar 2025
+
+Majed Luay, Siamak Layeghy, Seyedehfaezeh Hosseininoorbin,
+Mohanad Sarhan, Nour Moustafa, Marius Portmann
+2025
+Abstract
+This paper investigates the temporal analysis of NetFlow datasets for machine learning
+(ML)-based network intrusion detection systems (NIDS). Although many previous studies
+have highlighted the critical role of temporal features, such as inter-packet arrival time and
+flow length/duration, in NIDS, the currently available NetFlow datasets for NIDS lack these
+temporal features. This study addresses this gap by creating and making publicly available
+a set of NetFlow datasets that incorporate these temporal features [1]. With these temporal
+features, we provide a comprehensive temporal analysis of NetFlow datasets by examining the
+distribution of various features over time and presenting time-series representations of NetFlow
+features. This temporal analysis has not been previously provided in the existing literature.
+We also borrowed an idea from signal processing, time frequency analysis, and tested it to see
+how different the time frequency signal presentations (TFSPs) are for various attacks. The results indicate that many attacks have unique patterns, which could help ML models to identify
+them more easily.
+
+1
+
+Introduction
+
+Maintaining the security and integrity of network infrastructures has become increasingly challenging due to the constantly evolving nature of cyber threats and the vast scale and complexity of
+modern networks. A critical component of network security is monitoring traffic, which provides essential information on potential threats, anomalies, and vulnerabilities. However, the overwhelming
+volume of network traffic has made traditional packet inspection impractical, demanding immense
+processing power and storage resources while simultaneously raising significant privacy concerns [2].
+A practical solution adopted by many organisations to address these challenges is to implement flowbased network monitoring [3]. This approach aggregates traffic into summarised flows, capturing
+key communication patterns between endpoints, allowing for efficient analysis, reduced resource
+demands, and improved privacy protection while still enabling robust threat detection and network
+management [4].
+Network Intrusion Detection Systems (NIDS) are a vital component of the network security
+ecosystem, providing real-time monitoring and analysis of network traffic to identify suspicious activities, unauthorised access attempts, and potential security breaches [5]. NIDSs are commonly
+classified into two main types: signature-based and anomaly-based systems [6]. Signature-based
+NIDSs rely on databases of known attack signatures, requiring regular updates [7]. They achieve
+1
+
+high accuracy for recognised attacks but face challenges with their variations, polymorphic malware,
+and zero-day exploits [8]. In contrast, anomaly-based NIDSs utilise advanced algorithms to learn
+from traffic patterns, enabling them to adapt to emerging threats and detect anomalies that deviate from normal behaviour [9]. To enhance detection capabilities, many modern NIDSs integrate
+machine learning (ML) techniques, improving both anomaly-based and hybrid approaches [6, 10].
+The integration of trained ML models into NIDS is referred to as ML-based NIDS [11].
+ML-based NIDSs are trained to learn patterns in network traffic and enhance anomaly detection
+by distinguishing between normal and malicious behaviour [12, 13]. However, their effectiveness
+heavily depends on the quality and relevance of the datasets used for training and evaluation [14].
+In this context, flow-based network monitoring provides a practical solution by summarising traffic
+into flows, offering a structured representation of network activity that facilitates both training and
+real-time anomaly detection. Yet, a significant challenge in using current flow-based benchmark
+datasets lies in their inconsistent feature sets, which hinder uniform analysis across them. Each
+dataset typically presents a unique set of features, complicating the task of comparing and evaluating
+ML models across different datasets [15]. Sarhan et al. addressed this gap by introducing a NetFlow
+version of four highly cited flow-based benchmark datasets, standardised to a common feature
+set [16, 17]. NetFlow is the most widely used format for collecting flow information in real-world
+production networks[18].
+Although these NetFlow datasets [16, 17] have addressed the gap in standardised feature sets,
+they lack most temporal NetFlow features. Consequently, they fall short when employing sequential
+neural network models or leveraging temporal network traffic to identify attacks. The inclusion of
+detailed temporal information in NIDS datasets significantly enhances our ability to analyse traffic
+patterns and detect anomalies associated with different network attacks [19]. This research bridges
+this gap by introducing a new NetFlow version of four common NIDS benchmark datasets: UNSWNB15 [20], BoT-IoT [21], ToN-IoT [22], and CSE-CIC-IDS2018 [23], which incorporate temporal
+NetFlow features. These new versions are publicly available and can be accessed via [1]. The details
+of the temporal features and other specifications of these datasets are discussed in Section 4.
+Upon providing these datasets [1], we investigate their temporal characteristics through multiple
+analytical approaches. First, we perform a detailed analysis of flow duration distribution to illustrate the temporal patterns associated with each class of network behaviour within the datasets.
+Similarly, we examine the distribution of inter-arrival times (IAT) to reveal patterns distinctive to
+each traffic category. Second, we employ time series representations to dynamically track network
+activities over time. These visualisations effectively highlight specific attack periods alongside normal traffic flow patterns. Then, both numerical and categorical features are visualised within these
+representations.
+Finally, we apply Time-Frequency Distribution (TFD) representation to explore the frequency
+components of traffic data over time. Inspired by [24, 25] work in activity recognition, where TFD
+successfully identified subtle activity patterns [24, 25], we hypothesise that network attacks might
+also exhibit unique TFD signatures. TFD has been actively used in NIDS, where network traffic
+is transformed into image formats analysed by convolutional neural networks (CNN) for effective
+attack classification [26, 27]. Although our initial investigations have not yet yielded definitive
+results, they suggest promising directions for future research, potentially leading to breakthroughs
+in how network attacks are detected and classified.
+By conducting a thorough analysis of the network’s behaviour through NetFlow datasets, we
+lay a foundational understanding of their network dynamics. This step is crucial as it provides
+insights into the typical traffic patterns and interactions within the network, fostering a human-level
+
+2
+
+understanding of network behaviours. Such insights are instrumental in designing more targeted and
+effective strategies for network monitoring and anomaly detection, even without directly engaging
+in the development or evaluation of machine learning models [28]. Our main contributions in this
+work are outlined as follows:
+• Comprehensive Temporal Analysis of Network Traffic: We conduct an extensive temporal analysis to demonstrate the evolving dynamics of network traffic and security threats.
+Through detailed visualisations, including traffic distribution patterns, flow length distributions per attack class, and time-frequency domain representations, we provide novel insights
+into network behaviour, advancing the understanding of temporal aspects in network security.
+• Public Release of NetFlow-Based Datasets with Temporal Features: We convert four widely
+used benchmark NIDS datasets into the NetFlow format, incorporating temporal features that
+were previously absent in available NetFlow-based benchmark datasets. These enhancements
+standardise the dataset format, ensuring consistency for machine learning model evaluation,
+and significantly improve their utility in temporal analysis, leading to more accurate anomaly
+detection. Moreover, we make these enriched NetFlow datasets publicly available, providing
+a valuable resource for the research community to support ongoing advancements in machine
+learning based network intrusion detection.
+The structure of the paper is as follows: Section 2 reviews related work, Section 3 describes the
+NF3 datasets, Section 4 presents the temporal analysis, and Section 5 concludes the paper with
+future work directions.
+
+2
+
+Related Works
+
+Dataset analysis is essential to understand the strengths and limitations of different NIDS datasets.
+Recent studies [29] and [30], have surveyed and compared publicly available NIDS datasets. These
+analyses highlight their diverse characteristics and limitations, noting that the quality of a dataset
+can significantly impact the performance of detection models. For instance, some datasets do
+not accurately mirror real-world network scenarios, thereby affecting the reliability of the research
+conducted using them. In one case, the traffic patterns of NetFlow datasets are directly compared
+with real-world traffic, identifying significant discrepancies in statistical features between synthetic
+and actual datasets [31]. However, the comparison overlooks the analysis of malicious flows and
+does not address the temporal dynamics of network interactions. Similarly, authors in [32] focused
+on the complexity of inputs between real-world and lab-based traffic but stopped short of extending
+this analysis to temporal sequences, which are essential for uncovering deeper behavioural insights.
+Further, researchers in [5] have explored how dataset characteristics influence NIDS performance,
+underlining the critical role of careful dataset selection. Their citation-based analysis highlights the
+popularity of various NIDS approaches, guiding future research directions in the field. Additionally, [15] provides a thorough review of methodologies for evaluating NIDS models and stresses the
+importance of testing and evaluating these models across multiple datasets to ensure their robustness and applicability. Aligning with this recommendation, our work enriches the field by equipping
+four widely recognised NIDS datasets with standardised NetFlow features.
+To elaborate on their role as benchmarks, recent studies have focused on understanding normal
+traffic patterns in NIDS datasets to enhance anomaly detection capabilities. Studies such as [33,
+34, 35] attempt to understand the normal traffic at a level that any deviation will be detected as a
+3
+
+suspicious threat. The authors in [33] demonstrated the necessity of monitoring the traffic features
+distributions as it can be a good proof of anomalies. In their study, they work with collected network
+data with injected anomalies and they found that these anomalies fall into distinct clusters. The
+authors in [34] highlighted the advantages of using entropy-based approaches for anomaly detection.
+Their investigation focused on both flow header and behavioural features and it demonstrated
+a strong correlation between entropy values, which offers comparable effectiveness in detecting
+anomalies. [35] proposed a network traffic modelling based on analysing the source-destination
+flows in a network.
+Another significant body of work concentrates on analysing specific traffic features to gain deeper
+insights into network behaviours. For example, some work focus on analysing flow length features, as
+it offers deep insights into network traffic behaviour and is a focal point of extensive research [36, 37].
+The studies in [38, 39, 40] were in elephant flow detection, which refers to the process of identifying
+large, long-lived network flows that consume a significant amount of bandwidth. Typically, benign
+traffic exhibits a certain range of flow lengths depending on the application protocols and user
+behaviour patterns. In contrast, malicious traffic, such as that generated by attacks like port
+scanning, DoS attacks, or data exfiltration, often shows distinct flow length characteristics that
+deviate from the norm [41].
+Additionally, a number of studies emphasise the significance of the IAT feature, alongside other
+crucial flow characteristics, for effective monitoring of traffic patterns [42, 43]. The work in [42]
+analysed the traffic characteristics, including IAT, across ten diverse data centre networks across
+various administrative domains including universities, enterprises, and cloud service providers. This
+analysis was aimed at understanding the distinct traffic patterns and the underlying dynamics of
+these data centres by meticulously examining both flow and packet-level attributes associated with
+different layer-7 applications. Meanwhile, the authors in [43] extend this analysis by examining
+the distribution of key traffic features. Their data collection methodology encompassed three levels
+of network monitoring: SNMP counters for basic metrics, sampled flow or packet header data for
+more granular insights, and deep packet inspection for detailed content analysis. While the primary
+focus of the study was on evaluating network traffic volume and identifying congestion, it also
+covered various other traffic patterns, including server interactions, flow metrics, and bandwidth
+usage. Despite the proven benefits of temporal analysis in these fields, NetFlow data has not been
+extensively explored in this regard.
+Regarding the standard flow format like NetFlow [44], temporal analysis remains under-explored.
+Studies have explored the effectiveness of sequential learning models, such as Long Short-Term
+Memory (LSTM), in extracting temporal characteristics from NetFlow data for NIDS [45]. Some
+researchers adopted the CNN and LSTM models simultaneously to construct a hybrid model [46, 47].
+CNN is mainly used to extract spatial features and has made many computer vision applications
+remarkable [48]. In [46, 47], the authors introduce the Spatial and Temporal Aware Intrusion Detection Model (STIDM). STIDM is a spatio-temporal feature extraction model designed to analyse
+IAT features between consecutive packets. This model employs a well-known CNN architecture,
+LeNet-5, for extracting spatial features, complemented by a modified LSTM to capture temporal
+patterns. While this method allows for grouping packets into flows, it does not effectively facilitate
+the determination of broader temporal patterns across NetFlow data, making the exploration of
+temporal dependencies at the NetFlow level unfeasible.
+The authors in [45] explore temporal sequences of network traffic flows that denote patterns
+of malicious activities. The main focus was not to compete with the state-of-the-art solutions but
+rather to find specific temporal patterns, if exist, for each attack class. The paper investigates the
+
+4
+
+use of LSTM neural networks to learn temporal patterns in network flows for NIDS and compares
+the performance of the LSTM to a static Feed-forward Neural Network (FNN) model. Their goal
+is similar to ours but we are more interested in understanding the temporal aspect at the feature
+level within NetFlow datasets.
+Building on these initial forays into temporal NetFlow analysis, our research aims to provide
+a deep understanding of the temporal features in NetFlow datasets. We specifically focus on
+the temporal dynamics of these datasets without the direct intention of developing new anomaly
+detection models. Instead, our objective is to enrich the analytical tools available for network
+security, providing insights that are crucial for the real-time detection and analysis of network
+anomalies. By making these enriched datasets publicly available, we also contribute to the broader
+research community, offering resources that enable more detailed and effective analysis of network
+behaviours.
+
+3
+
+NIDS Datasets
+
+High-quality datasets are essential for the effective evaluation and development of ML-NIDS systems [14]. Historical datasets such as KDD Cup 99 and NSL-KDD, while once foundational, have
+become less relevant due to their outdated attack patterns from the late 1990s and early 2000s [49].
+The evolving nature of cyber threats highlights the necessity for up-to-date datasets that mirror
+current network environments and attack patterns [20]. This ensures that ML models are evaluated
+against current challenges and tailored to address emerging cybersecurity threats, enhancing their
+effectiveness and relevance. This paper uses four contemporary datasets for this purpose, each
+providing a rich source of network traffic data reflecting current network environments:
+• UNSW-NB15 [20]: Developed by the Cyber Range Lab of the Australian Centre for Cyber
+Security (ACCS) using the IXIA PerfectStorm tool to create a mix of normal and malicious
+traffic, including 12 synthetic attack scenarios.
+• BoT-IoT [21]: Also created by ACCS, this dataset includes a comprehensive mix of benign
+and malicious traffic covering five types of attack scenarios.
+• ToN-IoT [22]: A heterogeneous dataset encompassing telemetry data of IoT services and
+operating system logs, designed to assist in the development and evaluation of NIDSs. This
+dataset was also created by ACCS and it contains 9 attack classes.
+• CSE-CIC-IDS2018 [23]: Released by a collaboration between the Communications Security
+Establishment (CSE) and the Canadian Institute for Cybersecurity (CIC), this dataset focuses
+on simulating realistic network traffic combined with non-overlapping attacks.
+Despite their utility for single dataset evaluation, the inconsistency in feature sets across various
+datasets makes it challenging to ensure fair and reliable evaluations of ML-NIDS models. [15]. To
+address this gap, previous efforts have standardised these datasets to a unified NetFlow format [16,
+17], enhancing their usability for consistent model evaluation. The authors identified 43 features
+that were most effective in classifying attack classes in the datasets. Table 1 shows the full set
+of features used in the last NetFlow datasets [17] and also the missing features proposed in this
+version (in bold), which will be explained in the next section.
+
+5
+
+Table 1: List of the proposed standard NetFlow features and the added temporal features
+Feature
+IPV4 SRC ADDR
+IPV4 DST ADDR
+L4 SRC PORT
+L4 DST PORT
+PROTOCOL
+L7 PROTO
+IN BYTES
+OUT BYTES
+IN PKTS
+OUT PKTS
+FLOW DURATION MILLISECONDS
+TCP FLAGS
+CLIENT TCP FLAGS
+SERVER TCP FLAGS
+DURATION IN
+DURATION OUT
+MIN TTL
+MAX TTL
+LONGEST FLOW PKT
+SHORTEST FLOW PKT
+MIN IP PKT LEN
+MAX IP PKT LEN
+SRC TO DST SECOND BYTES
+DST TO SRC SECOND BYTES
+RETRANSMITTED IN BYTES
+RETRANSMITTED IN PKTS
+RETRANSMITTED OUT BYTES
+RETRANSMITTED OUT PKTS
+SRC TO DST AVG THROUGHPUT
+DST TO SRC AVG THROUGHPUT
+NUM PKTS UP TO 128 BYTES
+NUM PKTS 128 TO 256 BYTES
+NUM PKTS 256 TO 512 BYTES
+NUM PKTS 512 TO 1024 BYTES
+NUM PKTS 1024 TO 1514 BYTES
+TCP WIN MAX IN
+TCP WIN MAX OUT
+ICMP TYPE
+ICMP IPV4 TYPE
+DNS QUERY ID
+DNS QUERY TYPE
+DNS TTL ANSWER
+FTP COMMAND RET CODE
+FLOW START MILLISECONDS
+FLOW END MILLISECONDS
+SRC TO DST IAT MIN
+SRC TO DST IAT MAX
+SRC TO DST IAT AVG
+SRC TO DST IAT STDDEV
+DST TO SRC IAT MIN
+DST TO SRC IAT MAX
+DST TO SRC IAT AVG
+DST TO SRC IAT STDDEV
+
+4
+
+Description
+IPv4 source address
+IPv4 destination address
+IPv4 source port number
+IPv4 destination port number
+IP protocol identifier byte
+Application protocol (numeric)
+Incoming number of bytes
+Outgoing number of bytes
+Incoming number of packets
+Outgoing number of packets
+Flow duration in milliseconds
+Cumulative of all TCP flags
+Cumulative of all client TCP flags
+Cumulative of all server TCP flags
+Client to Server stream duration (msec)
+Client to Server stream duration (msec)
+Min flow TTL
+Max flow TTL
+Longest packet (bytes) of the flow
+Shortest packet (bytes) of the flow
+Len of the smallest flow IP packet observed
+Len of the largest flow IP packet observed
+Src to dst Bytes/sec
+Dst to src Bytes/sec
+Number of retransmitted TCP flow bytes (src->dst)
+Number of retransmitted TCP flow packets (src->dst)
+Number of retransmitted TCP flow bytes (dst->src)
+Number of retransmitted TCP flow packets (dst->src)
+Src to dst average thpt (bps)
+Dst to src average thpt (bps)
+Packets whose IP size <= 128
+Packets whose IP size > 128 and <= 256
+Packets whose IP size > 256 and <= 512
+Packets whose IP size > 512 and <= 1024
+Packets whose IP size > 1024 and <= 1514
+Max TCP Window (src->dst)
+Max TCP Window (dst->src)
+ICMP Type * 256 + ICMP code
+ICMP Type
+DNS query transaction Id
+DNS query type (e.g., 1=A, 2=NS..)
+TTL of the first A record (if any)
+FTP client command return code
+Flow start timestamp in milliseconds
+Flow end timestamp in milliseconds
+Minimum IAT (src->dst)
+Maximum IAT (src->dst)
+Average IAT (src->dst)
+Standard deviation of IAT (src->dst)
+Minimum IAT (dst->src)
+Maximum IAT (dst->src)
+Average IAT (dst->src)
+Standard deviation of IAT (dst->src)
+
+NetFlow Datasets version 3
+
+This section introduces NF3-Datasets, the third iteration of NetFlow-based datasets converted from
+the four aforementioned datasets [20, 23, 22, 21]. These conversions standardise the representation of
+network flows, enabling consistent cross-dataset analysis and facilitating advanced intrusion detec-
+
+6
+
+tion research. The selection of features extracted from the original datasets was rigorously assessed
+in the previous version [50]; consequently, the current datasets retain the established feature set
+while also enriching them by adding time-related features, as explained below.
+
+4.1
+
+Temporal Features
+
+As can be seen in Table 1, the list of features included in this version is the same as the previous
+version [17] plus the temporal features. The added features provide a temporal dimension for
+network traffic analysis, facilitating the precise identification and correlation of events over time.
+The temporal features listed can be classified into two categories: “Flow Timing” for determining
+the start and end time of each flow in milliseconds format, and “Inter-Packet Arrival Time” for
+including various statistics of the arrival times between consecutive packets in a flow.
+Flow timing enables researchers to accurately sequence network flows, ensuring that data aggregation and analysis reflect the true dynamics of network interactions. In the datasets, these timing
+values are stored in Unix timestamp format, which represents the number of milliseconds elapsed
+since January 1, 1970 (UTC). Precise timing is critical for activities such as event correlation, where
+understanding the order and duration of flows can reveal patterns indicative of coordinated attacks
+or system anomalies.
+Inter-packet Arrival Time (IAT) serves as another crucial metric, offering valuable insights into
+the dynamics of network traffic. IAT is calculated as the time interval between the arrival of consecutive packets at a network device, either from source to destination or vice versa. To accurately
+capture this metric, each packet’s timestamp is recorded upon arrival, and the difference between
+consecutive timestamps is computed. These time differences are then used to calculate the minimum, maximum, average, and standard deviation for each flow. Although these metrics originate
+from packet-level observations, they are aggregated at the flow level to provide a more comprehensive view of traffic patterns. Through a detailed examination of the IAT over time, we can gain
+comprehensive insights into the behaviour of traffic flows. Researchers are attracted to these features because they can uncover subtle deviations from normal traffic patterns [33, 42, 43], providing
+a deeper layer of analysis that enhances the detection of both sophisticated and low-profile network
+attacks.
+
+4.2
+
+Conversion Methodology
+
+The providers of the original datasets [20, 23, 22, 21] have released their source files in various
+formats enabling researchers to adapt and utilise these datasets according to specific research needs
+and to address known limitations. As seen in [16, 17], this flexibility aids in mitigating the feature divergence gap found in NIDS datasets by allowing for the regeneration of datasets with a
+standardised feature set in NetFlow format.
+The process of generating the current version of the NetFlow datasets is the same as previous
+versions [16, 17], displayed in Figure 1. The implementation was conducted on a machine running
+Ubuntu 20.04 LTS equipped with nProbe software. The nProbe is developed by Ntop [51], and
+is specifically designed to process and convert raw network traffic into the NetFlow records. As
+can be seen in Figure 1, the workflow initiates with the acquisition of the PCAP files, which are
+publicly available for each dataset on their respective official websites. Given the extensive volume
+of data, significant storage capacity is required; for instance, the CSE CIC IDS2018 dataset [23]
+
+7
+
+Figure 1: Illustration of the Dataset Conversion and Labeling Process
+alone comprises more than 4,000 PCAP files, totalling over 400 gigabytes. Once collected, the
+PCAP files undergo conversion through the following nProbe command invocation:
+
+nprobe -i file.pcap -V 9 --dont-reforge-time -T %feature1%feature2%featureN
+--dump-path <path> --dump-format t --csv-separator ’#’
+In the above command, the -i option specifies the input file, -V 9 sets the NetFlow version
+to 9, and --dont-reforge-time preserves the original timestamps of the network traffic, ensuring
+the timing data are not modified to match the time of command execution. The --dump-path
+option defines the directory for the output files, --dump-format t selects the text file format for
+the output, and --csv-separator ’#’ is used to separate the columns with a ’#’ in the resulting
+files. This configuration extracts 57 different flow features using the -T option, organising them
+according to the specified criteria. The outputs generated from executing the nProbe command are
+a series of text files that chronologically catalogue all flow data with precise temporal information.
+Then, the text files are seamlessly merged and converted into CSV format, facilitating easy reading
+and efficient organisation of the datasets.
+By this stage, we have compiled four datasets containing detailed flow information. These
+datasets are not yet labelled, which means there is no differentiation between normal and malicious
+flows, nor identification of specific types of attacks within the malicious flows. The subsequent
+phase involves labelling each flow based on the comparison with the corresponding ground truth file.
+Labelling is refined by comparing the precise timestamps and 5-tuple identifiers (Source/Destination
+IP, Source/Destination Ports, Protocol) to accurately match flows with their respective ground truth
+labels. The purpose of the labelling stage is to augment the datasets with two columns: one for
+binary classification and another for multi-class classification. In the binary column, a label of 0
+signifies a benign flow, while a label of 1 denotes a malicious flow. The summary of binary labelling
+is depicted in Table 2. On the other hand, the multi-class classification column encapsulates the
+specific type of attack, as documented in the ground truth files, allowing for a granular analysis of
+8
+
+Table 2: Summary of Malicious and Benign Flows in NF3-Datasets
+Dataset
+NF3-UNSW-NB15
+NF3-CSE-CIC-IDS2018
+NF3-ToN-IoT
+NF3-BoT-IoT
+
+Malicious Flows
+
+Benign Flows
+
+Total Flows
+
+127,693(5.40%)
+2,600,903(12.93%)
+10,728,046 (38.98%)
+16,881,819(99.7%)
+
+2,237,731(94.60%)
+17,514,626(87.07%)
+16,792,214(61.02%)
+51,989(0.3%)
+
+2,365,424
+20,115,529
+27,520,260
+16,933,808
+
+threat types. Detailed statistics regarding the distribution of attack classes within the datasets are
+presented in Table 3.
+The resultant of labelled datasets are the four finalised datasets that we propose in this paper,
+designated as NF3-UNSW-NB15, NF3-BoT-IoT, NF3-ToN-IoT, and NF3-CSE-CIC-IDS2018. All
+four datasets share the same feature set, which allows for better evaluation and comparison when
+implementing and evaluating ML-NIDS models. The inclusion of timestamp information allows
+for identifying the exact time of the traffic when the original traffic was captured. It is worth
+mentioning that the timestamps included in the datasets represent the time stamps documented in
+their respective PCAP files, not the time stamps at which the data was converted to the NetFlow
+format. This distinction ensures that the temporal integrity of the original network conditions
+is preserved in the datasets. Following this dataset preparation, the next section will delve into
+the temporal analysis of these datasets. This analysis aims to explore the dynamic patterns and
+temporal characteristics of the traffic, providing deeper insights into the timing and progression of
+the recorded network behaviour.
+
+Table 3: Statistics of attack types across the datasets, showing the count of flows categorised under
+each attack and benign class.
+Attack Type
+Benign
+DoS
+DDoS
+Reconnaissance
+Backdoor
+Fuzzers
+Exploits
+Analysis
+Generic
+Shellcode
+Worms
+Web Attacks
+Infiltration
+BoT
+BrutForce
+Scanning
+XSS
+Password
+Injection
+Ransomware
+MITM
+Theft
+Total
+
+NF3-UNSW-NB15
+2,237,731
+5,980
+—
+17,074
+1,226
+33,816
+42,748
+2,381
+19,651
+4,659
+158
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+2,850,806
+
+NF3-CSE-CIC-IDS2018
+17,514,626
+302,966
+1,324,350
+—
+—
+—
+—
+—
+—
+—
+—
+2,538
+188,152
+207,703
+575,194
+—
+—
+—
+—
+—
+—
+—
+20,115,529
+
+9
+
+NF3-ToN-IoT
+16,792,214
+203,456
+4,141,256
+—
+203,384
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+1,358,977
+2,834,435
+1,594,777
+381,777
+3,971
+6,013
+—
+27,520,260
+
+NF3-BoT-IoT
+51,989
+8,034,190
+7,150,882
+1,695,132
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+1,615
+16,881,819
+
+5
+
+Temporal Analysis
+
+Gaining a human-level understanding of network traffic is essential before moving on to predictive
+modelling [52]. By incorporating temporal information into the NetFlow datasets, we can apply
+various temporal analysis methods to gain deeper insights into network behaviour. As mentioned in
+the related work section, many studies have explored network attack patterns over time [45]. However, unlike approaches that often aim at classification, this work focuses primarily on the temporal
+analysis at the feature level within NetFlow datasets. This analysis is not aimed at classifying or
+predicting specific types of network attacks but rather seeks to deepen our understanding of the
+inherent temporal characteristics of network features. In this section, we analyse NetFlow datasets
+from multiple perspectives, aiming to uncover insights into the dynamics of network traffic.
+
+5.1
+
+Flow Length Distribution
+
+The analysis of flow length distribution (FLD) across various datasets provides critical insights
+into the behaviour of network traffic under both benign and malicious conditions. This subsection
+visualises and discusses FLD for our NetFlow datasets. In Figure 2, each plot presents the frequency
+of flow lengths, aggregated into predefined bins (50 bins), across all the classes of traffic. However,
+the nProbe tool, by default, is configured to export flow data in intervals not exceeding two minutes.
+This is a standard configuration that allows for efficient flow data collection without overwhelming
+the system with excessive data [51]. The 2-minutes interval is chosen to provide a reasonable level
+
+Reconnaissance
+
+DDoS
+
+108
+
+DoS
+
+106
+
+104
+102
+
+Flow Length (Seconds)
+
+dos
+injection
+scanning
+
+password
+xss
+
+(b) CSE CIC IDS2018
+108
+
+ddos
+Benign
+
+106
+Frequency
+
+ransomware
+mitm
+Backdoor
+
+5
+10
+15
+20
+25
+30
+35
+40
+45
+50
+55
+60
+65
+70
+75
+80
+85
+90
+95
+10
+0
+10
+5
+11
+0
+11
+5
+12
+0
+
+0
+
+5
+10
+15
+20
+25
+30
+35
+40
+45
+50
+55
+60
+65
+70
+75
+80
+85
+90
+95
+10
+0
+10
+5
+11
+0
+11
+5
+12
+0
+
+0
+104
+102
+
+Worms
+Analysis
+Shellcode
+
+Backdoor
+DoS
+Reconnaissance
+
+Generic
+Fuzzers
+
+Exploits
+Benign
+
+104
+102
+100
+
+5
+10
+15
+20
+25
+30
+35
+40
+45
+50
+55
+60
+65
+70
+75
+80
+85
+90
+95
+10
+0
+10
+5
+11
+0
+11
+5
+12
+0
+
+100
+Flow Length (Seconds)
+
+(c) ToN-IoT
+
+0
+
+Frequency
+
+Benign
+
+100
+
+(a) BoT-IoT
+
+0
+
+BruteForce
+DDoS
+
+104
+
+Flow Length (Seconds)
+
+106
+
+BoT
+DoS
+
+102
+
+100
+
+108
+
+Web-Attack
+Infilteration
+
+5
+10
+15
+20
+25
+30
+35
+40
+45
+50
+55
+60
+65
+70
+75
+80
+85
+90
+95
+10
+0
+10
+5
+11
+0
+11
+5
+12
+0
+
+Frequency
+
+106
+
+Theft
+Benign
+
+Frequency
+
+108
+
+Flow Length (Seconds)
+
+(d) UNSW-NB15
+
+Figure 2: Flow length distribution in NF3-Datasets. The x-axis represents the length of flows in
+milliseconds, while the y-axis represents the frequency of a length, i.e., the number of flows with
+the same flow length.
+
+10
+
+of detail while minimizing system resource consumption.
+In NF3-UNSW-NB15, benign flows predominantly appear in shorter-length bins, suggesting
+quick, routine communications typical in normal network operations. In contrast, attack flows
+such as Backdoor and Worms exhibit longer flow lengths, indicating sustained connections possibly
+used for data exfiltration or maintaining persistent threats within the network. Benign flows in
+NF3-BoT-IoT are consistently short, reflecting typical user-generated traffic. However, DDoS and
+DoS attacks show a broad distribution across all flow lengths, highlighting their disruptive nature,
+which is characterised by both short and burst-like flows and prolonged attack durations to exhaust
+network resources. In the NF3-CSE-CIC-IDS2018 dataset, the flow lengths of benign traffic are
+moderately spread, indicating a variety of normal operations. Attack types such as DDoS and
+Brute Force attacks show significant occurrences at mid-range flow lengths, suggesting these attacks
+involve sequences of interactions that may be a part of the attack strategy to probe or compromise
+the network. Lastly, FLD in NF3-ToN-IoT highlights notable distinctions between benign traffic
+and attack types such as MITM, Injection, and Password attacks. The majority of benign flows are
+short, which is consistent with normal operational traffic. Attack flows, particularly Password and
+MITM, demonstrate variability in their length distributions, reflecting the diverse tactics employed,
+from quick compromise attempts to more extended unauthorised access.
+Across all datasets, the benign flows commonly populate the shortest flow length bins, reflecting
+typical, efficient network communications. Attack flows, depending on their nature, either mimic
+benign profiles or exhibit extended lengths, indicative of malicious activities. Such patterns are
+crucial for developing effective security measures, as they allow for the characterization of traffic
+based on flow length, enhancing anomaly detection capabilities.
+
+107
+
+Theft
+Benign
+
+106
+
+Reconnaissance
+
+DDoS
+
+107
+
+DoS
+
+104
+103
+
+Benign
+
+103
+102
+
+101
+
+101
+
+ransomware
+mitm
+Backdoor
+
+106
+
+password
+xss
+
+107
+
+ddos
+Benign
+
+60
+
+55
+
+50
+
+45
+
+40
+
+35
+
+30
+
+25
+
+20
+
+Worms
+Analysis
+Shellcode
+
+106
+105
+Frequency
+
+105
+
+dos
+injection
+scanning
+
+104
+103
+
+Generic
+Fuzzers
+
+Exploits
+Benign
+
+104
+103
+
+102
+
+102
+
+101
+
+101
+
+(c) ToN-IoT
+
+(d) UNSW-NB15
+
+Figure 3: Average distribution for Inter-Packet arrival time from source to destination.
+
+11
+
+60
+
+55
+
+Time in seconds
+
+45
+
+35
+
+30
+
+25
+
+20
+
+15
+
+10
+
+5
+
+0
+
+60
+
+55
+
+50
+
+45
+
+Time in seconds
+
+40
+
+35
+
+30
+
+25
+
+20
+
+15
+
+10
+
+100
+
+5
+
+100
+
+Backdoor
+DoS
+Reconnaissance
+
+50
+
+107
+
+Time in seconds
+
+(b) CSE CIC IDS2018
+
+40
+
+(a) BoT-IoT
+
+15
+
+10
+
+5
+
+0
+
+60
+
+55
+
+50
+
+Time in seconds
+
+45
+
+40
+
+35
+
+30
+
+25
+
+20
+
+15
+
+10
+
+100
+
+5
+
+100
+
+Frequency
+
+BruteForce
+DDoS
+
+104
+
+102
+
+0
+
+BoT
+DoS
+
+105
+Frequency
+
+Frequency
+
+105
+
+0
+
+Web-Attack
+Infilteration
+
+106
+
+107
+
+Theft
+Benign
+
+106
+
+Reconnaissance
+
+DDoS
+
+107
+
+DoS
+
+104
+103
+
+Benign
+
+103
+102
+
+101
+
+101
+
+ransomware
+mitm
+Backdoor
+
+106
+
+password
+xss
+
+107
+
+ddos
+Benign
+
+60
+
+55
+
+50
+
+45
+
+40
+
+35
+
+30
+
+25
+
+20
+
+Worms
+Analysis
+Shellcode
+
+106
+105
+Frequency
+
+105
+
+dos
+injection
+scanning
+
+(b) CSE CIC IDS2018
+
+104
+103
+
+Generic
+Fuzzers
+
+Exploits
+Benign
+
+104
+103
+
+102
+
+102
+
+101
+
+101
+
+(c) ToN-IoT
+
+60
+
+55
+
+Time in seconds
+
+45
+
+35
+
+30
+
+25
+
+20
+
+15
+
+10
+
+5
+
+0
+
+60
+
+55
+
+50
+
+45
+
+Time in seconds
+
+40
+
+35
+
+30
+
+25
+
+20
+
+15
+
+10
+
+100
+
+5
+
+100
+
+Backdoor
+DoS
+Reconnaissance
+
+50
+
+107
+
+Time in seconds
+
+40
+
+(a) BoT-IoT
+
+15
+
+10
+
+5
+
+0
+
+60
+
+55
+
+50
+
+Time in seconds
+
+45
+
+40
+
+35
+
+30
+
+25
+
+20
+
+15
+
+10
+
+100
+
+5
+
+100
+
+Frequency
+
+BruteForce
+DDoS
+
+104
+
+102
+
+0
+
+BoT
+DoS
+
+105
+Frequency
+
+Frequency
+
+105
+
+0
+
+Web-Attack
+Infilteration
+
+106
+
+(d) UNSW-NB15
+
+Figure 4: Average distribution for Inter-Packet arrival time from destination to source.
+
+5.2
+
+Inter-Packet Arrival time
+
+Analysing the histograms for the distribution of IAT provides valuable insights into how network
+behaviours are influenced by different types of network activities and attacks. Consistent IAT intervals typically indicate smooth traffic flow, while variability can reveal issues such as congestion
+or uneven data transmission. In this subsection, we specifically focus on the average IAT across the
+four NetFlow datasets. Figure 3 and 4 display the distributions of these averages, illustrating the
+timing dynamics across all communications between sources and destinations within each dataset.
+Figure 3 shows IAT distribution from source to destination across the four datasets and similarly,
+Figure 4 shows the opposite direction from destination to source. These plots highlight the variability in IAT across benign and malicious traffic, offering clues into network dynamics under various
+conditions.
+Each dataset reveals unique IAT patterns for different attack types. For example, the ToN-IoT
+dataset shows distinct peaks for more sophisticated attacks like MITM (Man-in-the-Middle) and
+Backdoor at specific IAT intervals, possibly reflecting the tactical nature of these attacks, which
+may involve periodic signalling or data exfiltration activities. Similarly, the UNSW-NB15 dataset
+demonstrates how diverse attack types like Worms, Shellcode, and Exploits are distributed across
+various IAT ranges, highlighting the varied timing strategies used in different exploits. In NF3-BoTIoT, the benign traffic is characterised by shorter IATs, frequently occurring at lower millisecond
+ranges, which is indicative of regular, uninterrupted network flow. In contrast, malicious activities
+such as DOS and DDOS attacks show a wider distribution of average IAT values, with notable
+peaks at higher intervals, reflecting the irregular timing patterns typical of such attacks that disrupt
+normal network traffic patterns.
+
+12
+
+Comparing these plots across datasets enriches our understanding of how different network
+environments or attack vectors can influence IAT distributions. It also underscores the importance
+of considering context and environment when analysing network traffic, as the same type of attack
+may exhibit different IAT characteristics in different datasets.
+
+5.3
+
+Number of Flows vs. Time
+
+When analysing traffic over time, it is important to track the distribution of attack classes within
+the relevant time intervals. This helps in understanding how many flows are labelled as benign or
+malicious, providing a clearer picture of the traffic behaviour. In this subsection, we represent the
+traffic as a time series for each attack class to pinpoint their exact occurrence times. Typically, most
+dataset was recorded over multiple days to simulate real-world conditions. As depicted in Figure 5,
+we chose one representative day from each dataset, aggregating the traffic data per minute and
+displaying the volume on a logarithmic scale to enhance the clarity of visual interpretation.
+Starting with day 1 of NF3-UNSW-NB15, all attack classes occur concurrently throughout the
+day, providing a complex overlay of multiple threats, which is characteristic of sophisticated realworld attack scenarios. This simultaneous occurrence requires further analysis techniques to isolate
+and identify individual attack vectors. Another observation from NF3-BoT-IoT day 1 is the clear
+periods of intense DDoS and DoS attacks, with sharp increases in flow counts, followed by periods
+of lower activity. This pattern suggests the attacks were launched in waves, a common tactic in
+denial-of-service attacks to overwhelm systems periodically. On the fifth day of the NF3-CSE-CIC-
+
+103
+
+(c) ToN-IoT Day 5
+
+80
+80
+0
+
+0
+
+0
+70
+70
+0
+
+0
+60
+
+0
+
+Time in minutes
+
+60
+0
+
+0
+
+80
+0
+
+70
+0
+
+60
+0
+
+50
+0
+
+40
+0
+
+100
+
+30
+0
+
+101
+
+100
+
+20
+0
+
+50
+
+102
+
+101
+
+10
+0
+
+0
+
+103
+
+50
+0
+
+102
+
+104
+
+Fuzzers
+Generic
+Reconnaissance
+Shellcode
+Worms
+
+40
+0
+
+Number of Flows
+
+103
+
+Time in minutes
+
+Analysis
+Backdoor
+Benign
+DoS
+Exploits
+
+105
+
+104
+
+0
+
+Number of Flows
+
+106
+
+dos
+injection
+
+30
+0
+
+Benign
+ddos
+
+105
+
+Time in minutes
+
+(b) CSE CIC IDS2018 Day 5
+
+10
+0
+
+106
+
+40
+
+10
+
+(a) BoT-IoT Day 1
+
+30
+
+0
+
+0
+80
+
+0
+70
+
+0
+60
+
+0
+50
+
+0
+40
+
+0
+30
+
+20
+
+10
+
+0
+
+100
+
+0
+
+101
+
+100
+
+0
+
+102
+
+101
+
+0
+
+102
+
+DoS
+
+104
+
+20
+
+Number of Flows
+
+103
+
+Time in minutes
+
+Benign
+
+105
+
+104
+
+0
+
+Number of Flows
+
+106
+
+DoS
+
+20
+0
+
+Benign
+DDoS
+
+105
+
+0
+
+106
+
+(d) UNSW-NB15 Day 1
+
+Figure 5: Temporal Distribution of Network Traffic Across Four Datasets. This figure illustrates
+the minute-by-minute network traffic flow for NF3-Datasets on representative days, showcasing the
+onset, duration, and termination of various attack classes alongside benign traffic.
+
+13
+
+Table 4: Attacks Implemented on Active Days for Each Dataset
+Days
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+
+NF3-UNSW-NB15
+
+NF3-CSE-CIC-IDS2018
+
+NF3-ToN-IoT
+
+NF3-BoT-IoT
+
+All
+All
+Benign-Only
+—
+—
+—
+—
+—
+—
+—
+—
+
+BruteForce
+DoS
+DoS
+DDoS
+DDoS
+Web-Attack
+Web-Attack
+Benign-Only
+Infiltration
+Infiltration
+BoT
+
+Benign-Only
+Benign-Only
+Benign-Only
+Scanning
+DoS, Scanning
+DDoS, Injection, DoS
+DDoS, Password
+XSS, Password
+Backdoor, Ransomware
+MITM, Backdoor
+—
+
+Reconnaissance
+Reconnaissance
+Reconnaissance
+DoS, DDoS
+Theft
+Theft
+—
+—
+—
+—
+—
+
+IDS2018 dataset, the distribution reveals a dominant presence of benign traffic, with intermittent
+spikes in DoS attack flows. The attack patterns appear as short-lived bursts rather than continuous
+flooding, suggesting controlled execution, possibly mimicking real-world attack scenarios or stresstesting conditions.. Lastly, NF3-ToN-IoT on day 5 displays separate and distinct instances of DDoS,
+DoS, and Injection attacks along with periods of benign activity. Throughout the day, benign traffic
+remains consistent and predominantly at a lower flow level, which is typical of a synthetic dataset
+designed to maintain a baseline for comparison. This distribution suggests that while attacks are
+not related or overlapping, the dataset effectively captures distinct and varied attack dynamics
+within the same day, allowing for the analysis of each threat type under controlled conditions.
+While the analysis presented focuses on a single representative day for each dataset, similar examinations were conducted across all active days within each dataset. This comprehensive analysis
+is crucial for developing a robust understanding of the variability and consistency of network attack
+behaviours over extended periods. The results underscore the diversity in attack methodologies and
+their temporal characteristics, which can vary not just from day to day but also from one dataset
+to another.
+After representing the whole period of each dataset, we found that most attack classes were
+implemented separately on different days. However, an exception is observed in the NF3-UNSWNB15 dataset, where all attacks were injected simultaneously. While having multiple attacks simultaneously can occur in real-life scenarios, it is recommended for researchers to analyse each class
+individually to better understand its pattern. Table 4 catalogues, in detail, the number of active
+days for each dataset along with the specific attacks implemented on those days. This tabulation
+aids in quantifying the extent and variety of network attacks captured in the datasets, providing a
+foundational reference for further analysis or model training.
+
+5.4
+
+Timeseries Representation of Netflow Features
+
+Monitoring network traffic volume over time is essential for understanding network behaviour and
+identifying trends or irregularities that may not be apparent in static analysis. By analysing traffic
+as a time series, we can detect variations in network load, identify peak usage time intervals, and
+observe patterns of data flow across different time intervals. This continuous observation allows
+for a deeper understanding of normal traffic behaviour and helps to highlight anomalies or unusual
+patterns that could indicate underlying issues. In this subsection, we represent different numerical
+and categorical features from the datasets as time series to gain insights into the temporal dynamics
+of the traffic. This visualisation not only helps in understanding how these features distribute
+
+14
+
+over time but also showcases the enhanced analysis capabilities introduced by adding temporal
+information into this version of the datasets.
+5.4.1
+
+Numerical Fields
+
+1010
+
+1010
+
+108
+
+108
+
+106
+
+106
+
+Volume
+
+104
+102
+
+102
+
+(c) ToN-IoT Day 5
+
+80
+0
+
+60
+0
+
+50
+0
+
+40
+0
+
+30
+0
+
+Time in Minutes
+
+60
+0
+
+50
+0
+
+40
+0
+
+30
+0
+
+0
+
+80
+0
+
+70
+0
+
+60
+0
+
+50
+0
+
+100
+
+40
+0
+
+102
+
+100
+
+30
+0
+
+102
+
+20
+0
+
+104
+
+10
+0
+
+104
+
+20
+0
+
+80
+0
+
+106
+
+10
+0
+
+70
+0
+
+108
+
+106
+
+IN_BYTES
+
+70
+0
+
+108
+Volume
+
+1010
+
+Time in Minutes
+
+Time in Minutes
+
+(b) CSE CIC IDS2018 Day 5
+
+1010
+
+0
+
+Volume
+
+(a) BoT-IoT Day 1
+
+20
+0
+
+0
+
+80
+0
+
+70
+0
+
+Time in Minutes
+
+60
+0
+
+50
+0
+
+40
+0
+
+30
+0
+
+20
+0
+
+100
+
+10
+0
+
+100
+
+0
+
+104
+
+10
+0
+
+Volume
+
+In this analysis, we focus on four pivotal numerical features: IN BYTES (IB), IN PKTS (IP),
+OUT BYTES (OB), and OUT PKTS (OP). These features are instrumental in gauging the volume
+and flow of data moving into and out of the network, critical for deciphering overall traffic patterns [38, 39, 40]. IB and OB measure the amount of data received and sent, respectively, offering
+insights into data load, bandwidth usage, and potential congestion points. Simultaneously, IP and
+OP count the number of packets transmitted, which is essential for assessing the efficiency of packet
+transmission, pinpointing any packet loss, and evaluating the balance of traffic flow.
+To enable a thorough monitoring of network traffic over time, we aggregate these features
+by minute. This temporal granularity unveils detailed patterns and fluctuations in traffic that
+illuminate the network’s performance and utilisation. For consistent and focused analysis, we have
+chosen the same single-day snapshots as in the previous section, as shown in Figure 6.
+The analysis of these time series reveals a symmetrical pattern between IB and OB, as well as
+between IP and OP, indicative of a balanced communication pattern within the network where the
+volume of incoming bytes and packets closely mirrors that of outgoing bytes and packets over time.
+This symmetry reflects a stable network environment where data inflow and outflow are consistent,
+
+(d) UNSW-NB15 Day 1
+
+IN_PKTS
+
+OUT_BYTES
+
+OUT_PKTS
+
+Figure 6: Time series representation of numerical fields in NF3-Datasets: IB, OB, IP, and OP. The
+x-axis represents time aggregated in minutes, while the y-axis shows the volume of each feature,
+illustrating fluctuations and patterns in network traffic over time.
+15
+
+suggesting effective network management and robust infrastructure.
+Specific observations from the representative days across various datasets illustrate the nuanced
+dynamics of network traffic: NF3-ToN-IoT and NF3-CSE-CIC-IDS2018, both on Day 5, show consistent levels of IB and OB with sporadic spikes possibly linked to operational anomalies or specific
+events. In contrast, NF3-UNSW-NB15 Day 1 features a notable early spike in OB, suggesting an
+event like data exfiltration or a substantial data transfer, is potentially benign. Meanwhile, NF3BoT-IoT Day 1 exhibits significant variability in OP, indicative of intermittent network attacks or
+disruptions, underscoring the susceptibility to external threats.
+5.4.2
+
+Categorical Fields
+
+Categorical features, such as Origin/Destination IPs and Ports, offer valuable insights into the
+structure and behaviour of network traffic. By tracking the number of unique IPs and ports over
+time, we can better understand communication patterns, identifying which devices are actively
+engaged in the network. This also reveals the diversity of traffic whether it’s distributed across
+many endpoints or concentrated on specific services. Additionally, monitoring these features helps
+detect unusual behaviour such as sudden increases in unique IPs or port activity which could indicate
+irregular network events [33]. NIDS datasets often vary significantly in the number of unique IP
+addresses and ports they capture, reflecting differences in the scope and diversity of network traffic.
+The number of unique IPs and ports present in each of the proposed datasets is shown in Table 5.
+Similar to the previous subsection, Figure 7 visualises four categorical features: unique source
+and destination IP addresses and ports, captured in the same one-day snapshots. The x-axis
+represents time in minutes, while the y-axis shows the count of unique categorical values without
+repetition within each minute. Although the count is aggregated per minute, the data can be further
+zoomed in to monitor traffic at the level of seconds or even finer granularity. Here, we emphasise
+the utility of tracking categorical features over time, as it can assist in detecting certain types of
+anomalies related to source and destination IPs and ports.
+In the NF3-CSE-CIC-IDS2018 Day 5, the count of unique source IPs (IPV4 SRC ADDR) remains relatively steady, suggesting consistent activity from a stable set of source IPs throughout
+the day. Minor fluctuations in destination IPs (IPv4 DST ADDR) may indicate interactions with
+a variety of external services or hosts. The source ports (L4 SRC PORT) display stability with
+an occasional sharp spike, potentially pointing to a brief period of heightened network activity
+or an anomaly, while destination ports (L4 DST PORT) show similar stability, suggesting regular
+communication patterns without significant anomalies. For NF3-ToN-IoT Day 5, both source and
+destination IPs exhibit peaks, notably in destination IPs, which could signify interactions with
+various external systems, potentially indicative of external data exchanges or scanning activities.
+Periodic spikes in both source and destination ports may indicate batched communications or network scans, suggesting an environment where network interactions are both dynamic and potentially
+vulnerable to security breaches.
+
+Table 5: Count of unique categorical fields in NF3-Datasets
+Dataset
+NF3-UNSW-NB15
+NF3-CSECIC-IDS2018
+NF3-ToN-IoT
+NF3-BoT-IoT
+
+Source IPs
+
+Destination IPs
+
+Source Ports
+
+Destination Ports
+
+40
+183,806
+15,396
+20
+
+40
+29,226
+9,011
+291
+
+64,620
+65,325
+65,536
+65,536
+
+64,631
+63,353
+65,536
+65,536
+
+16
+
+105
+Number of unique items
+
+104
+103
+102
+101
+
+103
+102
+101
+
+80
+0
+80
+
+60
+0
+
+50
+0
+
+40
+0
+
+70
+0
+
+Number of unique items
+
+105
+
+104
+103
+102
+101
+
+103
+102
+101
+
+(c) ToN-IoT Day 5
+
+IN_BYTES
+
+0
+
+0
+
+70
+
+Time in Minutes
+
+60
+
+0
+50
+
+0
+40
+
+0
+30
+
+0
+20
+
+0
+10
+
+0
+80
+
+0
+
+0
+
+70
+
+Time in Minutes
+
+60
+
+0
+50
+
+0
+40
+
+0
+30
+
+20
+
+10
+
+0
+
+100
+
+0
+
+100
+
+104
+
+0
+
+Number of unique items
+
+30
+0
+
+(b) CSE CIC IDS2018 Day 5
+
+105
+
+0
+
+Time in Minutes
+
+0
+
+(a) BoT-IoT Day 1
+
+20
+0
+
+0
+
+80
+0
+
+70
+0
+
+Time in Minutes
+
+60
+0
+
+50
+0
+
+40
+0
+
+30
+0
+
+20
+0
+
+100
+
+10
+0
+
+0
+
+100
+
+104
+
+10
+0
+
+Number of unique items
+
+105
+
+(d) UNSW-NB15 Day 1
+
+IN_PKTS
+
+OUT_BYTES
+
+OUT_PKTS
+
+Figure 7:
+Representation of categorical features in NF3-Datasets:
+IPV4 SRC ADDR,
+IPV4 DST ADDR, IPV4 SRC PORT, and IPV4 DST PORT. The x-axis represents time aggregated in minutes, and the y-axis shows the count of unique values for each category, highlighting
+the diversity in network activities over time.
+The NF3-UNSW-NB15 Day 1 data reveals a low range of variation in both source and destination IPs, indicative of a controlled environment where a limited number of IPs are engaged.
+This suggests an environment with established, routine communication patterns, where ports show
+consistent levels, aligning with a network that experiences few irregularities and maintains a steady
+communication flow. In contrast, the NF3-BoT-IoT Day 1 plot maintains a lower count of unique
+source IPs with occasional spikes, suggesting sporadic activation of new source IPs possibly for
+command and control communications typical of a botnet scenario. Destination IPs show significant variability, likely related to the botnet’s targets or a broader scope of victim engagement. The
+frequent changes in destination ports reflect dynamic interactions, potentially with multiple target
+machines or services, highlighting the erratic and potentially malicious nature of botnet activities
+within this dataset.
+
+5.5
+
+Time-Frequency Representation
+
+Given the rich temporal information in network flows, various time and frequency signal processing
+techniques can be used for the analysis of the network traffic. Time-frequency analysis is a key signal
+processing technique that allows simultaneous examination of signals in both time and frequency
+domains, that can provide deeper insights into their underlying patterns. This approach is particu-
+
+17
+
+60 80
+Time (s)
+
+100 120
+
+0
+
+20
+
+30
+20
+10
+0
+
+0
+
+20
+
+40
+
+60 80
+Time (s)
+
+100 120
+
+30
+20
+10
+0
+
+0
+
+20
+
+0
+
+20
+
+40
+
+60 80
+Time (s)
+
+(g) Worms
+
+100 120
+
+0
+
+20
+
+40
+
+60 80
+Time (s)
+
+100 120
+
+30
+20
+10
+0
+
+0
+
+20
+
+40
+
+60 80
+Time (s)
+
+(h) Shellcode
+
+40
+
+60 80
+Time (s)
+
+100 120
+
+(c) Analysis
+
+100 120
+
+30
+20
+10
+0
+
+0
+
+20
+
+(e) Fuzzers
+Frequency (Hz)
+
+Frequency (Hz)
+
+(d) Exploits
+30
+20
+10
+0
+
+60 80
+Time (s)
+
+30
+20
+10
+0
+
+(b) Backdoor
+Frequency (Hz)
+
+Frequency (Hz)
+
+(a) DoS
+
+40
+
+Frequency (Hz)
+
+40
+
+Frequency (Hz)
+
+20
+
+30
+20
+10
+0
+
+40
+
+60 80
+Time (s)
+
+100 120
+
+(f) Generic
+
+100 120
+
+Frequency (Hz)
+
+0
+
+Frequency (Hz)
+
+Frequency (Hz)
+
+30
+20
+10
+0
+
+30
+20
+10
+0
+
+0
+
+20
+
+40
+
+60 80
+Time (s)
+
+100 120
+
+(i) Reconnaissance
+
+Figure 8: Spectrogram representation of various attack classes of NF3-UNSW-NB15 dataset
+larly suited for non-stationary signals, where frequency content varies over time, such as in speech,
+music, and biomedical signals [53, 54]. Given the burstiness of network traffic [55] where volumes
+can change rapidly (such as sudden spikes in packet volume during an attack) or exhibit periodicity
+(such as daily traffic pattern), it behaves as a time series signal with non-stationary properties [56].
+Non-stationarity means the statistical properties, such as mean and variance, change over time;
+hence, conventional frequency domain approaches (like the Fourier transform) cannot deal with
+the time-varying and non-stationary nature of traffic pattern. Accordingly, time-frequency signal
+representation might be able to reveal patterns and anomalies in the time-frequency domain, which
+might be difficult to detect in the raw time-domain data.
+Here, we explore one of these techniques, the spectrogram, to investigate the feasibility of such
+approaches in the field of ML-based NIDS. Spectrograms are the most common time-frequency
+techniques used to investigate signal variations over time. Using spectrograms, we can transform
+raw network flow time series into a richer representation that captures both frequency and temporal
+characteristics, potentially enhancing the performance of deep learning models. We focus on the
+NF3-UNSW-NB15 dataset. Figure 8 shows the spectrogram of the most repeated pattern, for
+each attack class. As can be seen, the Spectrogram of different classes vary significantly in some
+cases. For instance, while DoS and Worms share some similarities, their patterns still remain
+distinct from each other and from all other attack classes. Similarly, Fuzzers display a unique timefrequency signature, further differentiating them from other attack types. These results highlight
+the potential of time-frequency representations in enhancing ML-based NIDS by providing a more
+detailed characterisation of network traffic patterns.
+
+18
+
+6
+
+Conclusion
+
+The increasing complexity of network traffic and diversity of modern attacks necessitates the incorporation of temporal analysis in network intrusion detection. Current attacks are no longer isolated
+events, but rather adaptive, time-evolving processes that can take advantage of timing vulnerabilities and encrypted traffic to evade detection. For instance, Advanced Persistent Threats (APTs)
+occur over extended periods of time, while low-and-slow attacks submerge malicious activity in
+normal traffic patterns. Additionally, the prevalence of encrypted protocols and the inadequacy of
+static analysis render temporal features (inter-packet arrival times, flow durations, traffic bursts)
+essential for detecting subtle attack behaviours. By analysing temporal dynamics, i.e. how the
+relationships and entities in a network change over time, researchers and practitioners can gain
+deeper understanding of the evolving nature of network threats, enabling more effective detection
+and mitigation strategies.
+In this paper, we try to address this gap by introducing a collection of four standardised NetFlowbased NIDS datasets enriched with detailed temporal features. Despite their importance, comprehensive temporal features have been largely absent from existing NetFlow-based NIDS datasets,
+limiting researchers’ ability to study attack patterns over time across multiple datasets. These
+datasets, the NF3 collection, provide a solid foundation for researchers and practitioners to dive
+into the temporal dynamics of network traffic. By incorporating precise flow start and end times, as
+well as detailed inter-packet arrival time statistics, these datasets provide a deeper understanding
+of attack patterns and network behaviour over time.
+Our primary contribution, in this study, lies in conducting extensive temporal analysis to reveal the dynamics of network traffic and security threats. By visualising traffic distributions, flow
+length distributions by attack class, and time-frequency domain representations, this study has provided novel insights into network behaviour patterns. By making these temporal feature-enriched
+NetFlow datasets (NF3-Datasets) publicly available [1], we aim to support ongoing research and
+development in ML-based network intrusion detection systems. While this work highlights the
+importance of temporal features in NIDS, several challenges remain open for future exploration.
+Future research should focus on optimising ML models to leverage the temporal features introduced in this study effectively. Additionally, further work is needed to refine time-frequency-based
+approaches and evaluate their practicality in real-time intrusion detection scenarios. Investigating
+alternative temporal representations, such as recurrent neural networks (RNNs) and transformers,
+may also yield new insights into how sequential learning models can improve attack detection.
+
+References
+[1] Majed Luay, Siamak Layeghy, Seyedehfaezeh Hosseininoorbin, Mohanad Sarhan, Nour
+Moustafa, and Marius Portmann. NetFlow V3 NIDS Datasets - The University of Queensland,
+2025. Available at: https://staff.itee.uq.edu.au/marius/NIDS_datasets/.
+[2] Gernot Vormayr, Joachim Fabini, and Tanja Zseby. Why are my flows different? a tutorial on
+flow exporters. IEEE Communications Surveys & Tutorials, 22(3):2064–2103, 2020.
+[3] Muhammad Fahad Umer, Muhammad Sher, and Yaxin Bi. Flow-based intrusion detection:
+Techniques and challenges. Computers & Security, 70:238–254, 2017.
+
+19
+
+[4] Markus Ring, Sarah Wunderlich, Deniz Scheuring, Dieter Landes, and Andreas Hotho. A
+survey of network-based intrusion detection data sets. Computers & Security, 86:147–167,
+2019.
+[5] Satish Kumar, Sunanda Gupta, and Sakshi Arora. Research trends in network-based intrusion
+detection systems: A review. IEEE Access, 9:157761–157779, 2021.
+[6] Oluwadamilare Harazeem Abdulganiyu, Taha Ait Tchakoucht, and Yakub Kayode Saheed. A
+systematic literature review for network intrusion detection system (ids). International Journal
+of Information Security, 22(5):1125–1162, 2023.
+[7] Martin Roesch et al. Snort: Lightweight intrusion detection for networks. In Lisa, volume 99,
+pages 229–238, 1999.
+[8] Yang Guo. A review of machine learning-based zero-day attack detection: Challenges and
+future directions. Computer communications, 198:175–185, 2023.
+[9] Rafath Samrin and D Vasumathi. Review on anomaly based network intrusion detection
+system. In 2017 international conference on electrical, electronics, communication, computer,
+and optimization techniques (ICEECCOT), pages 141–147. IEEE, 2017.
+[10] Seyedehfaezeh Hosseininoorbin, Siamak Layeghy, Mohanad Sarhan, Raja Jurdak, and Marius
+Portmann. Exploring edge tpu for network intrusion detection in iot. Journal of Parallel and
+Distributed Computing, 179:104712, 2023.
+[11] Giovanni Apruzzese, Luca Pajola, and Mauro Conti. The cross-evaluation of machine learningbased network intrusion detection systems. IEEE Transactions on Network and Service Management, 19(4):5152–5169, 2022.
+[12] Ramjee Prasad, Vandana Rohokale, Ramjee Prasad, and Vandana Rohokale. Artificial intelligence and machine learning in cyber security. Cyber security: the lifeline of information and
+communication technology, pages 231–247, 2020.
+[13] Liam Daly Manocchio, Siamak Layeghy, Wai Weng Lo, Gayan K Kulatilleke, Mohanad Sarhan,
+and Marius Portmann. Flowtransformer: A transformer framework for flow-based network
+intrusion detection systems. Expert Systems with Applications, 241:122564, 2024.
+[14] Ankit Thakkar and Ritika Lohiya. A review of the advancement in intrusion detection datasets.
+Procedia Computer Science, 167:636–645, 2020. International Conference on Computational
+Intelligence and Data Science.
+[15] Giovanni Apruzzese, Pavel Laskov, and Johannes Schneider. Sok: Pragmatic assessment of
+machine learning for network intrusion detection. In 2023 IEEE 8th European Symposium on
+Security and Privacy (EuroS&P), pages 592–614, 2023.
+[16] Mohanad Sarhan, Siamak Layeghy, Nour Moustafa, and Marius Portmann. Netflow datasets
+for machine learning-based network intrusion detection systems. In Zeng Deze, Huan Huang,
+Rui Hou, Seungmin Rho, and Naveen Chilamkurti, editors, Big Data Technologies and Applications, pages 117–135, Cham, 2021. Springer International Publishing.
+
+20
+
+[17] Mohanad Sarhan, Siamak Layeghy, and Marius Portmann. Towards a standard feature set for
+network intrusion detection system datasets. Mobile networks and applications, pages 1–14,
+2022.
+[18] Benoı̂t Claise. Cisco Systems NetFlow Services Export Version 9. RFC 3954, October 2004.
+[19] Ziadoon K. Maseer, Robiah Yusof, Baidaa Al-Bander, Abdu Saif, and Qusay Kanaan Kadhim. Meta-analysis and systematic review for anomaly network intrusion detection systems:
+Detection methods, dataset, validation methodology, and challenges, 2023.
+[20] Nour Moustafa and Jill Slay. Unsw-nb15: a comprehensive data set for network intrusion detection systems (unsw-nb15 network data set). In 2015 Military Communications and Information
+Systems Conference (MilCIS), pages 1–6, 2015.
+[21] Nickolaos Koroniotis, Nour Moustafa, Elena Sitnikova, and Benjamin Turnbull. Towards the
+development of realistic botnet dataset in the internet of things for network forensic analytics:
+Bot-iot dataset. Future Generation Computer Systems, 100:779–796, 2019.
+[22] Nour Moustafa. A new distributed architecture for evaluating ai-based security systems at the
+edge: Network ton iot datasets. Sustainable Cities and Society, 72:102994, 2021.
+[23] Iman Sharafaldin, Arash Habibi Lashkari, Ali A Ghorbani, et al. Toward generating a new
+intrusion detection dataset and intrusion traffic characterization. ICISSp, 1:108–116, 2018.
+[24] Seyedehfaezeh Hosseininoorbin, Siamak Layeghy, Brano Kusy, Raja Jurdak, and Marius Portmann. Harbic: Human activity recognition using bi-stream convolutional neural network with
+dual joint time–frequency representation. Internet of Things, 22:100816, 2023.
+[25] Seyedehfaezeh Hosseininoorbin, Siamak Layeghy, Brano Kusy, Raja Jurdak, Greg J. BishopHurley, Paul L Greenwood, and Marius Portmann. Deep learning-based cattle behaviour
+classification using joint time-frequency data representation. Computers and Electronics in
+Agriculture, 187:106241, 2021.
+[26] Adnan Shahid Khan, Zeeshan Ahmad, Johari Abdullah, and Farhan Ahmad. A spectrogram
+image-based network anomaly detection system using deep convolutional neural network. IEEE
+Access, 9:87079–87093, 2021.
+[27] Zeeshan Ahmad, Adnan Shahid Khan, Sehrish Aqeel, Azlina Ahmadi Julaihi, Seleviawati
+Tarmizi, Noralifah Annuar, and Mohammed Sayeeduddin Habeeb. S-ads: Spectrogram imagebased anomaly detection system for iot networks. In 2022 Applied Informatics International
+Conference (AiIC), pages 105–110, 2022.
+[28] Shahid Tufail, Hugo Riggs, Mohd Tariq, and Arif I. Sarwat. Advancements and challenges in
+machine learning: A comprehensive review of models, libraries, applications, and algorithms.
+Electronics, 12(8), 2023.
+[29] Lubna Ali Hassan Ahmed, Yahia Abdalla Mohamed Hamad, and Ahmed Abdallah Mohamed Ali Abdalla. Network-based intrusion detection datasets: A survey. In 2022 International Arab Conference on Information Technology (ACIT), pages 1–7, 2022.
+
+21
+
+[30] Mossa Ghurab, Ghaleb Gaphari, Faisal Alshami, Reem Alshamy, and Suad Othman. A detailed
+analysis of benchmark datasets for network intrusion detection system. Asian Journal of
+Research in Computer Science, 7(4):14–33, 2021.
+[31] Siamak Layeghy, Marcus Gallagher, and Marius Portmann. Benchmarking the benchmark —
+comparing synthetic and real-world network ids datasets. Journal of Information Security and
+Applications, 80:103689, 2024.
+[32] Robert Flood and David Aspinall. Measuring the complexity of benchmark nids datasets via
+spectral analysis. In 2024 IEEE European Symposium on Security and Privacy Workshops
+(EuroS&PW), pages 335–341. IEEE, 2024.
+[33] Anukool Lakhina, Konstantina Papagiannaki, Mark Crovella, Christophe Diot, Eric D. Kolaczyk, and Nina Taft. Structural analysis of network traffic flows. SIGMETRICS Perform.
+Eval. Rev., 32(1):61–72, June 2004.
+[34] George Nychis, Vyas Sekar, David G. Andersen, Hyong Kim, and Hui Zhang. An empirical
+evaluation of entropy-based traffic anomaly detection. In Proceedings of the 8th ACM SIGCOMM Conference on Internet Measurement, IMC ’08, page 151–156, New York, NY, USA,
+2008. Association for Computing Machinery.
+[35] Anukool Lakhina, Konstantina Papagiannaki, Mark Crovella, Christophe Diot, Eric D. Kolaczyk, and Nina Taft. Structural analysis of network traffic flows. In Proceedings of the Joint
+International Conference on Measurement and Modeling of Computer Systems, SIGMETRICS
+’04/Performance ’04, page 61–72, New York, NY, USA, 2004. Association for Computing Machinery.
+[36] Piotr Jurkiewicz, Grzegorz Rzym, and Piotr Borylo. Flow length and size distributions in
+campus internet traffic. Computer Communications, 167:15–30, 2021.
+[37] Anshuman Chhabra and Mariam Kiran. Classifying elephant and mice flows in high-speed
+scientific networks. Proc. INDIS, pages 1–8, 2017.
+[38] Mosab Hamdan, Bushra Mohammed, Usman Humayun, Ahmed Abdelaziz, Suleman Khan,
+M. Akhtar Ali, Muhammad Imran, and M. N. Marsono. Flow-aware elephant flow detection
+for software-defined networks. IEEE Access, 8:72585–72597, 2020.
+[39] Kaihao Lou, Yongjian Yang, and Chuncai Wang. An elephant flow detection method based
+on machine learning. In Smart Computing and Communication: 4th International Conference, SmartCom 2019, Birmingham, UK, October 11–13, 2019, Proceedings 4, pages 212–220.
+Springer, 2019.
+[40] Spurthi Mallesh. Automatic detection of elephant flows through openflow-based openvswitch.
+PhD thesis, Dublin, National College of Ireland, 2017.
+[41] Li Ming Chen, Shun-Wen Hsiao, Meng Chang Chen, and Wanjiun Liao. Slow-paced persistent network attacks analysis and detection using spectrum analysis. IEEE Systems Journal,
+10(4):1326–1337, 2016.
+
+22
+
+[42] Theophilus Benson, Aditya Akella, and David A Maltz. Network traffic characteristics of
+data centers in the wild. In Proceedings of the 10th ACM SIGCOMM conference on Internet
+measurement, pages 267–280, 2010.
+[43] Srikanth Kandula, Sudipta Sengupta, Albert Greenberg, Parveen Patel, and Ronnie Chaiken.
+The nature of data center traffic: measurements & analysis. In Proceedings of the 9th ACM
+SIGCOMM Conference on Internet Measurement, IMC ’09, page 202–208, New York, NY,
+USA, 2009. Association for Computing Machinery.
+[44] Benoit Claise. Cisco systems netflow services export version 9. Technical report, Cisco Systems,
+2004.
+[45] Andrea Corsini, Shanchieh Jay Yang, and Giovanni Apruzzese. On the evaluation of sequential
+machine learning for network intrusion detection. In Proceedings of the 16th International
+Conference on Availability, Reliability and Security, ARES ’21, New York, NY, USA, 2021.
+Association for Computing Machinery.
+[46] Xueying Han, Rongchao Yin, Zhigang Lu, Bo Jiang, Yuling Liu, Song Liu, Chonghua Wang,
+and Ning Li. Stidm: A spatial and temporal aware intrusion detection model. In 2020 IEEE
+19th International Conference on Trust, Security and Privacy in Computing and Communications (TrustCom), pages 370–377, 2020.
+[47] Yong Zhang, Xu Chen, Lei Jin, Xiaojuan Wang, and Da Guo. Network intrusion detection:
+Based on deep hierarchical network and original flow data. IEEE Access, 7:37004–37016, 2019.
+[48] Jiawei Zhao, Rahat Masood, and Suranga Seneviratne. A review of computer vision methods
+in network security. IEEE Communications Surveys & Tutorials, 23(3):1838–1878, 2021.
+[49] Abhishek Divekar, Meet Parekh, Vaibhav Savla, Rudra Mishra, and Mahesh Shirole. Benchmarking datasets for anomaly-based network intrusion detection: Kdd cup 99 alternatives. In
+2018 IEEE 3rd International Conference on Computing, Communication and Security (ICCCS), pages 1–8, 2018.
+[50] Mohanad Sarhan, Siamak Layeghy, and Marius Portmann. Evaluating standard feature sets
+towards increased generalisability and explainability of ml-based network intrusion detection.
+Big Data Research, 30:100359, 2022.
+[51] Ntop. nprobe, an extensible netflow v5/v9/ipfix probe for ipv4/v6, 2017. Accessed: 2024-05-21.
+[52] Noam Ben-Asher and Cleotilde Gonzalez. Effects of cyber security knowledge on attack detection. Computers in Human Behavior, 48:51–61, 2015.
+[53] Siamak Layeghy, Ghasem Azemi, Paul Colditz, and Boualem Boashash. Non-invasive Monitoring of Fetal Movements Using Time-Frequency Features of Accelerometry. In 2014 IEEE
+International Conference on Acoustics, Speech and Signal Processing (ICASSP), pages 4379–
+4383. IEEE, 2014.
+[54] Siamak Layeghy, Ghasem Azemi, Paul Colditz, and Boualem Boashash. Classification of Fetal Movement Accelerometry Through Time-Frequency Features. In 2014 8th International
+Conference on Signal Processing and Communication Systems (ICSPCS), pages 1–6. IEEE,
+2014.
+23
+
+[55] W.E. Leland, M.S. Taqqu, W. Willinger, and D.V. Wilson. On the Self-similar Nature of
+Ethernet Traffic . IEEE/ACM Transactions on Networking, 2(1):1–15, 1994.
+[56] Yuguang Yang, Shupeng Geng, Baochang Zhang, Juan Zhang, Zheng Wang, Yong Zhang, and
+David Doermann. Long Term 5G Network Traffic Forecasting via Modeling Non-stationarity
+with Deep Learning. Communications Engineering, 2(1):33, 2023.
+
+24
+
+

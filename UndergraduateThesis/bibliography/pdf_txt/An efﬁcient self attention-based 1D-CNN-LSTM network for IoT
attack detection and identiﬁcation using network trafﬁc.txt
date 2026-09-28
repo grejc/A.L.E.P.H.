@@ -1,0 +1,2185 @@
+Journal of Information and Intelligence 3 (2025) 375–400
+
+Contents lists available at ScienceDirect
+
+Journal of Information and Intelligence
+journal homepage: www.keaipublishing.com/en/journals/
+journal-of-information-and-intelligence
+
+An efﬁcient self attention-based 1D-CNN-LSTM network for IoT
+attack detection and identiﬁcation using network trafﬁc
+Tinshu Sasi a, Arash Habibi Lashkari a, b, Rongxing Lu a, *, Pulei Xiong c,
+Shahrear Iqbal c
+a
+
+Canadian Institute for Cybersecurity (CIC), Faculty of Computer Science, University of New Brunswick (UNB), Fredericton E3B 5A3, Canada
+Behaviour-Centric Cybersecurity Center (BCCC), School of Information Technology, York University, Toronto M3J 1P3, Canada
+c
+National Research Council (NRC), Ottawa K1A 0R6, Canada
+b
+
+A R T I C L E I N F O
+
+A B S T R A C T
+
+Keywords:
+IoT attacks
+Machine learning
+Artiﬁcial intelligence
+IoT attack detection
+
+In the last ten years, the IoT has played a crucial role in society's digital transformation. However,
+because of the wide range of devices it encompasses, it is also facing increased security vulnerabilities. This research presents a novel mechanism called the self-attention-based 1D-CNN-LSTM,
+which uses convolutional neural networks (CNNs) combined with a long short-term memory
+(LSTM) model enhanced with a self-attention mechanism for detecting IoT attacks. The proposed
+mechanism achieves high accuracy and efﬁciently differentiates malicious and benign network
+trafﬁc. By employing Shapley additive explanations (SHAP), we identiﬁed important predictive
+features from the preprocessed data, which were retrieved using CICFlowMeter. This has
+strengthened the dependability of the model. In addition, we enhanced the model by training it on
+a smaller collection of features, resulting in shorter training time while preserving accuracy. We
+have also generated nine augmented IoT tabular datasets named CIC-BCCCNRC_TabularIoTAttack-2024 from accessible IoT datasets to evaluate the model's robustness and
+showcase its efﬁcacy in IoT security.
+
+1. Introduction
+The digital revolution has substantially transformed our lives, with the Internet of Things (IoT) playing a prominent role. However,
+the rapid development of IoT in various aspects of life has led to numerous emerging cybersecurity threats. Consequently, detecting and
+preventing potential attacks in IoT networks has recently attracted signiﬁcant interest from academia and industry. Among the various
+attack detection approaches, machine learning-based methods, especially deep learning, have demonstrated outstanding potential due
+to their early detection capabilities [1].
+Over the past several years, there has been a substantial increase in the number of attacks speciﬁcally targeting IoT devices. These
+attacks encompass various types of cyber threats, such as inﬁltrating wireless webcams to gain unauthorized access to surveillance
+cameras and violate user privacy; targeting implantable cardiac devices to potentially deplete battery life, disrupt pacing, and cause
+electric shocks, thereby endangering patients' lives; compromising children's smartwatches to expose their location data and personal
+
+* Corresponding author.
+E-mail addresses: tinshu.sasi@unb.ca (T. Sasi), ahabibil@yorku.ca (A.H. Lashkari), rlu1@unb.ca (R. Lu), Pulei.Xiong@nrc-cnrc.gc.ca (P. Xiong),
+Shahrear.Iqbal@nrc-cnrc.gc.ca (S. Iqbal).
+https://doi.org/10.1016/j.jiixd.2024.09.001
+Received 12 June 2024; Received in revised form 28 August 2024; Accepted 9 September 2024
+Available online 26 September 2024
+2949-7159/© 2024 The Authors. Publishing services by Elsevier B.V. on behalf of KeAi Communications Co. Ltd. This is an open access article under
+the CC BY license (http://creativecommons.org/licenses/by/4.0/).
+
+T. Sasi et al.
+
+Journal of Information and Intelligence 3 (2025) 375–400
+
+information, posing multiple safety risks; and manipulating the controller area network (CAN) bus of vehicles to potentially alter speed
+and direction, thereby posing a threat to public safety. An investigation into smart home hacking revealed that, over one week,
+fraudsters and unidentiﬁed groups launched over 12,000 attacks against various smart home devices, including TVs, thermostats, smart
+kettles, and security systems [2,3].
+1.1. What are IoT attacks?
+IoT attacks constitute cyber-attacks leveraging IoT devices to access consumers’ sensitive data. Typically, attackers deploy malware
+on these devices, causing damage or inﬁltrating additional organizational data. Due to insufﬁciently designed security mechanisms, IoT
+devices emerge as prominent vulnerabilities within organizational infrastructures, posing substantial security risks. Basic IoT devices
+often lack robust built-in security measures to counter cyber threats. Given their limited functionalities and purposes, security considerations for such devices are frequently overlooked, rendering them susceptible to cyber-attacks. Hackers and organizations can
+exploit common ﬂaws and “zero-day exploits” to attack IoT devices in various ways [4].
+1.2. Motivation
+The primary motivation for addressing the IoT attack detection problem lies in the critical need to protect IoT systems and networks
+from potential security vulnerabilities. As IoT devices become increasingly pervasive across various aspects of daily life, they are
+increasingly targeted by cyber attacks. The capability to accurately identify and differentiate between malicious and benign instances
+within IoT network trafﬁc is vital for maintaining the integrity and reliability of these interconnected devices and services. Given the
+escalating complexity and volume of IoT network data, traditional security measures are often inadequate. Therefore, developing robust
+detection methodologies is essential for enhancing the security of IoT systems, preventing potential breaches, and ensuring the
+continued trust and functionality of IoT technologies in our daily lives.
+The problem of IoT attack detection by identifying and differentiating between malicious and benign instances is multifaceted and
+encompasses several key challenges:
+ Feature selection: Identifying the optimal features that can accurately distinguish between malicious and benign instances is
+critical. This involves analyzing a wide range of features and determining those most indicative of malicious behaviour.
+ Efﬁcacy and reliability: Establishing the efﬁcacy and reliability of these features for detection purposes is a signiﬁcant challenge.
+This requires rigorous testing and validation to ensure that the selected features consistently and accurately identify malicious
+activity, minimizing false positives and negatives.
+ Methodology development: Developing robust detection methodologies capable of handling the escalating complexity and volume
+of IoT network data is imperative. These methodologies must be adept at processing large amounts of data in real-time and adapting
+to new and evolving threats.
+ System integration: Ensuring the seamless integration of the developed methodologies into existing IoT systems and networks
+without causing disruptions or performance issues is also a crucial consideration.
+By addressing these challenges, we aim to enhance the security and reliability of IoT systems, making them more resilient to potential cyber threats. This will safeguard the interconnected devices that play an increasingly central role in our lives.
+To address the multifaceted problem of identifying and differentiating between malicious and benign instances in IoT network
+trafﬁc, speciﬁcally focusing on feature selection, efﬁcacy and reliability, and methodology development, we propose a self-attentionbased 1D-CNN-LSTM network. This network leverages convolutional neural networks (CNNs), residual networks, and long short-term
+memory (LSTM) networks, in conjunction with attention mechanisms, to enhance the detection of IoT attacks in TCP network ﬂows. The
+proposed approach capitalizes on the robust feature extraction capabilities of CNNs, the effective sequence learning abilities of LSTMs,
+and the precise contextual insights provided by self-attention mechanisms, resulting in a comprehensive and effective framework.
+In summary, this paper makes the following contributions:
+ We introduce a novel self-attention-based 1D-CNN-LSTM network to detect IoT attacks by analyzing time-related features extracted
+from TCP ﬂow data.
+ To ensure the robustness of our model, we evaluate its performance on nine publicly available external datasets, which have been
+enhanced and pre-processed using CICFlowMeter.
+ We aim to identify the optimal combination of hyperparameters that yield the highest performance metrics for our model.
+ We employ Shapley additive explanations (SHAP) to calculate feature importance scores, which are then used to identify the most
+signiﬁcant features from the extracted feature set.
+ By retraining the model on the most signiﬁcant features, we reduce the model size while maintaining performance comparable to the
+original model.
+ We release the CIC-BCCC-NRC_TabularIoTAttack-2024 dataset, which includes over 80 extracted features from nine IoT datasets.
+The subsequent sections of this paper are structured as follows. In Section 2, foundational insights into the subject matter are
+provided, elucidating key technical terminologies pertinent to IoT attacks. This section also encapsulates an overview of the IoT attacks
+referenced in the training datasets. Section 3 delves into a comprehensive review of prior scholarly works on IoT attacks, exploring the
+376
+
+T. Sasi et al.
+
+Journal of Information and Intelligence 3 (2025) 375–400
+
+methodologies employed for detection utilizing machine learning and deep learning techniques. Furthermore, it presents an exhaustive
+classiﬁcation of various types of IoT attacks. The rationale behind the proposed methodology is expounded upon in Section 4, elucidating the preprocessing steps and detailing the architectural framework, with a comprehensive breakdown of each constituent
+component. Section 5 offers an in-depth analysis of the research outcomes. This segment encompasses discussions on the dataset,
+experimental setup, features utilized, evaluation metrics employed, and the results garnered from the proposed methodology. Finally,
+Section 6 serves as the concluding segment of the paper, encapsulating a summary of the contributions made, addressing encountered
+challenges, and providing insights into potential avenues for future research endeavors.
+2. Preliminaries
+Before delving deeper into the intricacies of IoT attacks, acquiring a fundamental understanding of the subject is imperative. It is
+essential to thoroughly comprehend the various technical terminologies associated with this study area [4].
+
+2.1. IoT architecture
+The IoT architecture refers to the organization and setup of IoT devices to fulﬁl users’ particular requirements and requests. An IoT
+system is divided into three to seven layers, depending on their complexity, and each layer has a speciﬁc function. The lack of established
+protocols in the architecture of the IoT presents further difﬁculties regarding interoperability, security, and several other issues. The IoT
+architecture can include up to seven levels [5]. Fig. 1 provides a detailed illustration of the IoT and Industrial Internet of Things (IIoT).
+ Perception layer: The perception layer, also known as the device layer, includes a variety of sensors such as RFID scanners, security
+cameras, GPS modules, and so on. These devices, such as conveyor systems, industrial robots, and automated guided vehicles
+(AGVs), may be used with industrial gear. These gadgets collect sensory data, monitor the production ﬂoor and surroundings,
+transport raw materials, and so forth [6].
+ Transport layer/network layer: The transport/network layer is responsible for transferring data to the processing systems of the
+subsequent layer [6]. IoT gateways must ﬁrst transform the incoming input from analogue to digital format. Subsequently, the
+gateway can transmit the data to a local or cloud data center via several data transfer protocols (DTPs). Some of the leading IoT
+protocols are Bluetooth, Wi-Fi, Zigbee, Z-Wave, 6LoWPAN (IPv6 over Low-Power Wireless Personal Area Networks), MQTT
+
+c
+
+Security
+
+o
+Fig. 1. IoT architecture levels.
+
+377
+
+T. Sasi et al.
+
+Journal of Information and Intelligence 3 (2025) 375–400
+
+(Message Queue Telemetry Transport), CoAP (Constrained Application Protocol), DDS (Data Distribution Service), AMQP (Advanced
+Message Queuing Protocol) [5].
+ Edge layer: The edge layer in an IoT conﬁguration consists of the physical hardware, embedded operating system, and device
+ﬁrmware. With the growing number of interconnected devices, latency becomes a prominent issue in more extensive IoT networks.
+Edge computing, aided by the edge layer, resolves this problem by allowing data processing and analysis close to the data source.
+Latency, the period of time between the detection of an event and the execution of an action, is a critical concern for devices that are
+linked to a network. Reducing latency may be accomplished by placing processing resources close to the sensors or at the network
+edge, enabling prompt connection and data exchange between devices [7].
+ Processing layer: The processing layer, sometimes called the middleware layer, comprises servers and databases. Its primary functions
+include decision-making, executing optimization algorithms, and storing large amounts of data [6]. This layer consists of cloud
+computing platforms that can analyze and interpret data from the physical environment. The system processes unprocessed sensor
+data and transforms it into relevant insights using cloud services and comprehensive data modules. Furthermore, the processing
+layer allows the system to promptly respond to inputs and outputs. It can make assessments and carry out tasks based on the information it receives. The data received in the perception step is used in this layer to generate predictions and provide insights [8].
+ Application layer: The application layer of IoT infrastructure is responsible for data analysis to solve business issues or achieve speciﬁc
+goals. The application layer provides customized functionality to meet the unique requirements of end users. The applications and
+services in this layer are constructed on top of the processing layer. Software tools facilitate converting data from the processing layer
+into meaningful information that humans can understand or use by automated processes [9].
+ Business layer: The business layer acts as the central point where choices and solutions are developed from the data analysis conducted in the application layer. The application layer may consist of several instances inside this layer. At the business layer,
+identiﬁable patterns from the application layer are used to gain a deeper understanding of business insights, predict future trends,
+and make operational decisions that improve productivity, security, cost-effectiveness, customer satisfaction, and other important
+business factors. In addition, the business layer is accountable for overseeing commercial transactions and models related to
+interconnected devices. It includes the administration of business processes, data analysis, and rules implementation. It serves as the
+basis for controlling business logic and setting up procedures to achieve all the business goals of an IoT system [5,8,9].
+ Security layer: The security layer is present across all levels of the IoT architecture and is essential for the efﬁciency of an IoT solution.
+Considering that IoT devices often deal with conﬁdential information, it is crucial to implement strong security measures [5,9].
+ Vulnerability: It denotes the intrinsic weaknesses of a system or its design, which permit unauthorized entities to execute commands,
+access data without appropriate authorization, and possibly initiate denial-of-service attacks. Such vulnerabilities can be detected
+across various domains of IoT systems. They may appear in the system's hardware or software, the protocols and procedures
+implemented within these systems, and even in the behaviours and actions of the users interacting with the system [4].
+ Exposure: It refers to a problem or mistake within the system conﬁguration that allows an unauthorized person to undertake actions
+to obtain information [4].
+ Threats: It refers to an intentional or unintentional action that exploits vulnerabilities within a system [4].
+ Attacks: It is deﬁned as deliberate actions to damage a system or disrupt its normal operations by exploiting vulnerabilities using
+various strategies and tools. Attackers engage in these hostile acts to achieve speciﬁc goals, which may be motivated by personal
+gratiﬁcation or ﬁnancial gain [4].
+
+2.2. Common IoT vulnerabilities
+There are several vulnerabilities in IoT networks, but according to OWASP, ten signiﬁcant vulnerabilities make IoT devices susceptible to attacks are (Table 1) [10]:
+Table 1
+Top 10 OWASP IoT vulnerabilities.
+Rank
+
+Vulnerability
+
+Description
+
+1
+2
+
+Weak, guessable, or hardcoded
+passwords
+Insecure network services
+
+3
+
+Insecure ecosystem interfaces
+
+4
+
+Lack of secure update mechanism
+
+5
+6
+7
+8
+
+Use of insecure or outdated
+components
+Insufﬁcient privacy protection
+Insecure data transfer and storage
+Lack of device management
+
+9
+10
+
+Insecure default settings
+Lack of physical dardening
+
+Inadequate credentials susceptible to brute force attacks or publicly accessible, including backdoors in ﬁrmware
+or client software.
+Presence of unnecessary or vulnerable network services, particularly online access, threaten information
+conﬁdentiality, integrity, and availability.
+Presence of insecure online, backend API, cloud, or mobile interfaces outside the device ecosystem, potentially
+compromising device security.
+Inability of devices to undergo secure updates, lacking ﬁrmware validation, secure delivery, anti-rollback
+procedures, or alerts on security changes.
+Utilization of outdated or vulnerable software or hardware components, potentially exposing devices to
+unauthorized access.
+Insecure storage or access of user's personal information within the ecosystem.
+Absence of encryption or access control measures for sensitive data throughout the ecosystem.
+Absence of adequate security support for production devices, leading to deﬁciencies in asset and update
+management.
+Distribution of devices with unsecured default conﬁgurations or limited user control over settings.
+Absence of physical security measures, enabling attackers to access critical information or assume local control.
+
+378
+
+T. Sasi et al.
+
+Journal of Information and Intelligence 3 (2025) 375–400
+
+ Weak/default passwords: Absence of a strong password recovery system; weak or default password; non-implementation of stricter
+password rules; inability to change the username and password associated with the account.
+ Insecure network services: Adversaries exploit vulnerabilities in IoT devices' communication protocols and services to gain unauthorized access and undermine the conﬁdentiality of sensitive information transmitted between the device and a server.
+ Insecure ecosystem interfaces: The vulnerability of the device or its connected components arising from the insecure web, backend API,
+cloud, or mobile interfaces in the external ecosystem.
+ Lack of secure update mechanism: Insufﬁcient ability to update devices securely. These deﬁciencies encompass the absence of devicebased ﬁrmware validation, the unsecured transmission of data without encryption, the lack of anti-rollback methods, and the failure
+to provide notiﬁcations regarding security changes resulting from updates.
+ Use of insecure or outdated components: The utilization of obsolete or insecure software components or libraries that could expose the
+device to potential attacks. This entails the utilization of external software or hardware obtained from a compromised supply chain,
+as well as the unsecured modiﬁcation of system platforms. The security of the IoT ecosystem may be compromised by vulnerabilities
+in software dependencies or outdated systems.
+ Insufﬁcient privacy protection: Users' personal information is saved on the device or in the ecosystem and used accidently, improperly,
+or illegally. Information about one's health, energy use, and driving habits can fall into this category of privacy concerns. Privacy is at
+risk without adequate safeguards, and there can be legal consequences for failing to take the necessary precautions.
+ Insecure data transfer and storage: The absence of encryption or access control for sensitive data at any point in the ecosystem, including
+whether it is stored, transferred, or processed. Data is critical in ensuring the reliability and integrity of IoT applications since it is used
+in automated controls and decision-making processes. Unauthorized access or usage will result in adverse consequences.
+ Lack of device management: Lack of security support for production-ready devices, including asset management, update management,
+secure decommissioning, systems monitoring, and response capabilities. Unauthorized devices can access business networks,
+monitor activity, and intercept data if exposed to the IoT ecosystem.
+ Insecure default settings: Systems or devices that lack the ability to enhance system security by restricting users from modifying
+conﬁgurations or that come with insecure default settings. Once the settings have been acquired, attackers can exploit hardcoded
+default passwords, concealed backdoors, and weaknesses in the device ﬁrmware. The user encounters difﬁculty in simultaneously
+modifying various parameters.
+ Lack of physical hardening: The absence of physical safeguards allows potential attackers to get sensitive information that could be
+utilized in subsequent large-scale attacks or local device takeover. IoT devices are deployed in distant and dispersed environments.
+An attacker can disrupt the services offered by IoT devices by gaining access to the physical layer and making alterations.
+
+2.3. IoT or IT attacks
+Unlike conventional information technology (IT) attacks, IoT attacks provide distinct issues that necessitate speciﬁc security solutions to minimize the associated dangers fully. The distinction between IT and IoT attacks is outlined in Table 2. Some of the different
+ways are:
+ Attack surface: IoT devices often possess limited processing capabilities and resources, resulting in potential deﬁciencies in security
+features compared to traditional IT systems. Consequently, IoT devices are more susceptible to attacks due to reduced defences [4].
+ Diversity of devices: The wide array of IoT device types, varying in form factor, operating systems, and network connectivity, complicates establishing standardized security measures. This diversity renders certain devices more prone to vulnerabilities and targeted attacks [4].
+ Physical impact: Many IoT devices are integral to critical infrastructure or life-sustaining systems, such as medical equipment, thus
+exposing them to cyberattacks with severe physical ramiﬁcations. In contrast, typical IT attacks aim to compromise data integrity or
+disrupt services [4].
+ Legacy devices: IoT devices often have extended lifespans, resulting in a proliferation of older, unsupported devices. The inability of
+legacy devices to receive software updates or security patches renders them particularly vulnerable to exploitation or compromise [4].
+3. Related works
+Although there has been a lot of research on attacks targeting the IoT, comprehensive literature on classifying these attacks is
+currently lacking. Therefore, our prior study introduced a new classiﬁcation system that analyzes existing surveys and taxonomies [4].
+
+Table 2
+IoT attacks vs IT attacks.
+Category
+
+IoT attacks
+
+IT attacks
+
+Attack surface
+Diversity of devices
+Impact
+Legacy devices
+
+Limited resources, higher vulnerability.
+Varied types, complex security.
+Harmful physical consequences.
+Older devices, no updates, higher risk.
+
+Robust security, lower vulnerability.
+Standardized, simpliﬁed security.
+Data theft, service disruption.
+Regular updates, lower risk.
+
+379
+
+T. Sasi et al.
+
+Journal of Information and Intelligence 3 (2025) 375–400
+
+This section ﬁrst provides an overview of previous research on IoT attacks and then discusses the methods utilized to carry out IoT attack
+detections, including machine and deep learning.
+Many academic publications thoroughly analyze several aspects of risks and attacks in the IoT ﬁeld. The mentioned literary
+works [11–15] extensively examine the classiﬁcation of risks and intrusions linked to the IoT. These papers primarily focus on two main
+categories: the architectural features of the IoT and the protocols and standards used in the IoT area. Although there is a wealth of
+literature on threats and attack taxonomies, it is essential to highlight that just a few studies speciﬁcally focus on viable solutions.
+However, it is essential to mention that the works discussed above do not offer any solutions to the risks and threats that emerge from
+the extensive use of pervasive technologies like blockchain (BC), fog computing (FC), edge computing (EC), and machine learning (ML).
+The authors have conducted surveys on diverse pervasive technologies for analyzing risks and attacks in a fragmented manner, as
+documented in the following sources: [11,16–19], and [20].
+The authors of the study [21] did thorough research on security vulnerabilities in the IoT and presented an overview of machine
+learning methods used to counter these attacks. The authors analyzed 78 publications published until 2017, focusing on the solutions,
+issues, and areas of research that have not yet been addressed in this ﬁeld. The authors conducted a survey [22] in 2018 to explore several
+attack strategies that target the IoT. These models include spooﬁng attacks, denial-of-service attacks, jamming, and eavesdropping. The
+authors also suggested possible security techniques to reduce these risks, such as IoT authentication, access control, malware detection, and
+safe ofﬂoading. The security solutions proposed in this study prominently included utilizing machine learning techniques [23].
+3.1. Different techniques used to perform IoT attack detections
+Identifying and mitigating these attacks is crucial to protecting IoT ecosystems’ security. Several methods have been developed to
+address the problems of recognizing and responding to attacks. The following methods apply to the identiﬁcation of attacks in the IoT
+domain. Also, Fig. 2 provides a thorough overview of several techniques for detecting attacks in the IoT domain.
+
+Instance-based
+learning
+
+Decision tree
+Machine learning
+Regression method
+Security information
+and event
+management
+Signature-based
+detection
+
+IoT attack detection
+method
+
+Clustering method
+
+Artificial neural
+network
+
+Anomaly detection
+Random forest
+Behavioral analysis
+Ensemble learning
+Honey pots
+Other machine
+learning techniques
+Deep learning
+CNN
+
+LSTM
+
+RNN
+
+Auto-encoders
+
+RBMs
+
+DBNs
+
+Fig. 2. Overview of available IoT attack detection and identiﬁcation methods.
+380
+
+T. Sasi et al.
+
+Journal of Information and Intelligence 3 (2025) 375–400
+
+ Anomaly detection: Anomaly identiﬁcation, also known as outlier or event detection, is the analytical process of identifying unusual
+situations inside a particular system. The anomaly detection algorithms assess incoming trafﬁc at multiple levels, ranging from the
+IoT network level to the data center. Anomaly detection is crucial because it enables the identiﬁcation and analysis of anomalies
+within IoT data. Although rare, these anomalies can offer useful insights and practical information in many sectors, including
+healthcare, industry, ﬁnance, transportation, and energy. Anomaly detection in the IoT is employed in the betting and gambling
+sector to discover insider trading cases by analyzing trade activity patterns [24].
+ Behavioural analysis: Dynamic code analysis refers to identifying and resolving issues with potentially harmful software within a
+physical or virtual setting. The program's source code is run with different test inputs to identify security vulnerabilities that may
+occur due to its code when interacting with other programs or systems. Dynamic analysis is a technique used to study the behaviours
+of attacks on IoT devices [25]. Utilizing behaviour analysis for detecting IoT attacks offers numerous beneﬁts compared to static
+analysis. Dynamic analysis can identify known and zero-day threats by examining similar patterns of behaviour exhibited by several
+attackers. Dynamic analysis is performed by employing sandbox tools like Cuckoo Sandbox or CWSandbox, which allow for the
+monitoring of malware behaviours in real-time [25].
+ Signature-based detection: Signature-based detection (SGD) requires security professionals to create predeﬁned rules or signatures to
+recognize known attack patterns. This method is especially efﬁcient in identifying well-known attacks with signatures stored in the
+database. On the other hand, the database cannot identify unknown attacks without signatures.
+ Honey pots: A honeypot is a cybersecurity tool that creates a realistic and valuable network to lure potential attackers. It functions
+within a network environment that is both isolated and segregated. The aforementioned system can be seen as a simulated entity
+created to imitate a genuine system to attract potential attackers to interact with it. This method allows for the surveillance of the
+subsequent interaction between the attackers and the compromised device [26].
+ Security information and event management: Security information and event management (SIEM) is a security system that assists
+enterprises in detecting and addressing any security threats and weaknesses, preventing potential disruptions to business operations.
+Security information and event management (SIEM) systems are essential tools for corporate security teams to detect anomalies in
+user behaviour. Moreover, these systems utilize artiﬁcial intelligence (AI) to simplify and automate speciﬁc labour-intensive operations associated with detecting possible threats and subsequent incident response [27].
+ Machine learning: Machine learning (ML) approaches are crucial in identifying and reducing IoT attacks. These techniques use
+different algorithms to recognize unusual patterns in network trafﬁc and device activity. The algorithms are trained using extensive
+datasets, including regular and malicious IoT trafﬁc. This allows them to learn about unique characteristics that distinguish various
+attacks. Machine learning models, such as decision trees, support vector machines, and random forests, can accurately categorize
+network trafﬁc as benign or malicious by analyzing patterns they have learned. Furthermore, machine learning algorithms can adjust
+to changing attack techniques by consistently retraining on updated datasets, thus improving their ability to identify attacks as time
+goes on. Furthermore, intrusion detection systems that utilize machine learning may function in real-time, promptly notifying security administrators when they identify suspicious behaviours. This allows for quick reactions to possible attacks [4].
+ Deep learning: Deep learning (DL), a branch of machine learning (ML), provides sophisticated capabilities for identifying attacks in
+the IoT by automatically extracting complex features from raw data without requiring manual feature engineering. CNNs and
+recurrent neural networks (RNNs) are frequently used in deep learning-based intrusion detection systems to secure the IoT. CNNs are
+highly effective at identifying spatial patterns in network trafﬁc data, but RNNs are skilled at capturing temporal relationships in
+sequences of device action. Using deep learning models, IoT security systems can attain enhanced precision in detecting and
+defending against advanced attack strategies. Deep learning algorithms can acquire hierarchical data representations, enabling them
+to identify intricate and nuanced attack patterns.
+Furthermore, deep learning models can process and analyze large-scale datasets efﬁciently. They can adjust and perform effectively
+in dynamic IoT contexts. This makes them highly suitable for identifying familiar and new IoT attacks [4].
+To summarize, although there is a signiﬁcant amount of study on IoT threats, there is a lack of comprehensive literature speciﬁcally
+focusing on their classiﬁcation. In our earlier study, we presented a new classiﬁcation method that combines existing surveys and
+taxonomies to ﬁll this gap. Although many academic articles analyze the various aspects of risks and threats in IoT, there is a lack of focus
+on practical solutions. Furthermore, the widespread adoption of advanced technologies such as blockchain, fog computing, edge
+computing, and machine learning raises additional security issues that require further investigation. However, the initiatives mentioned
+in our assessment offer useful insights into possible remedies against attacks on the IoT.
+4. Proposed model
+This section presents the motivation for designing a model architecture called self-attention-based 1D-CNN-LSTM, using a CNN
+combined with an LSTM model enhanced with a self-attention mechanism to identify IoT attacks in TCP network trafﬁc ﬂow data. A onedimensional convolutional neural network (1D CNN), compared with 2 D CNN, is a speciﬁc neural network that employs convolutional
+layers operating in one dimension. It analyzes data that follows a temporal or sequential pattern, where each data point consists of only
+one set of features.
+The suggested architecture enables efﬁcient detection of IoT attacks without requiring feature engineering. The primary objective of
+our initial discussion is to examine the rationale behind the proposed strategy. In this context, we emphasize the fundamental significance of our proposed approach. In the next section, we present a comprehensive outline of the different components of our suggested
+approach.
+381
+
+T. Sasi et al.
+
+Journal of Information and Intelligence 3 (2025) 375–400
+
+The proposed approach consists of two distinct steps. The initial phase involves converting data, extracting features, generating datasets
+for training and testing the model, and developing the model itself. The second module involves training the model using the training
+dataset, incorporating all features, and determining feature importance by utilizing Shapley additive explanations (SHAP) values. Subsequently, the model is retrained using a decreased set of features while maintaining comparable performance metrics to the original model.
+4.1. Pre-processing-stage I
+This section will provide a detailed analysis of the components involved in the pre-processing stage technique, and Fig. 3 provides a
+high-level overview of the pre-processing workﬂow.
+ Data collection: In data acquisition, we necessitated benign and malicious pcap ﬁles sourced from an IoT attack dataset, signiﬁcantly
+facilitating the advancement of security analytics applications within IoT environments. Speciﬁcally, we employed the CIC IoT
+dataset 2023 for training, validation, and testing. Additionally, after completing the training phase, we utilized eight additional IoT
+attack datasets to evaluate the efﬁcacy of the developed model [28].
+ Data conversation and feature extraction: As previously outlined in Section 4.1.1, we employed CIC ﬂower, a network trafﬁc ﬂow
+generator and analyzer, to extract temporal statistical features from raw pcap ﬁles. Subsequently, we extracted over 83 features from
+these ﬁles and stored them in CSV format, facilitating their utilization in both model training and testing phases.
+ Data filtration, imputation and creation: We implemented a ﬁltering mechanism on the dataset, speciﬁcally retaining rows associated
+with an assigned protocol number of 6, indicative of the TCP protocol [29]. In order to handle the missing data in the “Flow Bytes/s”
+and “Flow Packets/s” columns of our dataset, we choose to utilize KNN Imputation to ﬁll in these missing values. After combining
+these CSV ﬁles, we created the required dataset.
+ Model creation: Described in detail in Section 4.1.3.
+
+4.1.1. Feature extraction using CICFlowMeter
+CICFlowMeter is a tool that generates and analyzes network trafﬁc ﬂow. This tool enables the creation of bidirectional ﬂows, where
+the ﬁrst packet determines the direction of data transmission. As a result, over 83 statistical network trafﬁc features, such as duration,
+number of packets, number of bytes, and length of packets, can be calculated independently for both the forward (source to destination)
+and backward (destination to source) directions.
+Other capabilities encompass choosing features from the available feature list, incorporating new features, and managing the
+duration of ﬂow timeout. The application generates a CSV ﬁle with six columns: FlowID, SourceIP, DestinationIP, SourcePort, DestinationPort, and Protocol. The ﬁle contains over 83 network trafﬁc analysis elements. It is essential to understand that TCP ﬂows
+typically end when the connection is torn down using a FIN message, but a ﬂow timeout ends UDP ﬂows. The individual scheme can
+provide an arbitrary value for the ﬂow timeout, such as 600 s for both TCP and UDP [30].
+4.1.2. Data pre-processing
+During the pre-processing stage, we identify a dataset that consists of raw benign and malicious pcap ﬁles in order to extract features.
+The CICﬂowMeter can be executed either through the command line or within Java integrated development environments (IDEs) such
+as IntelliJ or Eclipse. When we start the application, we have the option to select either ofﬂine or online mode. The ofﬂine option allows
+us to input raw Pcap data into the application for analysis. During this process, we extract features from the Pcap ﬁles and save them as
+CSV ﬁles. From the Pcap ﬁles, we can extract 83 temporal statistical features, which is a signiﬁcantly larger number compared to the
+features provided in the pre-processed CSV ﬁles by the dataset authors.
+In addition, we have applied a ﬁlter to the dataset so that it would only include rows where the assigned protocol number is 6, which
+corresponds to the TCP protocol [29]. Due to missing values in our dataset, we employed KNN imputation to ﬁll in these missing values.
+K-nearest neighbours (KNN) is a machine learning technique for classiﬁcation and regression tasks. Additionally, it can be utilized to
+impute missing data. The K-nearest neighbours (KNN) imputation approach involves identifying the K-nearest neighbours to the
+observation with missing data and subsequently imputing the missing values based on the non-missing values in those neighbours [31].
+K-nearest neighbours (KNN) imputation is a highly favoured technique for replacing missing data in time series because it offers
+numerous signiﬁcant beneﬁts. Firstly, its non-parametric character enables it to accommodate a wide range of data distributions
+observed in time series without making assumptions about underlying data patterns. KNN imputation utilizes the principle that data
+points with similar characteristics typically have similar values. This method estimates missing values by considering the values of
+
+CIC FlowMeter
+
+TCP flow
+filter
+
+KNN imputation
+Benign / malicious
+feature file
+
+Benign / malicious
+PCAP file
+
+Fig. 3. Data pre-processing.
+382
+
+T. Sasi et al.
+
+Journal of Information and Intelligence 3 (2025) 375–400
+
+nearby points, thus maintaining the local structure of the data. Unlike approaches that presume linearity, KNN imputation is appropriate
+for time series data with nonlinear or complex connections between variables.
+Furthermore, its ability to withstand outliers guarantees stability in irregular data points, as it prioritizes nearby clusters rather than
+overall patterns. KNN imputation can adapt to changing patterns in time series data by considering the nearest neighbours inside a
+sliding window. This makes it highly skilled at capturing evolving data dynamics. Furthermore, the straightforward application and
+little need for adjusting parameters, such as determining the number of neighbours (k) and distance metric, enhance its attractiveness as
+a powerful and adaptable method for ﬁlling in missing values in time series datasets [32].
+4.1.3. Model structure
+In this section, we examine the components utilized in the model's structure. This model incorporates convolutional layers, residual
+blocks, LSTM layers with an attention mechanism, and some ﬁnal processing and output layers. Let's break down each module's purpose
+and workings:
+ Input layer: This layer deﬁnes the input shape required to process the data for model training and testing. For our model, we have
+identiﬁed the input shape for the input layer to be (feature_len, 1), where feature_len is the number of columns in one batch.
+ Residual blocks: Start the model with CNN based residual block which is used to deepen the network without losing the ability to train
+effectively.
+ Max pooling: Reduces the spatial dimensions of the output from convolutional layers, summarizing features.
+ Dropout: Applied after pooling and LSTM layers to prevent overﬁtting by randomly dropping units during training.
+ LSTM layers: Processes the output of convolutional layers to learn from the temporal patterns in the data. return_sequences ¼ True
+keeps the time dimension for attention processing.
+ Attention layers: Applied to the output of the LSTM layers to focus the model's learning on important temporal elements.
+ Flatten: Converts the multi-dimensional output of the attention layer into a single-dimensional array suitable for input to the fully
+connected layer.
+ Dense layer: A dense layer serves as the intermediate stage where the spatially distributed features extracted by convolutional,
+pooling layers and LSTMs are ﬂattened into a single vector representation. By doing so, dense layers enable the network to learn
+high-level abstractions and relationships among the extracted features, making them more suitable for classiﬁcation or regression
+tasks. These intermediate dense layers typically incorporate non-linear activation functions like ReLU to introduce non-linearity and
+capture complex patterns in the data. Additionally, they may include dropout or batch normalization layers to regularize the network
+and prevent overﬁtting.
+ Output layer: A dense layer that outputs the ﬁnal prediction of the model. The activation function is chosen based on the task. Since
+we are performing binary classiﬁcation, we are using the sigmoid function.
+Figs. 4 and 5 provide a high-level overview of the model architecture. This architecture is particularly effective for complex sequence
+modelling tasks that beneﬁt from spatial feature extraction and the ability to remember and emphasize important parts of the sequence
+data over time.
+4.1.4. Training and tuning-stage II
+The second module involves training the model using the training dataset, incorporating all features, and determining feature
+importance by utilizing SHAP values. Subsequently, the model is retrained using a decreased set of features while maintaining comparable performance metrics to the original model.
+ Hyperparameter tuning: Hyperparameter tuning, also known as hyperparameter optimization, refers to selecting the optimal
+hyperparameters for a machine learning model to maximize its performance on a given dataset. Hyperparameters are parameters set
+
+l
+
+Fig. 4. Model architecture.
+383
+
+T. Sasi et al.
+
+Journal of Information and Intelligence 3 (2025) 375–400
+
+Data
+
+Activation
+
+Activation
+
+Output
+
+Add
+1D Conv
+
+1D Conv
+
+Fig. 5. Residual block.
+
+before the learning process begins and control aspects such as the complexity of the model, the regularization strength, and the
+learning rate. Unlike model parameters learned during training, hyperparameters are not learned from the data and must be speciﬁed
+by the user [33].
+Grid search is a hyperparameter tuning technique to ﬁnd the optimal combination of hyperparameters for a machine learning model.
+It involves deﬁning a grid of hyperparameter values and exhaustively searching through all possible combinations of these values to
+identify the combination that yields the best performance on a chosen evaluation metric.
+Using grid search, we have successfully determined ﬁve optimal combinations of hyperparameters for training, validation, and
+testing. Among the ﬁve options, we have selected the hyperparameter conﬁguration that performs the best for calculating feature
+importance, retraining the model, and compressing it. This selection was based on testing it on external datasets. Below is Table 3 of
+hyperparameters utilized for training the model.
+ Model training and testing: To facilitate model training, we divided the dataset into two subsets-training and testing-in an 80:20 ratio.
+This was achieved using the train_test_split function from the sklearn library. In addition, we partitioned the data in the training subset
+into separate training and validation sets using an 80:20 ratio. This division assisted in training the model according to the method
+described in reference [34].
+ SHAP feature importance: We employ SHAP feature importance scores to identify the most impactful features in our model. Subsequently, we reﬁne the model by training it with a reduced feature set, guided by insights drawn from the SHAP feature importance
+graph, particularly focusing on the differences between adjacent bar levels. The SHAP feature importance graph in Fig. 6 provides a
+visual representation of these insights.
+SHAP feature importance provides a comprehensive method for understanding the impact of individual features on a machine
+learning model's predictions. Unlike traditional methods like permutation importance, which assesses feature importance by
+measuring the decrease in model performance when a feature's values are randomly permuted, SHAP values consider the interaction
+between features and provide a more nuanced understanding of their inﬂuence on predictions [35,36].
+While permutation importance offers a straightforward measure of feature importance, SHAP values capture the contribution of each
+feature in the context of other features, allowing for a more accurate and interpretable assessment of their impact. In situations where
+feature interactions are signiﬁcant in model predictions, SHAP feature importance provides more insightful and reliable results.
+However, permutation importance may sufﬁce for simpler models with fewer interactions between features and could be computationally less intensive. Ultimately, the choice between SHAP feature importance and permutation importance depends on the
+complexity of the model and the importance of capturing feature interactions for accurate interpretation [36].
+While SHAP values typically provide local explanations for individual predictions, aggregating these values across a dataset offers
+insights into the global importance of each feature. Global feature importance quantiﬁes the overall impact of features across all
+predictions, measuring how signiﬁcant each feature is in the model's decision-making process.
+ Model retraining and model compression: After identifying the reduced set of features, we build and train the model on it. Next, we
+compare the performance characteristics of the initial and reduced set models. If the performance of the reduced model is comparable to the initial model, we will use the reduced model for deployment.
+Table 3
+Hyperparameters list.
+No
+
+Activations
+
+Losses
+
+Optimizers
+
+Batches
+
+Epochs
+
+Shufﬂes
+
+1
+2
+3
+4
+5
+
+ReLU
+ReLU
+Leaky ReLU
+ReLU
+ReLU
+
+Binary cross-entropy
+Binary cross-entropy
+Binary cross-entropy
+Binary cross-entropy
+Binary cross-entropy
+
+Adam
+Adam
+Adam
+RMSProp
+RMSProp
+
+32
+16
+16
+16
+8
+
+20
+20
+20
+20
+20
+
+True
+True
+True
+True
+True
+
+384
+
+T. Sasi et al.
+
+Journal of Information and Intelligence 3 (2025) 375–400
+
+Fig. 6. Feature importance graph.
+
+5. Experiments & results
+This section provides a detailed overview of the experimental framework and the dataset utilized for conducting the experiments and
+obtaining the results. Subsequently, an exhaustive examination of the features used in the proposed method is performed, with a
+comprehensive list of all the features included. As outlined in Section 4, this section also demonstrates the experimentation and results of
+the proposed self-attention-based 1D-CNN-LSTM deep learning technique.
+Further in the section, the implementation results of the proposed model are presented in detail, along with a thorough discussion of
+the performance metrics on externally augmented datasets. Finally, the outcomes of these experiments validate the effectiveness of the
+proposed system.
+5.1. Experimental setup
+The implementation and execution of all the modules were processed on Windows 11, 11th Gen Intel(R) Core(TM) i7-11800H @
+2.30 GHz 2.30 GHz, 64 GB RAM with a graphic card of NVIDIA Geforce RTX 3060 4 GB. All the data preprocessing and feature extraction
+were implemented using Python scripts and public libraries.
+5.2. Datasets
+Nine augmented datasets have been generated using the publicly available IoT datasets to train, test, and evaluate the proposed
+model to maximize the variety of attacks and benign activities. Below is a summary of datasets augmented during preprocessing for
+training, validation, and model testing, summarized in table Table 4.
+ ACI IoT network trafﬁc dataset 2023: This study aims to introduce a novel dataset tailored explicitly for machine learning (ML) applications in the domain of IoT network security. The research provides a distinctive and realistic dataset for training and assessing
+ML models designed for IoT network environments. By addressing an existing gap in available resources, this dataset aims to drive
+progress in ML-based solutions, thereby enhancing the security of IoT operations.
+385
+
+T. Sasi et al.
+
+Journal of Information and Intelligence 3 (2025) 375–400
+
+Table 4
+Augmented datasets.
+Year
+
+New dataset name
+
+Original dataset name
+
+Malicious activities
+
+Real/simulated
+
+Dataset size
+
+2023
+2023
+2024
+2022
+2022
+2019
+2020
+2021
+2022
+
+CIC-BCCC-NRC_IoT-2023
+CIC-BCCC-NRC_ACI-IoT-2023
+CIC-BCCC-NRC_IoMT-2024
+CIC-BCCC-NRC_Edge-IIoTset-2022
+CIC-BCCC-NRC_IoT-2022
+CIC-BCCC-NRC_IoT-HCRL-2019
+CIC-BCCC-NRC_MQTTIoT-IDS-2020
+CIC-BCCC-NRC_TONIoT-2021
+CIC-BCCC-NRC_UQ-IoT-2022
+
+CIC IoT 2023
+ACI IoT network trafﬁc dataset 2023
+CIC IoMT 2024
+Edge-IIoTset
+CIC IoT 2022
+IoT network intrusion dataset
+MQTT-IoT-IDS-2020
+TON IoT 2021
+UQ IoT 2022
+
+Yes
+Yes
+Yes
+Yes
+Yes
+Yes
+Yes
+Yes
+Yes
+
+Real
+Real
+Real
+Real
+Real
+Real
+Simulated
+Real
+Real
+
+108.58 GB
+338.9 MB
+19.25 GB
+1.55 GB
+60.6 MB
+46.3 MB
+1.45 GB
+696.2 MB
+2.31 GB
+
+The experimentation phase was conducted within the Internet of Things Research Lab (IoTRL) at the Army Cyber Institute (ACI),
+meticulously crafted to replicate a realistic home environment. The IoTRL mirrors the conditions of a typical home IoT network,
+encompassing a diverse range of both wired and wirelessly connected devices, including various IoT devices and conventional
+networked devices commonly found in home settings. Home Assistant, free and open-source software for home automation, was
+seamlessly integrated within the lab as a central control system to streamline the control and management of IoT devices [37].
+Data collection involved strategically deploying network sniffers and monitoring points throughout the lab to capture both wired and
+wireless network trafﬁc, thus creating a realistic and dynamic environment for experimentation. The dataset stands out in the IoT
+security research landscape due to several vital contributions: The inclusion of a dynamic mix of IoT devices, simulation of a realistic
+home environment within the IoTRL, focus on behavioural analysis of IoT devices in normal and adversarial scenarios, and incorporation of multi-modal data representation including network trafﬁc patterns, device communication, and device-speciﬁc characteristics. These contributions enable a comprehensive evaluation of IoT security, surpassing the limitations of existing datasets
+with a single focus [37].
+ CIC IoT dataset 2022: This study endeavors to produce an advanced dataset to proﬁle, analyze behaviour, and test vulnerabilities of
+various IoT devices utilizing protocols such as IEEE 802.11, Zigbee-based, and Z-wave. Regarding network conﬁguration, our lab
+network was set up with a 64-bit Windows machine equipped with two network interface cards—one linked to the network gateway
+and the other to an unmanaged network switch. Wireshark, an open-source network protocol analyzer, concurrently monitors both
+interfaces, capturing and saving packet data. This setup allows IoT devices requiring an Ethernet connection to the switch [38].
+Additionally, a smart automation hub, Vera Plus, is linked to the unmanaged switch, establishing our wireless IoT environment to
+cater to devices compatible with Wi-Fi, Zigbee, Z-wave, and Bluetooth. Data collection involved capturing network trafﬁc of IoT
+devices passing through the gateway using wireshark and dumpcap across six experiment types: power, idle, interactions, scenarios,
+active, and attacks. Each experiment type is delineated as follows: power involved individually powering on devices in isolation and
+capturing network trafﬁc; idle captured network trafﬁc during overnight periods of minimal lab activity; interactions extracted all
+possible functionality from IoT devices, capturing corresponding network activity; scenarios simulated network activity within a
+smart home environment with various device combinations; active captured network communication throughout the day, allowing
+fellow researchers to interact with devices; attacks entailed performing ﬂood and RTSP-brute force attacks on select devices and
+capturing their attack network trafﬁc [38].
+ CIC IoMT dataset 2024: The primary objective of this study is to propose a realistic benchmark dataset to facilitate the development
+and evaluation of security solutions for the Internet of Medical Things (IoMT). This involved executing 18 attacks on an IoMT testbed
+comprising 40 devices (25 real and 15 simulated), considering the diverse protocols prevalent in healthcare settings, such as Wi-Fi,
+MQTT, and Bluetooth. These attacks were categorized into ﬁve classes, DDoS (Distributed DoS), DoS (Denial-of-Service), Recon,
+MQTT, and spooﬁng, to establish a foundational benchmark that complements existing contributions and aids researchers in
+exploring novel security mechanisms, including machine learning (ML). Data collection involved the utilization of a network tap to
+capture trafﬁc between the switch and the Wi-Fi/MQTT-enabled IoMT devices, with real-time packet duplication facilitated by the
+device to construct the security and proﬁling dataset. Furthermore, a malicious PC and a smartphone were employed to capture
+malicious and benign data for Bluetooth low energy (BLE) enabled devices [39].
+ Edge-IIoTset: It is a comprehensive and realistic cyber security dataset tailored for IoT and IIoT applications, intended for utilization
+in machine learning-based intrusion detection systems operating in centralized and federated learning modes. The dataset is
+structured across seven layers: cloud computing layer, network functions virtualization layer, blockchain network layer, fog
+computing layer, software-deﬁned networking layer, edge computing layer, and IoT and IIoT perception layer. Each layer incorporates cutting-edge technologies meeting the essential requirements of IoT and IIoT applications, including the ThingsBoard IoT
+platform, OPNFV platform, Hyperledger Sawtooth, Digital twin, ONOS SDN controller, Mosquitto MQTT brokers, Modbus TCP/IP,
+among others [40].
+Data generation involves diverse IoT devices spanning over ten types: low-cost digital sensors for temperature and humidity, ultrasonic sensors, water level detection sensors, pH sensor meters, soil moisture sensors, heart rate sensors, and ﬂame sensors.
+Furthermore, the project identiﬁes and analyzes fourteen attacks associated with IoT and IIoT connectivity protocols, categorized
+into ﬁve threat classes: DoS/DDoS attacks, information gathering, man-in-the-middle attacks, injection attacks, and malware attacks.
+Following the processing and analysis of the proposed cyber security dataset, primary exploratory data analysis is conducted, and the
+performance of machine learning approaches is evaluated in centralized and federated learning modes [40].
+386
+
+T. Sasi et al.
+
+Journal of Information and Intelligence 3 (2025) 375–400
+
+ IoT network intrusion dataset: This dataset features various network attacks within an IoT environment, employing two representative
+smart home devices: the SKT NUGU (NU 100) and the EZVIZ Wi-Fi Camera (C2C Mini O Plus 1080P). All devices, alongside selected
+laptops or smartphones, were interconnected within a uniﬁed wireless network. The dataset encompasses 42 raw network packet
+ﬁles (pcap) captured at distinct intervals. These packet ﬁles were obtained using the monitor mode of a wireless network adapter,
+with subsequent removal of wireless headers facilitated by Aircrack-ng. The dataset includes attacks simulated using tools such as
+Nmap, excluding those categorized under the Mirai Botnet, for which attack packets were generated on a laptop and subsequently
+altered to appear as originating from an IoT device [41].
+ MQTT-IoT-IDS 2020: This study aims to develop a dataset pertaining to the IoT domain, speciﬁcally focusing on the MQTT
+communication protocol, to provide the research and industrial communities with an initial dataset for their applications. The
+dataset comprises IoT sensors operating on MQTT, each representing various aspects of a real network. Speciﬁcally, the MQTT
+broker is instantiated using Eclipse Mosquitto, and the network consists of 8 sensors. The scenario emulates a smart home environment where sensors collect data on temperature, light, humidity, CO-Gas, motion, smoke, door status, and fan operation at
+different time intervals, reﬂecting the diverse behaviour of each sensor. These 8 MQTT sensors are characterized by distinct features,
+detailed in a table format, with each sensor associated with a data proﬁle and a topic linked to the MQTT broker [42].
+Additionally, the sensors are conceptually divided into two rooms, resembling distribution within a smart house, while the MQTT
+broker is assigned the IP address 10.16.100.73 and port 1883 for clear text communication. The time intervals for data transmission
+can either be periodic or random, with periodic intervals reﬂecting cyclic data transmission, such as that of a temperature sensor, and
+random intervals representing sporadic data transmission, as in the case of a motion sensor triggered by user activity. This
+consideration enhances the dataset's ﬁdelity, simulating and implementing realistic behaviours characteristic of home automation
+systems [42].
+ TON IoT: The TON IoT datasets represent a new iteration of Industry 4.0/IoT and Industrial IoT (IIoT) datasets designed to assess the
+efﬁcacy and authenticity of diverse cybersecurity applications leveraging artiﬁcialintelligence (AI), including machine and deep
+learning algorithms. These datasets amalgamate heterogeneous data sources derived from telemetry datasets of IoT and IIoT sensors,
+operating systems datasets encompassing Windows 7 and 10, Ubuntu 14 and 18 TLS, and network trafﬁc datasets. They were
+compiled from a realistic and expansive network environment established at the cyber range and IoT labs within the School of
+Engineering and Information Technology (SEIT) at UNSW Canberra @ the Australian Defence Force Academy (ADFA).
+A novel testbed network was devised speciﬁcally for the Industry 4.0 context, encompassing IoT and IIoT networks. It was implemented through multiple virtual machines and hosts operating on Windows, Linux, and Kali systems, facilitating the integration
+across IoT, cloud, and edge/fog layers. The datasets encapsulate a range of attacking methodologies, including DoS, DDoS, and
+ransomware, targeting web applications, IoT gateways, and computer systems within the IoT/IIoT network. The datasets were
+compiled through parallel processing techniques to capture normal and cyber-attack events from network trafﬁc, Windows audit
+traces, Linux audit traces, and telemetry data originating from IoT services.
+ UQ IoT IDS 2021: The UQ-IoT-IDS-2021 dataset, provided by the University of Queensland (UQ), Australia, primarily focuses on
+cybersecurity within the IoT domain. It encompasses benign trafﬁc generated by various IoT devices, including smartphones, smart
+TVs, IP cameras, smart speakers, and Raspberry Pis, among others, alongside malicious trafﬁc originating from 9 distinct cyberattack
+types, such as Host Discovery, Port Scanning, Service Detection, ARP Spooﬁng, Telnet Brute-force, SYN Flooding, UDP Flooding,
+HTTP Flooding, and ACK Flooding.
+The raw data was captured utilizing wireshark within a realistic network environment established at the School of Information
+Technology and Electrical Engineering, UQ. Subsequently, this raw data underwent processing by the feature extractor in Kitsune to
+extract 100 temporal-statistical features, enhancing the dataset's utility for cybersecurity research and analysis [43].
+
+5.3. Summary of IoT attacks in training dataset
+The selected training dataset includes 14 common IoT attacks as follows, and Appendix A lists the malicious activities in all selected
+datasets.
+1. ACK fragmentation: Fragmented ACK attacks, a variant of ACK & PSH-ACK Flood, use 1500-byte packets to dominate network
+bandwidth at a low packet rate. These packets pass through routers, ACLs, and ﬁrewalls undetected, exhausting resources as
+they require reassembly. Containing irrelevant data, they aim to crash the target, disrupting services similar to other DDoS
+attacks [44].
+2. ICMP flood: An ICMP ﬂood is a DoS attack that uses pings to analyze a device's operation. A “ping ﬂood attack” occurs when
+attackers overload a network router or IP address with ICMP packets, preventing it from handling legitimate trafﬁc. This exhausts
+the device's resources (memory, processing power, and interface rate), hindering service to actual requests [45].
+3. ICMP fragmentation: IP/ICMP fragmentation volumetric DoS attacks ﬂood networks by breaking IP datagrams into smaller
+packets, which are reassembled during communication. This method meets network size limits, governed by the maximum
+transmission unit (MTU). Packets exceeding this limit must be fragmented, with only one packet containing essential information. Attackers use IP fragmentation to target communication and security systems, often sending forged fragments that cannot be
+reassembled, depleting memory resources. These attacks use fake UDP or ICMP packets designed to exceed the MTU, quickly
+exhausting server resources and making it unavailable for legitimate trafﬁc [46].
+
+387
+
+T. Sasi et al.
+
+Journal of Information and Intelligence 3 (2025) 375–400
+
+4. PSH ACK flood: ACK or PUSH ACK packets facilitate bidirectional data transfer between host and client until the session ends.
+ACK ﬂood attacks target vulnerable servers with bogus ACK packets from non-existent sessions. This forces the server to use
+resources to verify the packets, leading to decreased performance and service availability [47].
+5. DDoS RST FIN flood: Clients and hosts use RST or FIN packets to end TCP SYN sessions. In an RST or FIN ﬂood, the targeted server
+receives numerous counterfeit packets unrelated to its connections. The server must use signiﬁcant resources to match these
+packets, reducing performance and causing partial unavailability [48].
+6. SYN flood: SYN ﬂoods, or half-open attacks, are DDoS attacks that deplete a server's resources by ﬂooding it with SYN packets,
+causing slow or no response to legitimate trafﬁc [49].
+7. Synonymous IP flood: This attack ﬂoods the target server with fake TCP SYN packets using the victim's source and destination
+addresses, forcing the server to use system resources to process each packet [50].
+8. DDoS TCP flood: TCP SYN ﬂood attacks exploit the TCP three-way handshake by sending numerous SYN requests without
+completing the ﬁnal ACK, causing the server to waste resources on partially formed connections [51].
+9. UDP flood: A UDP ﬂood attack uses the user datagram protocol to launch a volumetric DoS attack by ﬂooding the victim system
+with UDP packets to random ports. This forces the host to scan for active programs and respond with ICMP packets, exhausting
+resources and preventing access for authorized users. Attackers may spoof IP addresses to conceal their location [52].
+10. UDP fragmentation: A variation of UDP ﬂood, this attack uses the largest allowable packets to overload the channel with fewer
+packets. These counterfeit packet fragments force the server to waste resources trying to reassemble non-existent packets,
+leading to resource depletion, server crashes, or channel overﬂow. This attack is hard to ﬁlter and poses a high risk of channel
+overﬂow [53].
+11. DNS fpooﬁng: A hacker uses DNS spooﬁng to trick a machine or network into communicating with a fake website or server,
+leading to potential identity theft, ﬁnancial fraud, malware, and other online issues [54].
+12. HTTP flood: An HTTP ﬂood is a DDoS attack that uses legitimate HTTP GET or POST requests to overwhelm a web server or
+application. These volumetric attacks often involve a botnet and do not rely on defective packets, spooﬁng, or reﬂection. They
+require less bandwidth to take down a target and must be carefully adapted to the speciﬁc site or application, making detection
+and prevention difﬁcult [55].
+13. Mirai: The Mirai botnet software turns IoT devices into “bots” for launching powerful volumetric DDoS attacks. It targets devices
+with open ports or default credentials, infecting them with malware. Infected devices join the Mirai botnet, allowing attackers to
+issue commands from a central “command & control” server. This enables simultaneous DDoS attacks on websites, networks, and
+digital infrastructure using the collective power of all Mirai bots [56].
+ Mirai GRE-ETH flood: GRE creates IP-based virtual point-to-point connections and can encapsulate many network layer protocols. DDoS scrubbing services use GRE for mitigation. The GRE-ETH ﬂood attacks routers and switches with excessive GRE
+and ETH frames, draining CPU, memory, and bandwidth. The goal is to interrupt network services, cause DoS or DDoS, and
+exploit weaknesses in the target device's trafﬁc management [57].
+ Mirai GRE-IP flood: A GRE-IP ﬂood is a network attack that overwhelms a network with GRE and IP packets. The attacker sends
+numerous GRE-encapsulated IP packets to exhaust network resources, causing congestion, slow speeds, or service disruptions.
+Goals include interrupting network operations, causing DoS, or exploiting infrastructure weaknesses [57].
+ Mirai UDP plain: UDP plain attacks, or UDP ﬂood attacks, are network-based DoS attacks that ﬂood a server or network with
+UDP packets. Since UDP is connectionless and does not require a handshake, attackers can quickly produce and transmit
+packets. This overwhelms the target, causing network delays, degraded services, or restricted access. The attack exploits UDP's
+statelessness, potentially causing packet loss or misorder, further disrupting communication [52].
+14. MITM ARP spooﬁng: Attackers intercept network trafﬁc via ARP spooﬁng (ARP poisoning). After accessing the network, they
+identify the IP addresses of devices like a workstation and a router. The attacker then sends false ARP responses, making the
+devices update their ARP cache to reroute trafﬁc through the attacker's device. This allows the attacker to eavesdrop on conversations, hijack sessions, tamper with communication, and initiate DDoS attacks [58].
+5.4. Features
+In this research, we used CICFlowMeter to extract the network-based features from benign and malicious PCAP ﬁles for only TCP
+network ﬂow data, which have been listed in Appendix B.
+5.5. Finalizing the proposed model
+In this section, the proposed model is elaborated upon in detail. After extracting features using the CICFlowMeter, the newly created
+dataset was ﬁltered to include only TCP ﬂows and KNN imputation was employed to address missing values. Subsequently, a selfattention-based 1D-CNN-LSTM mechanism was constructed, and hyperparameter tuning was performed using the grid search technique.
+This process identiﬁed the top 5 hyperparameters indicated in Table 3.
+We evaluated ﬁve models across nine augmented test datasets. From these, the top best-performing model was selected for SHAP
+feature importance calculations. These scores were then utilized to identify reduced model retraining and compression features.
+After training the top model with this reduced feature set, a comparison was conducted against the initial model. As depicted in
+Fig. 7, the results indicated only a minor performance decrement between the initial model and those with the reduced feature set.
+388
+
+T. Sasi et al.
+
+Journal of Information and Intelligence 3 (2025) 375–400
+
+Accuracy comparison of
+
+model vs
+
+model
+
+1.0
+
+Accuracy score
+
+0.9
+0.8
+
+0.7
+
+CNN - LSTM - ResNet - Self_attention
+
+0.6
+0.5
+
+0.4
+0.3
+
+Fig. 7. Accuracy comparison between initial model vs reduced feature set model.
+
+5.6. Experimental results
+This section presents our experiment ﬁndings regarding identifying malicious activities within network TCP ﬂow data. Due to the
+predominance of malicious activities over benign ones, a data balancing procedure was necessitated prior to model training. Specifically, we retained all rows corresponding to benign activities and randomly sampled consecutive rows representing malicious activities
+from each respective group within the dataset. This approach ensured parity in the total count of benign and malicious activities.
+Consequently, the size of the resulting training set was 356.3 MB.
+Drawing upon the insights Table 3 provided, we opted for the most effective hyperparameter conﬁguration to train our model architecture employing 5-fold cross-validation. Following this, we conducted comprehensive tests and comparisons between our model
+and baseline models across all datasets mentioned in Table 4. The outcomes of these analyses are displayed in Table 5 and Fig. 8.
+
+Table 5
+Baseline models evaluation results based on accuracy.
+Dataset
+
+CNN
+
+CNN-LSTM
+
+CNN-LSTM-ResNet
+
+CNN-LSTM-ResNet-additive
+attention
+
+CNN-LSTM-ResNet-self
+attention
+
+CIC-BCCC-NRC_IoT-2023
+CIC-BCCC-NRC_ACI-IoT-2023
+CIC-BCCC-NRC_IoT-2022
+CIC-BCCC-NRC_edge-IIoTset-2022
+CIC-BCCC-NRC_IoT-HCRL-2019
+CIC-BCCC-NRC_MQTTIoT-IDS-2020
+CIC-BCCC-NRC_TONIoT-2021
+CIC-BCCC-NRC_UQ-IoT-2022
+CIC-BCCC-NRC_IoMT-2024
+
+0.9999
+0.8809
+0.9915
+0.3273
+0.9949
+0.9184
+0.9992
+0.9680
+0.9863
+
+0.9998
+0.8850
+0.9912
+0.3140
+0.9953
+0.9587
+0.9997
+0.9709
+0.9899
+
+0.9995
+0.8958
+0.5167
+0.3331
+0.9294
+0.9284
+0.9805
+0.9774
+0.5045
+
+0.9998
+0.8918
+0.6096
+0.3331
+0.9746
+0.9627
+0.9934
+0.9690
+0.5873
+
+0.9996
+0.8842
+0.9908
+0.3330
+0.9948
+0.9639
+0.9997
+0.9711
+0.9988
+
+389
+
+T. Sasi et al.
+
+Journal of Information and Intelligence 3 (2025) 375–400
+
+Accuracy comparison of baseline models vs our model
+1.0
+
+0.9
+
+Accuracy score
+
+0.8
+
+CNN
+CNN - LSTM
+CNN - LSTM - ResNet
+CNN - LSTM - ResNet - add_attention
+CNN - LSTM - ResNet - self_attention
+
+0.7
+
+0.6
+
+0.5
+
+0.4
+
+T
+
+T
+
+T
+
+T
+
+0.3
+
+Fig. 8. Accuracy comparison between baseline models and our model.
+
+The training history of our main model and the confusion matrix of the main model are described in Figs. 9 and 10, respectively. After
+evaluating our model using the CIC-BCCC-NRC_IoT-2023 test data and the dataset mentioned in Table 4, we obtained the results
+summarized in Table 6. The confusion matrix for the initial model across all datasets is provided in Table 7.
+After completing the evaluation process, SHAP analysis is employed to compute feature importance, facilitating the identiﬁcation of
+key features that contribute to the model's predictive outcomes. Subsequently, Fig. 6 and Fig. 11 illustrate the summary plot and feature
+importance scores derived from analyzing a randomly selected subset of 100 test data samples.
+
+Precision curve
+
+Loss curve
+0.55
+
+1.0000
+
+Training loss
+Validation loss
+
+0.50
+
+0.9975
+
+0.45
+
+0.9950
+Precision
+
+Loss
+
+0.40
+0.35
+
+0.9925
+0.9900
+
+0.30
+0.9875
+
+0.25
+0.20
+
+0.9850
+
+0.15
+
+0.9825
+0.0
+
+2.5
+
+5.0
+
+Training precision
+Validation precision
+0.0
+
+7.5 10.0 12.5 15.0 17.5
+Epoch
+
+2.5
+
+Fig. 9. Our model's training history results.
+390
+
+5.0
+
+7.5 10.0 12.5 15.0 17.5
+Epoch
+
+T. Sasi et al.
+
+Journal of Information and Intelligence 3 (2025) 375–400
+
+Table 6
+Our model accuracy list.
+Dataset
+
+Accuracy
+
+CIC-BCCC-NRC_IoT-2023
+CIC-BCCC-NRC_ACI-IoT-2023
+CIC-BCCC-NRC_IoT-2022
+CIC-BCCC-NRC_Edge-IIoTset-2022
+CIC-BCCC-NRC_IoT-HCRL-2019
+CIC-BCCC-NRC_MQTTIoT-IDS-2020
+CIC-BCCC-NRC_TONIoT-2021
+CIC-BCCC-NRC_UQ-IoT-2022
+CIC-BCCC-NRC_IoMT-2024
+
+0.9996
+0.8842
+0.9908
+0.3330
+0.9948
+0.9633
+0.9997
+0.9711
+0.9988
+
+Table 7
+Confusion metrics for initial model across all datasets.
+Dataset
+
+Accuracy
+
+Precision
+
+Recall
+
+F1 score
+
+CIC-BCCC-NRC_IoT-2023
+CIC-BCCC-NRC_ACI-IoT-2023
+CIC-BCCC-NRC_IoT-2022
+CIC-BCCC-NRC_Edge-IIoTset-2022
+CIC-BCCC-NRC_IoT-HCRL-2019
+CIC-BCCC-NRC_MQTTIoT-IDS-2020
+CIC-BCCC-NRC_TONIoT-2021
+CIC-BCCC-NRC_UQ-IoT-2022
+CIC-BCCC-NRC_IoMT-2024
+
+0.9996
+0.8842
+0.9908
+0.3330
+0.9948
+0.9633
+0.9997
+0.9711
+0.9988
+
+0.9998
+0.8848
+0.9916
+0.3331
+0.9968
+0.9630
+1
+0.9710
+0.9989
+
+0.9995
+0.9984
+0.9993
+1
+0.9981
+0.9741
+0.9997
+1
+0.9999
+
+0.9996
+0.9381
+0.9954
+0.4997
+0.9974
+0.9685
+0.9999
+0.9853
+0.9994
+
+25000
+28739
+
+0
+
+6
+
+2000
+
+15000
+
+10000
+13
+
+1
+
+26550
+5000
+
+0
+
+1
+
+Fig. 10. Our model's confusion matrix results.
+
+Table 8
+Reduced set's features accuracy list.
+Dataset
+
+4 features
+
+5 features
+
+7 features
+
+10 features
+
+11 features
+
+CIC-BCCC-NRC_IoT-2023
+CIC-BCCC-NRC_ACI-IoT-2023
+CIC-BCCC-NRC_IoT-2022
+CIC-BCCC-NRC_Edge-IIoTset-2022
+CIC-BCCC-NRC_IoT-HCRL-2019
+CIC-BCCC-NRC_MQTTIoT-IDS-2020
+CIC-BCCC-NRC_TONIoT-2021
+CIC-BCCC-NRC_UQ-IoT-2022
+CIC-BCCC-NRC_IoMT-2024
+
+0.9847
+0.8797
+0.2603
+0.3330
+0.9807
+0.9639
+0.9988
+0.9680
+0.2711
+
+0.9963
+0.8804
+0.2635
+0.3330
+0.9027
+0.9638
+0.9997
+0.9679
+0.2747
+
+0.9973
+0.8803
+0.9845
+0.3330
+0.9691
+0.9639
+0.9999
+0.9680
+0.9987
+
+0.9992
+0.8801
+0.9914
+0.3330
+0.8740
+0.9642
+0.9998
+0.9642
+0.9925
+
+0.9995
+0.8812
+0.9914
+0.3330
+0.9715
+0.9639
+0.9999
+0.9690
+0.9905
+
+391
+
+T. Sasi et al.
+
+Journal of Information and Intelligence 3 (2025) 375–400
+
+CWR flag count
+ACK flag count
+Bwd packets/s
+Bwd bytes/bulk avg
+Bwd packet/bulk avg
+RST flag count
+ECE flag count
+PSH flag count
+Bwd lAT min
+Active mean
+Flow duration
+Subflow fwd packets
+Bwd packet length min
+Total length of fwd packet
+Packet length max
+Fwd PSH flags
+Bwd header length
+Down/up ratio
+Active max
+Fwd packet length std
+SYN flag count
+Fwd seg size min
+Fwd packet length min
+FIN flag count
+Subflow bwd packets
+Active min
+Packet length std
+Active std
+Total bwd packets
+Fwd packet length mean
+Fwd header length
+Packet length mean
+Fwd segment size avg
+ldle max
+Fwd packet length max
+Total length of bwd packet
+Fwd lAT total
+Average packet size
+Packet length variance
+FWD init win bytes
+ldle mean
+Bwd bulk rate avg
+Subflow fwd bytes
+Bwd IAT mean
+Bwd lAT total
+Bwd init win bytes
+Bwd packet length max
+Flow bytes/s
+ldle min
+ldle std
+Bwd packet length std
+Bwd IAT std
+Flow IAT max
+Fwd act data pkts
+Flow IAT min
+Bwd segment size avg
+Fwd packets/s
+Fwd IAT min
+Fwd lAT std
+Bwd IAT max
+Fwd IAT max
+Subflow bwd bytes
+Flow IAT mean
+Bwd packet length mean
+FloW IAT std
+Total fwd packet
+Flow packets/s
+Fwd lAT mean
+Packet length min
+Fwd bytes/bulk avg
+Fwd bulk rate avg
+Fwd packet/bulk avg
+Bwd URG flags
+Fwd URG flags
+URG flag count
+Bwd PSH flags
+
+-0.10
+
+-0.05
+
+0.00
+
+0.05
+
+SHAP value (impact on model output)
+Fig. 11. Shap summary plot for our model (trained on CIC-BCCC-NRC_IoT-2023 dataset).
+
+392
+
+T. Sasi et al.
+
+Journal of Information and Intelligence 3 (2025) 375–400
+
+Due to the standard scaling and balancing of the training dataset, the SHAP values may appear smaller, indicated by the blue colour
+in Fig. 11, as the features are normalized to have a mean of 0 and a standard deviation of 1. This normalization prevents any single
+feature from dominating the prediction, resulting in a more distributed contribution across multiple features. In addition, we incorporated regularization approaches, such as dropout, which could potentially diminish the inﬂuence of particular features, resulting in
+decreased SHAP values. Models often perform better with scaled features because scaling can lead to faster convergence and better
+numerical stability during training. Consequently, SHAP values derived from models trained on scaled data might be more consistent
+and reliable [59,60].
+Nevertheless, when analyzing SHAP values derived from scaled features, it is crucial to bear in mind that they represent the inﬂuence
+of variations in the scaled (standardized) feature values, rather than the original feature values. The direction of the impact (positive or
+negative) remains consistent, but the magnitude needs to be interpreted in the context of the scaled features [61].
+In the context of our research problem, this Fig. 11 aids in comprehending the features that inﬂuence the model's prediction towards
+the positive class (such as identifying a malicious event in IoT trafﬁc) and the features that inﬂuence the prediction towards the negative
+class (such as benign trafﬁc). Positive SHAP values, located on the right side of the x-axis, enhance the likelihood of the positive class,
+whereas negative SHAP values, found on the left side, diminish it. This interpretation facilitates the diagnosis and validation of the
+model's behaviour, ensuring that the model's decisions are made based on relevant features.
+After identifying the top important features, we begin retraining the model using a reduced set of features from scratch, aiming to
+determine the optimal subset of features capable of achieving comparable performance to the original model. The gaps or differences
+between the bars in Fig. 6 guide the choice of the reduced feature set.
+Subsequently, we compile a list of feature subsets and retrain and evaluate the model using the CIC-BCCC-NRC_IoT-2023 dataset and
+other datasets speciﬁed in Table 4. Through this evaluation process, we ascertain that a minimum of 7 features is necessary to achieve
+performance akin to the initial model's, as shown in Table 8.
+The following section outlines the training history (Fig. 12) and confusion matrix (Fig. 13) for the CIC-BCCC-NRC_IoT-2023 dataset,
+along with confusion matrices for the datasets referenced in Table 4 are presented in Table 9.
+Table 10 provides a detailed description of the top 7 features identiﬁed, which exhibit similar performance to the original model.
+Finally, the performance comparison between the initial model and the reduced 7-feature set model is presented in Fig. 7.
+
+Training loss
+Validation loss
+
+Training precision
+Validation precision
+
+Fig. 12. Reduced set feature's training history results.
+Table 9
+Confusion metrics for 7 features reduced model across all datasets.
+Dataset
+
+Accuracy
+
+Precision
+
+Recall
+
+F1 score
+
+CIC-BCCC-NRC_IoT-2023
+CIC-BCCC-NRC_ACI-IoT-2023
+CIC-BCCC-NRC_IoT-2022
+CIC-BCCC-NRC_Edge-IIoTset-2022
+CIC-BCCC-NRC_IoT-HCRL-2019
+CIC-BCCC-NRC_MQTTIoT-IDS-2020
+CIC-BCCC-NRC_TONIoT-2021
+CIC-BCCC-NRC_UQ-IoT-2022
+CIC-BCCC-NRC_IoMT-2024
+
+0.9996
+0.8842
+0.9908
+0.3330
+0.9948
+0.9633
+0.9997
+0.9711
+0.9988
+
+1
+0.881
+0.9914
+0.333
+0.9956
+0.964
+1
+0.9681
+0.9989
+
+0.9944
+0.9989
+0.993
+1
+0.9714
+1
+0.9999
+0.9999
+0.9998
+
+0.9972
+0.9363
+0.9922
+0.4997
+0.9834
+0.9817
+0.9999
+0.9837
+0.9993
+
+393
+
+T. Sasi et al.
+
+Journal of Information and Intelligence 3 (2025) 375–400
+
+Table 10
+Top 7 best features for retraining.
+Feature name
+
+Description
+
+CWR ﬂag count
+
+This represents the count of packets with the congestion window reduced (CWR) ﬂag set. The CWR ﬂag is set by the sending host to indicate
+that it received a TCP segment with the ECE ﬂag set and had responded in a congestion control mechanism. Anomalies in the CWR ﬂag
+count could indicate potential congestion or network attacks, such as congestion collapse or denial-of-service (DoS) attacks targeting the
+TCP congestion control mechanism.
+This denotes the count of packets with the acknowledgment (ACK) ﬂag set. The ACK ﬂag is used to acknowledge receipt of data packets. A
+sudden surge or drop in the ACK ﬂag count could signify abnormal network behaviour, such as TCP connection hijacking attempts or ACK
+ﬂooding attacks.
+This indicates the rate of backward (incoming) packets per second. Unusually high or low rates of backward packets might indicate
+malicious activities like network scanning or packet injection attacks.
+This represents the average number of bytes transmitted in bulk in the backward direction. Signiﬁcant deviations from the average bulk
+byte rate could suggest data exﬁltration attempts or large-scale data transfer activities indicative of a security breach.
+This denotes the average number of packets transmitted in bulk in the backward direction. Deviations from the average bulk packet rate
+could indicate abnormal trafﬁc patterns, such as bulk data transfers associated with malware propagation or botnet activity.
+This indicates the count of packets with the reset (RST) ﬂag set. The RST ﬂag is used to reset a TCP connection. Anomalous spikes in the RST
+ﬂag count may signal attempts to disrupt network communications, such as TCP reset attacks or connection teardown attempts by malware.
+This represents the count of packets with the explicit congestion notiﬁcation (ECE) ﬂag set. The ECE ﬂag is used to indicate congestion on
+the network path. Abnormalities in the ECE ﬂag count could suggest network congestion or targeted congestion-based attacks, such as
+congestion-aware DoS attacks or congestion control evasion techniques employed by attackers.
+
+ACK ﬂag count
+
+Bwd packets/s
+Bwd bytes/bulk avg
+Bwd packet/bulk avg
+RST ﬂag count
+ECE ﬂag count
+
+Fig. 13. Reduced set feature's confusion matrix results.
+
+Additionally, Table 11 illustrates the model size and training time for both the initial model and the reduced 7-feature set model. It is
+observed that there is a 45.77% decrease in model size, accompanied by a slight reduction in training time.
+Due to the signiﬁcant imbalance present in all datasets, characterized by a higher number of attack instances compared to benign
+ones, and considering that these datasets were used as test datasets without balancing, it is likely that this imbalance contributed to the
+high recall and precision observed in our model, as evidenced by the confusion matrices in Tables 7 and 9. Nevertheless, given that the
+training was conducted on the balanced CIC-BCCC-NRC_IoT-2023 dataset, we are conﬁdent in the model's capability to accurately
+identify malicious instances. We anticipate that if the test datasets included a larger proportion of benign data, the performance difference would be negligible compared to the current results.
+In summary, the better performance of the proposed self-attention-based 1D-CNN-LSTM approach for IoT attack detection can be
+attributed mostly to its robust feature extraction capabilities, efﬁcient handling of high-dimensional data, and its capacity to
+highlight important data points via the self-attention mechanism. The integration of convolutional neural networks (CNNs) with long
+short-term memory (LSTM) networks allows the model to effectively capture spatial and temporal patterns in network data, hence
+facilitating accurate distinction between benign and malicious activities. Applying Shapley additive explanations (SHAP) to the
+Table 11
+Comparison of initial and reduced feature model sizes and training time.
+
+Initial model
+Reduced 7 features model
+
+Total parameters
+
+Trainable parameters
+
+Non-trainable parameters
+
+Training time
+
+251661 (983.05 KB)
+136461 (533.05 KB)
+
+251661 (983.05 KB)
+136461 (533.05 KB)
+
+0 (0.00 byte)
+0 (0.00 byte)
+
+1198 s
+1067 s
+
+394
+
+T. Sasi et al.
+
+Journal of Information and Intelligence 3 (2025) 375–400
+
+model optimizes its performance by emphasizing the most signiﬁcant characteristics, therefore simplifying the model and increasing
+computing efﬁciency without compromising accuracy. Moreover, the model's performance consistency across different enhanced IoT
+datasets emphasizes its resilience and ﬂexibility, establishing it as a reliable and ﬂexible solution for IoT security and intrusion
+detection.
+6. Conclusion & future works
+In this paper, a novel method called the self-attention-based 1D-CNN-LSTM, integrating CNNs, long short-term memory (LSTMs),
+and self-attention mechanisms, was developed to enhance the detection of IoT attacks within TCP network ﬂows [62]. This approach
+capitalizes on the robust feature extraction capabilities of CNNs, the sequential data processing strengths of LSTMs, and the focused
+contextual insights provided by self-attention mechanisms, thereby establishing a sophisticated analytical framework.
+Throughout this research, signiﬁcant emphasis has been placed on the efﬁciency of the data preprocessing stage. We employ the
+CICFlowMeter tool for precise feature extraction from network trafﬁc data and implement advanced machine-learning techniques for
+feature selection and model optimization. Using SHAP values to elucidate feature importance highlights our commitment to transparency and interpretability in machine learning models, which is essential in cybersecurity.
+Furthermore, this research tested the initial and reduced models on nine augmented IoT datasets called CIC-BCCC-NRC_TabularIoTAttack2024. The comparative results conﬁrm that the proposed method performs better in detecting IoT attacks across various datasets, providing
+empirical evidence of the model's effectiveness in distinguishing malicious and benign samples within an IoT environment.
+
+6.1. Future works
+1. Model architecture optimization: Continuously reﬁning the architecture of the self-attention-based 1D-CNN-LSTM mechanism can lead
+to better performance. This involves experimenting with different network depths, layer conﬁgurations, activation functions, and
+other architectural components to improve model expressiveness and learning capacity.
+2. Attention mechanism enhancement: Further research into attention mechanisms tailored speciﬁcally for network ﬂow data can lead to
+more effective models. This includes exploring different attention mechanisms such as multiplicative, multi-head, or hierarchical
+attention to capture different aspects of temporal dependencies and relationships within the data.
+3. Integration of external context: Incorporating additional contextual information, such as network topology, device metadata, or
+domain-speciﬁc knowledge, into the model architecture can improve its ability to interpret network ﬂow data accurately. This can
+enhance the model's understanding of the underlying network dynamics and improve its predictive performance.
+4. Data preprocessing and feature engineering: Developing more sophisticated preprocessing techniques and feature engineering strategies
+speciﬁc to network ﬂow data can help extract more meaningful representations from the raw data. This may involve incorporating
+domain knowledge to extract relevant features, handling missing or noisy data, or applying dimensionality reduction techniques to
+reduce computational complexity.
+5. Model improvement using federated learning approach: Enhancing the model architecture to operate within a federated framework
+facilitates the utilization of locally updated models, enabling the training of attack detection algorithms on IoT devices with similar
+characteristics. This approach yields more reﬁned and precise models tailored to speciﬁc categories of IoT devices, consequently
+enhancing overall model performance and efﬁcacy.
+
+6.2. Availability
+After publishing this paper, the augmented datasets, namely CIC-BCCC-NRC_TabularIoTAttack-2024, are available on the collaborator universities’ websites.
+CRediT authorship contribution statement
+Tinshu Sasi: Writing – review & editing, Writing – original draft, Methodology. Arash Habibi Lashkari: Supervision, Methodology.
+Rongxing Lu: Writing – review & editing, Validation. Pulei Xiong: Writing – review & editing, Validation. Shahrear Iqbal: Writing –
+review & editing, Validation.
+Acknowledgments
+This project was supported in part by collaborative research funding from the National Research Council of Canada’s Artiﬁcial
+Intelligence for Logistics Program.
+Declaration of competing interest
+The authors declare that they have no known competing ﬁnancial interests or personal relationships that could have appeared to
+inﬂuence the work reported in this paper.
+395
+
+T. Sasi et al.
+
+Journal of Information and Intelligence 3 (2025) 375–400
+
+Appendix A. List of all malicious activities present in all augmented datasets
+This appendix provides a comprehensive list of all malicious activities identiﬁed in the datasets referenced in Table 4. Each activity is
+accompanied by a brief description to aid in understanding the various threats documented.
+Table A
+List of all malicious activities present in all datasets in Table 4 [4,63].
+Malicious activity
+
+Description
+
+Benign trafﬁc
+DDoS ACK fragmentation
+DDoS ICMP ﬂood
+DDoS ICMP fragmentation
+DDoS PSH ACK ﬂood
+DDoS RST FIN ﬂood
+DDoS SYN ﬂood
+DDoS fynonymous IP ﬂood
+DDoS TCP ﬂood
+DDoS UDP ﬂood
+DDoS UDP fragmentation
+DNS spooﬁng
+DoS HTTP ﬂood
+DoS SYN ﬂood
+DoS TCP ﬂood
+DoS UDP ﬂood
+MITM ARP spooﬁng
+Mirai GRE-ETH ﬂood
+Mirai GRE-IP ﬂood
+Mirai UDP plain
+Dictionary brute force
+DoS DNS ﬂood
+Recon host discovery
+Recon OS scan
+Recon ping sweep
+Recon port scan
+Recon vulnerability scan
+Backdoor
+DDoS HTTP ﬂood
+DDoS TCP SYN ﬂood
+OS ﬁngerprinting
+Password attack
+Port scanning
+Ransomware
+SQL injection
+Uploading attacks
+Vulnerability scanner
+XSS
+DoS ICMP ﬂood
+MQTT DDoS connect ﬂood
+MQTT DDoS publish ﬂood
+MQTT DoS connect ﬂood
+MQTT DoS publish ﬂood
+MQTT malformed
+Mirai ACK ﬂood
+Mirai HTTP ﬂood
+Mirai host brute force
+Mirai UDP ﬂood
+Scan host port
+Scan port OS
+MQTT brute force
+Scan aggressive
+Scan UDP attack
+Sparta SSH brute force
+DDoS
+DoS
+Injection
+MITM
+ACK ﬂood
+
+Normal network trafﬁc with no malicious intent.
+Distributed Denial of Service attack using fragmented ACK packets to overwhelm the target.
+DDoS attacks send many ICMP packets to overload the target.
+Fragmented ICMP packets are used to consume the target's resources in a DDoS attack.
+Flooding the target with TCP packets with PSH and ACK ﬂags set to disrupt services.
+Using TCP RST and FIN ﬂags to ﬂood and disrupt target systems.
+Overwhelming a target with TCP SYN packets to exhaust resources and deny service.
+Using multiple IP addresses to send DDoS trafﬁc to the target.
+Flooding the target with TCP packets to cause a denial of service.
+Sending large UDP packets to overwhelm the target's resources.
+Fragmented UDP packets are used in a DDoS attack to disrupt services.
+Manipulating DNS responses to redirect trafﬁc to malicious sites.
+Denial of Service attack using HTTP requests to overwhelm a web server.
+Sending numerous TCP SYN packets to cause a denial of service on the target.
+Flooding the target with TCP packets to cause a denial of service.
+Overwhelming the target with UDP packets to cause a denial of service.
+Man-in-the-middle attack using ARP spooﬁng to intercept network trafﬁc.
+Mirai botnet attack using GRE over Ethernet packets to ﬂood the target.
+Mirai botnet attack using GRE over IP packets to ﬂood the target.
+Mirai botnet attack using plain UDP packets to overwhelm the target.
+Attempting to gain access by trying numerous passwords from a predeﬁned list.
+Overwhelming a DNS server with requests to cause a denial of service.
+Scanning the network to discover active hosts.
+Scanning to identify the operating systems of hosts on the network.
+Sending ICMP Echo requests to multiple hosts to determine their status.
+Scanning a host to discover open ports and services.
+Scanning systems to identify potential vulnerabilities.
+Creating or exploiting a hidden access point into a system.
+Overwhelming a web server with HTTP requests in a DDoS attack.
+A speciﬁc type of SYN ﬂood used in a DDoS attack to exhaust resources.
+Identifying the operating system of a target by analyzing packet signatures.
+Attempting to gain unauthorized access by guessing or cracking passwords.
+Identifying open ports and services on a networked device.
+Malicious software that encrypts ﬁles and demands ransom for decryption.
+Inserting malicious SQL queries into input ﬁelds to manipulate databases.
+Uploading malicious ﬁles to a server to exploit vulnerabilities.
+Automated tool to scan systems for known vulnerabilities.
+Cross-site scripting attack to inject malicious scripts into web pages.
+Overloading a target with ICMP Echo requests to cause a denial of service.
+Using the MQTT protocol to send a large number of connection requests in a DDoS attack.
+Flooding the target with MQTT publish messages to cause a denial of service.
+Using MQTT connect messages to cause a denial of service.
+Using MQTT publish messages to cause a denial of service.
+Sending malformed MQTT packets to disrupt the target.
+Mirai botnet attack using ACK packets to overwhelm the target.
+Using the Mirai botnet to ﬂood a web server with HTTP requests.
+Mirai botnet are attempting to brute force login credentials on targets.
+Mirai botnet sends a large volume of UDP packets to overwhelm the target.
+Scanning hosts to identify open ports and services.
+Scanning ports to identify the target's operating system.
+Attempting to gain unauthorized access by brute forcing MQTT credentials.
+Comprehensive scanning to gather detailed information about the target.
+Scanning using UDP packets to identify open ports and services.
+Using the Sparta tool to brute force SSH login credentials.
+Distributed Denial of Service attack using multiple sources to overwhelm the target.
+Denial of Service attack aimed at making a service unavailable.
+Attacks that involve injecting malicious input into an application.
+Man-in-the-middle attack where the attacker intercepts communication between two parties.
+Flooding the target with TCP ACK packets to disrupt services.
+(continued on next page)
+
+396
+
+T. Sasi et al.
+
+Journal of Information and Intelligence 3 (2025) 375–400
+
+Table A (continued )
+Malicious activity
+
+Description
+
+HTTP ﬂood
+Recon service detection
+SYN ﬂood
+Telnet brute force
+UDP ﬂood
+
+Overwhelming a web server with HTTP requests to cause a denial of service.
+Scanning to detect active services on a network.
+Flooding a target with SYN packets to exhaust resources and deny service.
+Brute forcing Telnet login credentials to gain unauthorized access.
+Overwhelming a target with UDP packets to cause a denial of service.
+
+Appendix B. CICFlowMeter extracted features list
+This appendix presents a comprehensive list of the features extracted by the CICFlowMeter tool. Each feature is described brieﬂy to
+help understand the various aspects of network trafﬁc that were captured and analyzed.
+Table B
+CICFlowMeter extracted features list.
+Feature name
+
+Description
+
+Flow ID
+Src IP
+Src port
+Dst IP
+Dst port
+Flow duration
+Total Fwd packet
+Total Bwd packets
+Total length of fwd packet
+Total length of bwd packet
+Fwd packet length min
+Fwd packet length max
+Fwd packet length mean
+Fwd packet length std
+Bwd packet length min
+Bwd packet length max
+Bwd packet length mean
+Bwd packet length std
+Flow bytes/s
+Flow packets/s
+Flow IAT mean
+Flow IAT Std
+Flow IAT max
+Flow IAT min
+Fwd IAT min
+Fwd IAT max
+Fwd IAT mean
+Fwd IAT Std
+Fwd IAT total
+Bwd IAT min
+Bwd IAT max
+Bwd IAT mean
+Bwd IAT Std
+Bwd IAT total
+Fwd PSH ﬂags
+Bwd PSH ﬂags
+Fwd URG ﬂags
+Bwd URG ﬂags
+Fwd header length
+Bwd header length
+FWD packets/s
+Bwd packets/s
+Packet length min
+Packet length max
+Packet length mean
+Packet length Std
+Packet length variance
+FIN ﬂag count
+SYN ﬂag count
+RST ﬂag count
+PSH ﬂag count
+ACK ﬂag count
+
+Flow identiﬁer
+Source IP
+Source port
+Destination IP
+Destination port
+Duration of the ﬂow in microseconds
+Total packets in the forward direction
+Total packets in the backward direction
+Total size of packet in forward direction
+Total size of packet in backward direction
+Minimum size of the packet in forward direction
+Maximum size of the packet in forward direction
+Mean size of packet in forward direction
+Standard deviation size of packet in forward direction
+Minimum size of packet in backward direction
+Maximum size of the packet in backward direction
+Mean size of the packet in backward direction
+Standard deviation size of packet in backward direction
+Number of ﬂow bytes per second
+Number of ﬂow packets per second
+Mean time between two packets sent in the ﬂow
+Standard deviation time between two packets sent in the ﬂow
+Maximum time between two packets sent in the ﬂow
+Minimum time between two packets sent in the ﬂow
+Minimum time between two packets sent in the forward direction
+Maximum time between two packets sent in the forward direction
+Mean time between two packets sent in the forward direction
+Standard deviation time between two packets sent in the forward direction
+Total time between two packets sent in the forward direction
+Minimum time between two packets sent in the backward direction
+Maximum time between two packets sent in the backward direction
+Mean time between two packets sent in the backward direction
+Standard deviation time between two packets sent in the backward direction
+Total time between two packets sent in the backward direction
+Number of times the PSH ﬂag was set in packets travelling in the forward direction (0 for UDP)
+Number of times the PSH ﬂag was set in packets travelling in the backward direction (0 for UDP)
+Number of times the URG ﬂag was set in packets travelling in the forward direction (0 for UDP)
+Number of times the URG ﬂag was set in packets travelling in the backward direction (0 for UDP)
+Total bytes used for headers in the forward direction
+Total bytes used for headers in the backward direction
+Number of forward packets per second
+Number of backward packets per second
+Minimum length of a packet
+Maximum length of a packet
+Mean length of a packet
+Standard deviation length of a packet
+Variance length of a packet
+Number of packets with FIN
+Number of packets with SYN
+Number of packets with RST
+Number of packets with PUSH
+Number of packets with ACK
+(continued on next page)
+
+397
+
+T. Sasi et al.
+
+Journal of Information and Intelligence 3 (2025) 375–400
+
+Table B (continued )
+Feature name
+
+Description
+
+URG ﬂag count
+CWR ﬂag count
+ECE ﬂag count
+Down/up ratio
+Average packet size
+Fwd segment size avg
+Bwd segment size avg
+Fwd bytes/bulk avg
+Fwd packet/bulk avg
+Fwd bulk rate avg
+Bwd bytes/bulk avg
+Bwd packet/bulk avg
+Bwd bulk rate avg
+Subﬂow fwd packets
+Subﬂow fwd bytes
+Subﬂow bwd [ackets
+Subﬂow bwd bytes
+Fwd init win bytes
+Bwd init win bytes
+Fwd act data pkts
+Fwd seg size min
+Active min
+Active mean
+Active max
+Active std
+Idle min
+Idle mean
+Idle max
+Idle std
+
+Number of packets with URG
+Number of packets with CWR
+Number of packets with ECE
+Download and upload ratio
+Average size of packet
+Average size observed in the forward direction
+Average size observed in the backward direction
+Average number of bytes bulk rate in the forward direction
+Average number of packets bulk rate in the forward direction
+Average number of bulk rate in the forward direction
+Average number of bytes bulk rate in the backward direction
+Average number of packets bulk rate in the backward direction
+Average number of bulk rate in the backward direction
+The average number of packets in a sub-ﬂow in the forward direction
+The average number of bytes in a sub-ﬂow in the forward direction
+The average number of packets in a sub-ﬂow in the backward direction
+The average number of bytes in a sub-ﬂow in the backward direction
+The total number of bytes sent in the initial window in the forward direction
+The total number of bytes sent in the initial window in the backward direction
+Count of packets with at least 1 byte of TCP data payload in the forward direction
+Minimum segment size observed in the forward direction
+Minimum time a ﬂow was active before becoming idle
+Mean time a ﬂow was active before becoming idle
+Maximum time a ﬂow was active before becoming idle
+Standard deviation time a ﬂow was active before becoming idle
+Minimum time a ﬂow was idle before becoming active
+Mean time a ﬂow was idle before becoming active
+Maximum time a ﬂow was idle before becoming active
+Standard deviation time a ﬂow was idle before becoming active
+
+References
+[1] L. Vu, Q.U. Nguyen, D.N. Nguyen, D.T. Hoang, E. Dutkiewicz, Deep transfer learning for IoT attack detection, IEEE Access 8 (2020) 107335–107344.
+[2] Z. Wang, J. Li, S. Yang, X. Luo, D. Li, S. Mahmoodi, A lightweight IoT intrusion detection model based on improved BERT-of-Theseus, Expert Systems with
+Applications 238 (2024) 122045.
+[3] Z. Wang, D. Liu, Y. Sun, X. Pang, P. Sun, F. Lin, J.C.S. Lui, K. Ren, A survey on IoT-enabled home automation systems: Attacks and defenses, IEEE Communications
+Surveys & Tutorials 24 (4) (2022) 2292–2328.
+[4] T. Sasi, A.H. Lashkari, R. Lu, P. Xiong, S. Iqbal, A comprehensive survey on IoT attacks: Taxonomy, detection mechanisms and challenges, Journal of Information
+and Intelligence 2 (6) (2023) 455–513.
+[5] A. Simmons, Internet of Things (IoT) architecture: Layers explained [06-04 -2023], https://dgtlinfra.com/internet-of-things-iot-architecture/, November 2022.
+[6] J. Sengupta, S. Ruj, S.D. Bit, A comprehensive survey on attacks, security issues and blockchain solutions for IoT and IIoT, Journal of Network and Computer
+Applications 149 (1) (2020) 102481.
+[7] O. Oladehin, D. Grifﬁn, C. Vieru, B. Francis, C. Williams, P. Fitzsimons, H. Rajagopalan, R. Dsouza, A. Bhaskar, D. Walters, et al., IoT Lens [06-04-2023], https://
+docs.aws.amazon.com/wellarchitected/latest/iot-lens/edge-layer.html, March 2023.
+[8] L. Bellehumeur, The 5 layers of IoT architecture that give it super powers [06-04-2023], https://novotech.com/blogs/news/the-5-layers-of-iot-architecture-thatgive-it-super-power, January 2023.
+[9] R. Agar, IoT architecture guide. Major and additional layers of IoT system [06-04-2023], https://www.helpwire.app/blog/iot-architecture/, November 2022.
+[10] A. Arampatzis, Top 10 vulnerabilities that make IoT devices insecure [06-04-2023], https://venaﬁ.com/blog/top-10-vulnerabilities-make-iot-devices-insecure/,
+October 2022.
+[11] L. Sun, Q. Du, A review of physical layer security techniques for Internet of Things: challenges and solutions, Entropy 20 (10) (2018) 730.
+[12] M.M. Ogonji, G. Okeyo, J.M. Wafula, A survey on privacy and security of Internet of Things, Computer Science Review 38 (2020) 100312.
+[13] B.B. Zarpel~
+ao, R.S. Miani, C.T. Kawakani, S.C. de Alvarenga, A survey of intrusion detection in Internet of Things, Journal of Network and Computer Applications
+84 (2017) 25–37.
+[14] S. Hajiheidari, K. Wakil, M. Badri, N.J. Navimipour, Intrusion detection systems in the Internet of Things: A comprehensive investigation, Computer Networks
+160 (4) (2019) 165–191.
+[15] D.E. Kouicem, A. Bouabdallah, H. Lakhlef, Internet of Things security: A top-down survey, Computer Networks 141 (4) (2018) 199–221.
+[16] G. Fersi, Fog computing and Internet of Things in one building block: A survey and an overview of interacting technologies, Cluster Computing 24 (2021)
+2757–2787.
+[17] N.K. Tran, M. Ali Babar, J. Boan, Integrating blockchain and Internet of Things systems: A systematic review on objectives and designs, Journal of Network and
+Computer Applications 173 (1) (2021) 102844.
+[18] R.A. Memon, J.P. Li, J. Ahmed, M.I. Nazeer, M. Ismail, K. Ali, Cloud-based vs. blockchain-based IoT: A comparative survey and way forward, Frontiers of
+Information Technology & Electronic Engineering 21 (4) (2020) 563–586.
+[19] P.J. Taylor, T. Dargahi, A. Dehghantanha, R.M. Parizi, K.-K.R. Choo, A systematic literature review of blockchain cyber security, Digital Communications and
+Networks 6 (2) (2020) 147–156.
+[20] R.R. Krishna, A. Priyadarshini, A.V. Jha, B. Appasani, A. Srinivasulu, N. Bizon, State-of-the-art review on IoT threats and attacks: Taxonomy, challenges and
+solutions, Sustainability 13 (16) (2021) 9463.
+[21] L. Cui, S. Yang, F. Chen, Z. Ming, N. Lu, J. Qin, A survey on application of machine learning for Internet of Things, International Journal of Machine Learning and
+Cybernetics 9 (8) (2018) 1399–1417.
+[22] L. Xiao, Y. Li, G. Han, G. Liu, W. Zhuang, PHY-layer spooﬁng detection with reinforcement learning in wireless networks, IEEE Transactions on Vehicular
+Technology 65 (12) (2016) 10037–10047.
+[23] S.M. Tahsien, H. Karimipour, P. Spachos, Machine learning based solutions for security of Internet of Things (IoT): A survey, Journal of Network and Computer
+Applications 161 (1) (2020) 102630.
+[24] A. Chatterjee, B.S. Ahmed, IoT anomaly detection methods and applications: A survey, Internet of Things 19 (2022) 100568.
+398
+
+T. Sasi et al.
+
+Journal of Information and Intelligence 3 (2025) 375–400
+
+[25] P. Maniriho, A.N. Mahmood, M.J.M. Chowdhury, A study on malicious software behaviour analysis and detection techniques: Taxonomy, current trends and
+challenges, Future Generation Computer Systems 130 (2022) 1–18.
+[26] M.F. Razali, M.N. Razali, F.Z. Mansor, G. Muruti, N. Jamil, IoT honeypot: A review from researcher’s perspective, in: Proceedings of the 2018 IEEE Conference on
+Application, Information and Network Security (AINS), IEEE, Malaysia, 2018, pp. 93–98.
+[27] IBM, What is security information and event management (SIEM)? [06-04-2023], https://www.ibm.com/topics/siem, October 2023.
+[28] E.C.P. Neto, S. Dadkhah, R. Ferreira, A. Zohourian, R. Lu, A.A. Ghorbani, CICIoT2023: A real-time dataset and benchmark for large-scale attacks in IoT
+environment, Sensors 23 (13) (2023) 5941.
+[29] I.A.N. Authority, Protocol numbers [06-04-2023], https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml.
+[30] A.H. Lashkari, A. Seo, G.D. Gil, A.A. Ghorbani, CICFlowMeter (formerly ISCXFlowMeter) [06-04-2023], https://www.unb.ca/cic/research/applications.html,
+January 2022.
+[31] A. Abulkhair, Data imputation demystiﬁed | Time series data [06-04-2023], https://medium.com/@aaabulkhair/data-imputation-demystiﬁed-time-series-data69bc9c798cb7, June 2023.
+[32] Bhanupsingh, Handling missing data with KNN imputer [06-04-2023], https://medium.com/@bhanupsingh484/handling-missing-data-with-knn-imputer927d49b09015, August 2023.
+[33] A.W. Services, What is hyperparameter tuning? [06-04-2023], https://aws.amazon.com/what-is/hyperparameter-tuning/, August 2023.
+[34] Scikit-learn.org, Train_test_split, [06-04-2023]. https://scikit-learn.org/dev/modules/generated/sklearn.model_selection.train_test_split.html.
+[35] S.M. Lundberg, S.-I. Lee, A uniﬁed approach to interpreting model predictions, in: Proceedings of the 31st International Conference on Neural Information
+Processing Systems, NIPS’17, Curran Associates Inc., Red Hook, NY, USA, 2017, pp. 4768–4777.
+[36] C. Molnar, Interpretable machine learning: A guide for making black box models explainable [06-04-2023], https://christophm.github.io/interpretable-ml-book/
+, August 2023.
+[37] N. Bastian, D. Bierbrauer, M. McKenzie, E. Nack, ACI IoT network trafﬁc dataset 2023, IEEE Dataport (2023), https://doi.org/10.21227/qacj-3x32 [06-04-2023].
+[38] S. Dadkhah, H. Mahdikhani, P.K. Danso, A. Zohourian, K.A. Truong, A.A. Ghorbani, Towards the development of a realistic multidimensional IoT proﬁling
+dataset, in: 2022 19th Annual International Conference on Privacy, Security & Trust (PST), IEEE, Fredericton, NB, Canada, August 2022, pp. 1–11.
+[39] S. Dadkhah, E.C.P. Neto, R. Ferreira, R.C. Molokwu, S. Sadeghi, A. Ghorbani, CICIoMT2024: Attack vectors in healthcare devices-a multiprotocol dataset for
+assessing IoMT device security, Internet of Things 28 (2024) 101351.
+[40] M.A. Ferrag, O. Friha, D. Hamouda, L. Maglaras, H. Janicke, Edge-IIoTset: A new comprehensive realistic cyber security dataset of IoT and IIoT applications:
+Centralized and federated learning [06-04-2023], https://dx.doi.org/10.21227/mbc1-1h68, January 2022.
+[41] H. Kang, D.H. Ahn, G.M. Lee, J.D. Yoo, K.H. Park, H.K. Kim, IoT network intrusion dataset [06-04-2023], https://dx.doi.org/10.21227/q70p-q449, September
+2019.
+[42] H. Hindy, C. Tachtatzis, R. Atkinson, E. Bayne, X. Bellekens, MQTT-IoT-IDS2020: MQTT Internet of Things intrusion detection dataset. https://dx.doi.org/10.
+21227/bhxy-ep04, June 2020.
+[43] K. He, K. Dan, Z. Zhang, G. Mengmeng, J. Yu, UQ IoT IDS dataset 2021 [06-04-2023], https://espace.library.uq.edu.au/view/UQ:17b44bb, 2022.
+[44] Radware, Fragmented ACK attack, [04-15-2024]. https://www.radware.com/security/ddos-knowledge-center/ddospedia/fragmented-ack-attack/.
+[45] Akamai, What is an ICMP ﬂood DDoS attack?, [04-15-2024]. https://www.akamai.com/glossary/what-is-icmp-ﬂood-ddos-attack.
+[46] NETSCOUT, IP/ICMP fragmentation attacks, [04-15-2024]. https://www.netscout.com/what-is-ddos/ip-icmp-fragmentation.
+[47] D. Guard, ACK and PUSH ACK ﬂood, [04-15-2024]. https://ddos-guard.net/en/terms/ddos-attack-types/ack-push-ack-ﬂood.
+[48] D. Guard, RST and FIN ﬂood, [04-15-2024]. https://ddos-guard.net/en/terms/ddos-attack-types/rst-ﬁn-ﬂood..
+[49] Cloudﬂare, SYN ﬂood attack, [04-15-2024]. https://www.cloudﬂare.com/learning/ddos/syn-ﬂood-ddos-attack/.
+[50] D. Guard, Synonymous IP attack, [04-15-2024]. https://ddos-guard.net/terms/ddos-attack-types/synonymous-ip-attack.
+[51] Imperva, TCP SYN ﬂood, [04-15-2024]. https://www.imperva.com/learn/ddos/syn-ﬂood/.
+[52] Imperva, UDP ﬂood, [04-15-2024]. https://www.imperva.com/learn/ddos/udp-ﬂood/.
+[53] D. Guard, Fragmented UDP ﬂood, [04-15-2024]. https://ddos-guard.net/en/terms/ddos-attack-types/udp-fragmentation-ﬂood.
+[54] P. Security, What is DNS spooﬁng? þ 5 tips to prevent it [04-15-2024], https://www.pandasecurity.com/en/mediacenter/dns-spooﬁng/, Mar 2024.
+[55] Imperva, HTTP ﬂood, [04-15-2024]. https://www.imperva.com/learn/ddos/http-ﬂood/.
+[56] Radware, What is the Mirai botnet?, [04-15-2024]. https://www.radware.com/security/ddos-knowledge-center/ddospedia/mirai/.
+[57] R. Winward, IoT attack handbook a ﬁeld guide to understanding IoT attacks from the Mirai botnet to its modern variants, [04-15-2024]. https://www.radware.
+com/getattachment/402db7f3-0467-4fa3-bb9a-ae88b728e91b/MiraiHandbookEbookFinal04.pd f.aspx.
+[58] Imperva, ARP spooﬁng, [04-15-2024]. https://www.imperva.com/learn/application-security/arp-spooﬁng/.
+[59] A. Bhandari, Feature scaling: Engineering, normalization, and standardization [07-12-2023], https://www.analyticsvidhya.com/blog/2020/04/feature-scalingmachine-learning-normalization-standardization/, June 2024.
+[60] H. Wang, Q. Liang, J.T. Hancock, T.M. Khoshgoftaar, Feature selection strategies: A comparative analysis of SHAP-value and importance-based methods, Journal
+of Big Data 11 (44) (2024), https://doi.org/10.1186/s40537-024-00905-w.
+[61] K. Aas, M. Jullum, A. Løland, Explaining individual predictions when features are dependent: More accurate approximations to Shapley values, Artiﬁcial
+Intelligence 298 (2021) 103502.
+[62] S. Yaras, M. Dener, IoT-based intrusion detection system using new hybrid deep learning algorithm, Electronics 13 (6) (2024) 1053.
+[63] P. Victor, A.H. Lashkari, R. Lu, T. Sasi, P. Xiong, S. Iqbal, IoT malware: An attribute-based taxonomy, detection mechanisms and challenges, Peer-to-Peer
+Networking and Applications 16 (2023) 1380–1431.
+Tinshu Sasi is a Master's student at the University of New Brunswick's (UNB) Faculty of Computer Science in Canada. In 2014, he earned a
+bachelor's degree in computer science from Manav Rachna International University in India. He also has over 8 years of experience working as
+a Senior Software Engineer developing enterprise-level software solutions. Cybersecurity, the Internet of Things, machine learning, and deep
+learning are among his key research interests.
+
+399
+
+T. Sasi et al.
+
+Journal of Information and Intelligence 3 (2025) 375–400
+Arash Habibi Lashkari is a Canada Research Chair (CRC) in Cybersecurity. He is a Senior member of IEEE and an Associate Professor at York
+University. Before this, he was an Associate Professor at the Faculty of Computer Science, University of New Brunswick (UNB), and the
+Research Coordinator of the Canadian Institute for Cybersecurity (CIC). His research focuses on cyber threat modelling and detection, malware
+analysis, big data security, internet trafﬁc analysis, and cybersecurity dataset generation. Dr. Lashkari has over 25 years of teaching experience
+spanning several international universities and was responsible for designing the ﬁrst cybersecurity Capture the Flag (CTF) competition for
+post-secondary students in Canada. He has been the recipient of 15 awards at international computer security competitions, including three
+gold awards, and was recognized as one of Canada's Top 150 Researchers for 2017. In 2020, Dr. Lashkari was recognized with the University of
+New Brunswick's prestigious Teaching Innovation Award for his personally-created teaching methodology, the Think-Que-Cussion Method. He
+is the author of ten published books and more than 110 academic articles on a variety of cybersecurity-related topics and the co-author of the
+national award-winning article series “Understanding Canadian Cybersecurity Laws”, which was recently recognized with a Gold Medal at the
+2020 Canadian Online Publishing Awards, remotely held in 2021.
+
+Rongxing Lu is a University Research Scholar and Professor at the University of New Brunswick's (UNB) Faculty of Computer Science (FCS).
+From April 2013 until August 2016, he was an Assistant Professor at Nanyang Technological University's (NTU) School of Electrical and
+Electronic Engineering in Singapore. From May 2012 until April 2013, Rongxing Lu was a Postdoctoral Fellow at the University of Waterloo.
+He received the most prestigious “Governor General's Gold Medal” when he received his Ph.D. degree from the Department of Electrical &
+Computer Engineering, University of Waterloo, Canada, in 2012; and in 2013, he won the 8th IEEE Communications Society (ComSoc) Asia
+Pacﬁc (AP) Outstanding Young Researcher Award. Dr. Lu is a member of the IEEE. His research interests include applied cryptography,
+privacy-enhancing technologies, and the security and privacy of IoT-big data. Dr. Lu now holds many positions, including the Mastercard IoT
+Research Chair, the Chair of IEEE ComSoc CIS-TC (Communications and Information Security Technical Committee), and the founding Cochair of IEEE TEMS Blockchain and Distributed Ledgers Technologies Technical Committee (BDLT-TC).
+
+Pulei Xiong is a Research Ofﬁcer in the Cybersecurity team at the National Research Council Canada. His current research interests focus on
+the study of robust machine learning, encompassing offensive, defensive, and assessment methods for developing and deploying machine
+learning systems that are resilient against adversarial attacks throughout the entire machine learning pipeline. Currently, he is the Principal
+Investigator (PI) leading several research projects in this area, collaborating with experts from academia and industry. In addition to his work
+in robust machine learning, his research interests include privacy-preserving technologies and their application, and security compliance for
+emerging technologies. Prior to joining NRC, Pulei gained extensive experience in the cybersecurity industry. He is widely recognized as a
+cybersecurity consultant, renowned for his leadership in developing the Protection Proﬁle for Mobile Devices, which stands as the ﬁrst industrial security standard of its kind for mobile computing. Pulei has held the certiﬁcation of GIAC Mobile Device Security Analyst (GMOB)
+since 2016.
+
+Shahrear Iqbal is a Research ofﬁcer at the National Research Council (NRC) Canada. He received his Ph.D. in Cybersecurity from Queen's
+University, Kingston, ON, Canada 2017. Before joining NRC, he was a researcher at Security Compass, Toronto. He is a specialist in software
+security in the areas of mobile, IoT, and connected devices. Previously, he was a faculty member in the Department of Computer Science and
+Engineering (CSE) at Bangladesh University of Engineering and Technology (BUET). He is currently doing research on the security of connected devices with a focus on context-aware authentication and automated defence mechanism.
+
+400
+
+

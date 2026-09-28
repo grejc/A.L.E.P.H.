@@ -1,0 +1,1166 @@
+TRACE: Timely Retrieval and Alignment for Cybersecurity Knowledge
+Graph Construction and Expansion
+Zijing Xu1 , Ziwei Ning2 , Tiancheng Hu3 , Jianwei Zhuge1 ,
+Yangyang Wang1 , Jiahao Cao1 , Mingwei Xu4 *
+1
+Institute for Network Sciences and Cyberspace, Tsinghua University
+2
+ZGC Laboratory 3 SCS, Peking University
+4
+Computer Science and Technology, Tsinghua University
+Abstract
+
+represents disparate threat intelligence repositories as a network of triples, enabling efficient pathbased queries for detection and defense. STUCCO
+introduced an ontology for CKG construction (Iannacone et al., 2015); UCO (Syed et al., 2016) extended this work by achieving deeper semantic consolidation across diverse datasets; BRON (Hemberg et al., 2024) developed a framework, which
+specifically integrates threat, vulnerability, and mitigation knowledge.
+Automated techniques for extracting cybersecurity knowledge from unstructured text have become
+essential for the continuous evolution of CKGs (Alharbi et al., 2025). APT-specific extraction algorithms that combine deep learning with domain
+heuristics help build and maintain dynamic threat
+representations in CKGs (Ren et al., 2022). Meanwhile, structured behavior extraction methods have
+been applied to convert cyber threat intelligence
+(CTI) reports into structured representations of
+attack behaviors, enriching technical knowledge
+bases (Li et al., 2022).
+However, current CKGs exhibit several critical
+challenges, particularly given the growing complexity and heterogeneity of modern cybersecurity data
+sources:
+(1) Lacking high-coverage and generalizability. Existing CKG entity structures are incomplete.
+Many current approaches are built upon fixed ontologies that focus on a narrow set of cybersecurity entities and relations. Such designs hinder the
+ability to integrate new concepts and adapt to the
+growing complexity of cybersecurity knowledge.
+These rigid structures fail to align with and absorb
+emerging threat intelligence, resulting in limited
+scalability, weak generalization, and poor crossdomain interoperability.
+(2) Delayed updates hinder real-time applicability. The utility of a CKG depends on timely updates
+of entities and relations, as well as efficient entity
+alignment. However, many CKGs suffer from la-
+
+arXiv:2602.11211v1 [cs.CR] 11 Feb 2026
+
+The rapid evolution of cyber threats has highlighted significant gaps in security knowledge
+integration. Cybersecurity Knowledge Graphs
+(CKGs) relying on structured data inherently
+exhibit hysteresis, as the timely incorporation
+of rapidly evolving unstructured data remains
+limited, potentially leading to the omission
+of critical insights for risk analysis. To address these limitations, we introduce TRACE,
+a framework designed to integrate structured
+and unstructured cybersecurity data sources.
+TRACE integrates knowledge from 24 structured databases and 3 categories of unstructured
+data, including APT reports, papers, and repair
+notices. Leveraging Large Language Models
+(LLMs), TRACE facilitates efficient entity extraction and alignment, enabling continuous
+updates to the CKG. Evaluations demonstrate
+that TRACE achieves a 1.8× increase in node
+coverage compared to existing CKGs. TRACE
+attains the precision of 86.08%, the recall of
+76.92%, and the F1 score of 81.24% in entity
+extraction, surpassing the best-known LLMbased baselines by 7.8%. Furthermore, our entity alignment methods effectively harmonize
+entities with existing knowledge structures, enhancing the integrity and utility of the CKG.
+With TRACE, threat hunters and attack analysts
+gain real-time, holistic insights into vulnerabilities, attack methods, and defense technologies.
+
+1
+
+Introduction
+
+Knowledge graphs unify diverse data sources, providing semantic representations across formats and
+dimensions (Göpfert et al., 2025). They now serve
+as an external context for large language models (LLMs), improving domain-specific reasoning and relevance. In cybersecurity, such knowledge integration is essential for threat hunting,
+vulnerability tracking, and automated decisionmaking—capabilities increasingly supported by cybersecurity knowledge graphs (CKGs). A CKG
+*
+
+Corresponding author.
+
+1
+
+tency due to delays in source updates and the slow
+approval of vulnerability identifiers. Such delays
+are particularly critical for high-impact threats like
+zero-day vulnerabilities, where outdated or missing
+knowledge can result in significant security risks.
+To address the challenges mentioned above, we
+propose a framework to Timely Retrieval and
+Alignment for Cyber security knowledge graph’s
+construction and Expansion (TRACE). TRACE
+continuously updates and expands the CKG by retrieving entities and relations in diverse cybersecurity data sources, aligning them ontologically,
+and constructing new graph segments. TRACE integrates all data from 24 structured data sources
+and 3 unstructured data sources, including papers
+on attack and defense, advanced persistent threat
+(APT) reports, and repair notices.
+For the first challenge, we design a novel and
+extensible cybersecurity ontology to support the
+integration of heterogeneous data sources, particularly diverse types of unstructured information.
+Identical nodes from unstructured data sources are
+consolidated and merged into the current CKG by
+LLMs, and inter-database nodes are appropriately
+linked.
+For the second challenge, we deploy an automated update module for TRACE. This ensures
+that the latest cybersecurity intelligence and related
+knowledge are promptly integrated and semantically encoded in the CKG. To ensure semantic coherence across such diverse data sources, alignment
+maps extracted entities to existing nodes, enabling
+the timely and consistent integration of new knowledge.
+We evaluate the coverage of TRACE by comparing it with existing CKGs. Our findings indicate that TRACE contains 1.8× more nodes than
+the largest previously known CKG. In addition,
+we assess TRACE’s entity extraction performance,
+achieving a precision of 86.08%, a recall of 76.92%,
+and an F1 score of 81.24%, representing a 7.8%
+improvement over the best-known baseline utilizing LLMs. Furthermore, our evaluation of entity
+alignment demonstrates that our methods are highly
+effective in aligning extracted entities with those in
+existing knowledge graphs.
+Our contributions are three-fold as follows:
+
+by 1.8× over the previous state of the art.
+• We develop an automated approach to extract
+entities from unstructured data sources with
+LLMs. This method achieves a maximum
+F1 score of 81.24%, representing a 7.8% improvement over the baseline.
+• We define a generalized cybersecurity ontology and incorporate entity alignment to support continuous and adaptive expansion of
+CKG. By accommodating diverse entity types
+from structured and unstructured sources, the
+ontology enhances graph generalizability.
+
+2
+
+Related Work
+
+2.1
+
+Cybersecurity Ontology
+
+A cybersecurity ontology defines structured representations of entities and relations in the cybersecurity domain. It provides standardized definitions and semantic relationships among various
+elements such as assets, threats, vulnerabilities,
+attacks, and defensive measures. (Raskin et al.,
+2001). MITRE’s modular ontologies support rapid
+domain evolution through principles of modularity, clarity, and reusability (Parmelee, 2010; Obrst
+et al., 2012).
+The multilayered framework typically combines
+DOLCE-based upper ontologies with domainspecific ontologies to model foundational cybersecurity knowledge (Oltramari et al., 2014). The
+Unified Cybersecurity Ontology (UCO) 1.0 integrated models from standards such as STIX 1.2,
+CVE, CCE, CVSS, CAPEC, and CYBOX (Syed
+et al., 2016), while UCO 2.0, based on STIX 2.0,
+further refined and extended this integration (Pingle et al., 2019). Both versions build upon the
+IDS ontology foundation (Pinkston et al., 2003).
+In addition, specialized ontologies have been developed for specific tasks such as zero-day attack
+detection (Razzaq et al., 2014) and military cyber
+operation planning (Chan et al., 2015).
+In our work, TRACE integrates and extends
+these prior ontologies to establish a high-coverage
+and multidimensional cybersecurity ontology structure. This expansion broadens the scope of the
+CKG, enabling it to encompass a wider array of
+cybersecurity knowledge.
+
+• We propose TRACE, a framework that constructs the largest cybersecurity knowledge
+graph to date, unifying 24 structured and 3 unstructured data sources, improving coverage
+
+2.2
+
+Cybersecurity Knowledge Graph
+
+Recent CKG efforts integrate diverse data from
+structured and unstructured sources. Several meth2
+
+ods have been proposed that leverage heterogeneous inputs such as CVE, CWE, and CPE, with
+a focus on textual descriptions and associated attributes (Jia et al., 2018; Qin and Chow, 2019;
+Sun et al., 2020). SecTKG (Sun et al., 2023) is
+an automated framework that builds knowledge
+graphs from open-source security tools; AISecKG
+(Agrawal, 2023) constructed a knowledge graph
+for cybersecurity education.
+In CKG applications, OpenCTI (Ruohonen et al.,
+2024) serves as an open-source platform aiding
+organizations in CTI data management based on
+CKG. CTINexus (Cheng et al., 2024) automatically
+constructs a CTI-centric CKG using LLMs. MalONT2.0 (Christian et al., 2021) constructed a CKG
+from Android malware reports using semantic and
+syntactic features. Knowledge graph embedding
+models have been explored for entity completion in
+vulnerability graphs (Høst, 2022), while path-based
+methods have been applied to infer new relationships via entity connectivity analysis (Jia et al.,
+2018).
+Existing CKGs often exhibit limited coverage
+and lack timeliness due to the latency in structured
+data sources. TRACE addresses these limitations
+by aggregating a broad spectrum of data sources
+and promptly integrating entities extracted from
+the latest unstructured texts, thereby enhancing the
+comprehensiveness and timeliness of the CKG.
+
+3
+
+When the subcategory count is minimal, the hierarchical structure is flattened into a single level, with
+subtitled labels retained to differentiate subcategories. Conversely, a distinct node type is created
+when the subcategory count is substantial. These
+new node types inherit the name of the parent structure, and their contents comprise elements drawn
+from the original sublevel structure.
+Unstructured data comprises textual documents
+that may include diagrams or code snippets. We
+categorize unstructured data sources into three primary types: APT reports, repair notices, and papers on attack or defense. Based on the focus of
+each type, we adopt the MITRE ATT&CK (Strom
+et al., 2018) framework and tailor our ontology
+schemas accordingly. For instance, an APT report
+typically describes how a specific advanced persistent threat leverages targeted techniques to exploit
+one or more vulnerabilities against a given system.
+So we extract entity types involving "vulnerabilities", "tools", "techniques", "groups", and "assets".
+3.1.2 Relation Types
+Similarly, the establishment of relations in structured and unstructured data sources needs to be
+handled separately. All pre-existing relations in
+structured data sources are preserved. Additionally,
+newly created sub-level nodes are linked to their
+corresponding original data nodes to represent a
+"belongs-to" relationship.
+Relation types for unstructured data are defined
+based on the semantic logic of the source text. Academic papers typically document the utilization
+of specific methods or tools in the development
+of novel attack techniques, which are deployed
+against targeted assets to uncover known or previously unreported vulnerabilities. Finally, they
+recommend suitable mitigation strategies, offering
+guidance for defenders responsible for remediation.
+Consequently, the defined relations involve "discovers", "uses", "causes", "reflects", "mitigates",
+and "solves".
+
+System Architecture
+
+The framework of TRACE consists of three key
+modules: Information Acquisition, filtering and
+validation, entity standardization and alignment, as
+depicted in Figure 1.
+3.1
+
+Construction of the CKG
+
+In TRACE, the ontology is structured into three
+primary dimensions: vulnerability, attack, and defense. Entities extracted from diverse data sources
+are categorized under these dimensions, whose
+properties are mapped to corresponding subsets
+of STIX Domain Objects (SDOs). This alignment
+facilitates a comprehensive representation of specialized cybersecurity knowledge domains.
+
+3.2
+
+Collection and Processing
+
+3.2.1 Structured Information Acquisition
+The raw content in structured data sources must be
+parsed and decomposed before entity extraction, as
+shown in lines 3–7 of Algorithm 1.
+For structured data sources, we implement an automated pipeline to retrieve, update, and organize
+data from each repository. We begin by fetching the
+initial files from each source website or database.
+
+3.1.1 Entity Types
+To ensure the standardization of the graph, entity
+types extracted from structured and unstructured
+data sources are processed independently. These
+nodes maintain the knowledge types as well as the
+hierarchical structure inherent in the data sources.
+3
+
+structured data
+(CVE、ATT&CK)
+……
+
+nodes
+
+.json, .xml
+crawl
+
+file parser
+
+Paper
+
+triples
+name
+desc
+……
+
+APT Report
+Repair Notice
+unstructured data
+
+CKG
+
+……
+
+timely
+update
+
+Data Sources
+
+.pdf, .txt
+……
+
+id
+name
+desc
+……
+
+entity
+alignment
+
+extraction
+unaligned nodes
+
+Figure 1: Framework of TRACE
+
+We truncate fields and apply tailored regular expressions to extract the desired properties in each
+entity’s JSON document. All property names are
+normalized to a unified schema. It is worth mentioning that TRACE records each source’s timestamp and crawls only data newer than the previous
+run, which is the basis for automated updates.
+TRACE employs a plugin-based architecture to
+manage each data source independently. For each
+source, TRACE uses Full crawls and Incremental
+crawls to acquire data concurrently. Full crawls,
+which are executed at longer intervals, systematically retrieve all available content to avoid missing
+releases that exceed typical pagination limits; Incremental crawls, which are executed more frequently, poll recent pages for updates to ensure the
+CKG reflects the latest data in near real time. After
+collection, TRACE applies rigorous validation and
+deduplication procedures to all entities and triples,
+guaranteeing both completeness and consistency
+before integrating them into the graph.
+
+Algorithm 1: Collection and Processing
+Data: U is a list of unstructured texts
+{u1 , u2 , . . . , un }; KG: knowledge
+graph; N , T P : nodes, triples in KG;
+θ, δ for similarity, time interval
+threshold; timec , timel for current,
+last timestamp
+Result: Updated N and triples T P
+1 N, T P ← ∅; S ← ∅; i, j, m ← 0
+2 while timec − timel = δ do
+3
+//Structured Acquisition
+while Ei .timestamp ≤ timec do
+4
+Ns = GetN odemongoDB (Ei )
+5
+T Ps = GetT riplesmongoDB (Ei )
+6
+i = i + 1;
+7
+
+8
+9
+10
+11
+12
+
+13
+14
+15
+16
+
+17
+
+18
+19
+20
+21
+
+//Unstructured Acquisition
+foreach uj ∈ U do
+if uj ∈
+/ paper then
+S = S ∪ {uj };
+
+3.2.2 Unstructured Information Acquisition
+For unstructured data sources, the data preprocessing pipeline begins with format conversion and
+cleansing, followed by a preliminary screening process to validate the presence of required content
+within each document. The filtered texts are sent
+to the LLM for detailed knowledge extraction, as
+shown in lines 8-17 of Algorithm 1.
+APT reports and repair notices are sourced from
+annual disclosures and periodic product updates,
+ensuring that essential entities and triples are available. Since only a subset of offensive and defensive papers contains extractable cybersecurity insights, we first apply an LLM–based binary classifier on each paper’s title and abstract to distinguish
+relevant from irrelevant texts. Only those papers
+deemed relevant proceed to the subsequent knowledge extraction stage.
+
+else
+if uj .security = true then
+S = S ∪ {uj };
+foreach sk ∈ S do
+Nu = GetN odeLLM (sk );
+T Pu = GetT riplesLLM (sk );
+//Filtering and Validation
+Nu = {n ∈ Nu | n ̸= ∅};
+//Entity Standardization and Alignment
+EntityAlignment(Nu , T Pu );
+N = N ∪ Ns ∪ Nu ;
+T P = T P ∪ T P s ∪ T Pu ;
+KG = KG ∪ getkg(N, T P );
+timel = timec ;
+
+4
+
+The information acquisition has a two-step strategy: first, extract candidate nodes from each document; second, combine the nodes based on the
+predefined relationship schema. The combination
+is then submitted back to the LLM to validate the
+existence of each relation in the source text.
+We leverage few-shot learning with RetrievalAugmented Generation (RAG) and target regularization to maximize node extraction accuracy. By
+our prompt-engineering framework, each node category and triple pattern is defined systematically
+and illustrated with examples. For nodes with standardized formats, such as CVE identifiers, we apply regex matching for direct extraction. For attributes exhibiting contextual semantic variability,
+we maintain a curated retrieval repository of previously extracted nodes and triples, which serves as
+a reference database for LLMs.
+Before generating entity extraction results
+through prompts that provide formal definitions
+and task-specific exemplars, LLM uses the repository to retrieve relevant information, thereby enhancing the model’s comprehension of contextual
+requirements. This structured guidance enables
+LLM to generate extraction results in standardized
+formats while maintaining lightweight computational requirements with high efficiency.
+3.2.3
+
+"description". These differences need to be standardized. Additionally, every node must contain a
+"source" parameter, preventing confusion caused
+by nodes with the same name or type across different data sources. To support update tracking and
+deduplication, all nodes must include a timestamp
+parameter to record the exact collection time. This
+timestamp is continuously refreshed as TRACE executes its tasks, ensuring the graph always reflects
+the most recent collection.
+As shown in lines 23-27 of Algorithm 1, to prevent information redundancy between newly extracted entities and existing ones in the graph, these
+extracted entities from unstructured data sources
+must undergo entity alignment with their corresponding counterparts of identical types. We encode textual descriptions of the target node and its
+graph-based counterparts into vector embeddings,
+then select the top 20 candidate entities using similarity metrics. If the highest similarity is lower
+than the value of θ we set, we consider it to be a
+new node and update it to the graph; if there exists
+at least one similarity higher than θ, put them into
+the LLM for judgment to obtain the node with the
+highest similarity. Each node extracted needs to
+be aligned with the same type of node in the original graph. All edges originating from or pointing
+to the target node must be migrated to its highestsimilarity counterpart through edge redirection.
+
+Filtering and Validation
+
+Characters that cause graph anomalies need to be
+replaced or deleted, such as "\\" and "–". The generated nodes without any other associations are
+considered Isolated Nodes. The names of some
+Isolated Nodes only contain serial numbers without valid information. These nodes will be filtered
+to reduce incoherence in the knowledge graph, as
+shown in line 22 of Algorithm 1.
+3.2.4
+
+4
+
+Implementation
+
+To construct the CKG, TRACE integrates data from
+a total of 27 sources, comprising 24 structured and
+3 unstructured datasets. The structured data sources
+encompass four primary categories: vulnerability
+databases, vulnerability exploitation platforms, attack technique frameworks, and cybersecurity community platforms. For unstructured data sources,
+we selected 10,205 papers, 869 APT reports, and
+6,784 repair notices published in the last decade.
+
+Entity Standardization and Alignment
+
+To ensure the correct incremental update of the
+graph, all data must be standardized into a consistent format. This involves organizing the content
+of each node, ensuring uniformity across all nodes
+while also preserving the uniqueness of nodes from
+different data sources. To reduce hallucinations in
+subsequent LLMs, it is crucial to maintain consistent node formatting, including ID prefixes, property names, and other standardized elements. All
+nodes must include several common parameters to
+ensure consistency across the graph. Taking vulnerability dimension for instance, one data source
+may use a parameter "desc", while another may use
+
+We systematically aggregated multi-dimensional
+corpora through diverse approaches according to
+the ontology structure we proposed, subsequently
+organizing them into structured nodes and triples.
+We employed MongoDB as the storage database,
+utilizing multiple built-in data types to accommodate various data formats. The nodes and triples extracted were subsequently integrated into the graph
+through alignment and merging to enhance its academic relevance.
+5
+
+5
+
+all
+4,741,428
+
+Experiments
+
+In this section, we focus on answering the following three research questions (RQs):
+
+Isolated Node
+124,866
+
+One-Edge Node
+2,197,241
+
+F1（%）
+
+Table 2: The number of different kinds of nodes.
+
+• RQ1: How comprehensive is the coverage of
+the CKG constructed by TRACE, and to what
+extent are its nodes interconnected?
+
+100
+
+OpenAI o1
+
+DeepSeek-R1
+
+Claude 3.7
+
+90
+80
+70
+60
+50
+
+• RQ2: How effective are TRACE’s entity extraction and alignment regarding accuracy and
+completeness?
+
+40
+30
+20
+10
+0
+
+tech
+discovers vuln
+
+• RQ3: How do cybersecurity researchers and
+analysts leverage TRACE in practical case
+studies to validate its utility in real-world
+threat investigation?
+5.1
+
+vuln
+used_by
+groups
+
+defend_tech
+target asset
+
+In contrast, Super Nodes represent highly interconnected entities with dense edge connections.
+We investigated the Super Nodes with the most
+edges in the entire graph. For instance, CWE-79
+has 32,396 edges associated with it, making it the
+node with the most edges in the entire graph. CWE79 refers to Improper Neutralization of Input During Web Page Generation, or Cross-site Scripting.
+As the first of the 2024 CWE Top 25, the wide relevance of CWE-79 directly reflects its core position
+in the real threat ecosystem, and to a certain extent,
+reflects the connection between the vulnerability
+dimension and itself and other dimensions.
+
+5.1.1 Coverage of CKG
+As for now, TRACE has successfully established
+4,741,428 nodes and 24,980,064 edges in the current knowledge graph, which consists of 56 node
+types and 112 edge types.
+We compare the number of nodes and edges in
+the CKG with those in the largest known structured
+and unstructured cybersecurity knowledge graphs,
+BRON (Hemberg et al., 2024) and CSKG4APT
+(Ren et al., 2022), as shown in Table 1. Our analysis revealed that ours contains 1.82× more nodes
+and 1.79× more edges than the previously largest
+CKG. Additionally, its node types and edge types
+represent 4.67× and 11.2× increases, respectively.
+These findings underscore the superior coverage of
+TRACE in representing cybersecurity knowledge.
+
+5.1.3 Triple Association Density Analysis
+Table 3 presents the qualitative statistical data
+of nodes and triples in the current graph. The
+observed-to-expected ratios of edges associated
+with the "vuln" entity are significantly lower than
+anticipated. This discrepancy arises because entities linked to "vuln" exhibit uniqueness in their
+structural definitions. For instance:
+vuln affect version: The "version" entities are
+decomposed from parent entities and thus predominantly correlate only with their parent entities.
+vuln has_cvss score: "Scores" derived from
+CVSS vary substantially across vulnerabilities due
+to differences in attack vectors, impact scope, and
+exploit conditions.
+The “E/P” values of most triples exceed 0.8, indicating that the CKG has strong connectivity.
+
+5.1.2 Node Association Density Analysis
+Table 2 illustrates the nodes’ connection density.
+Isolated Nodes (nodes without any edges) accounting for 2.63% of all nodes in the CKG. These nodes
+remain disconnected due to their failure to align
+with existing entities in the graph. Child nodes frequently evolve into One-Edge Nodes (nodes with
+only one edge, comprising 46.34% of total nodes)
+that exclusively associate with their parent entities.
+As elaborated in Relation Types, a substantial proportion of child nodes directly contributes to generating most of the One-Edge Nodes.
+
+BRON
+CSKG4APT
+Our CKG
+
+vuln
+vuln
+tech
+causes assets mitigated_by targets assets
+mitigation
+
+Figure 2: F1-score comparison of triple extraction in
+unstructured data sources across LLMs.
+
+RQ1: Coverage and Connectedness
+
+nodes
+500,000
+2,608,327
+4,741,428
+
+tech
+uses tool
+
+edges
+5,060,000
+13,935,201
+24,980,064
+
+5.2
+
+RQ2: Entity Extraction And Alignment
+
+5.2.1 Entity Extraction
+We randomly selected 200 texts each from APT
+reports, papers, and repair notices to evaluate entity
+
+Table 1: The number of nodes and edges in CKGs.
+
+6
+
+Relationship
+analytics consist implementations
+vuln affect version
+vuln has_cvss score
+vuln belong_to cwe
+cpe belong_to infras
+sensor map data_model
+vuln exploited_by exp
+defend_technique counter technique
+cwe used_by attack_pattern
+group uses technique
+
+#Src
+109
+1,569,668
+1,569,668
+1,569,668
+118,061
+7
+1,569,668
+182
+1,430
+181
+
+#Dst
+271
+1,127,590
+1,012,354
+1,430
+5
+862
+236,572
+1,043
+615
+1,043
+
+#Edges
+29,539
+1.77E+12
+1.59E+12
+2.24E+09
+590,305
+6,034
+3.71E+12
+189,826
+879,450
+188,783
+
+Edges
+19,271
+6,929,355
+992,279
+220,013
+14,943
+5,758
+32,784
+646
+737,649
+154,267
+
+E/P
+6.52E-01
+5.61E-07
+6.24E-07
+9.80E-05
+2.53E-02
+9.54E-01
+8.83E-08
+3.40E-03
+8.39E-01
+8.17E-01
+
+Table 3: Triples Density, Relationship is the name of the triples collections, #Src is the number of nodes in the type
+of start entity, #Dst is the number of nodes in the type of end entity. #Edges is the number of edges that should exist,
+Edges is the unique number of edges, EP is the ratio of Edges and #Edges.
+
+GPT-NER
+Cp-NER
+ProML
+CyberNER-FT
+Our Method
+
+Mapaper
+
+Mipaper
+
+MaAP T report MiAP T report MarepairnoticeMirepairnotice
+
+68.36%
+62.54%
+66.18%
+67.64%
+73.57%
+
+68.12%
+62.48%
+67.89%
+66.72%
+73.25%
+
+69.51%
+63.72%
+70.34%
+67.45%
+73.01%
+
+68.45%
+63.96%
+69.02%
+67.11%
+76.80%
+
+69.60%
+64.44%
+73.44%
+70.84%
+81.24%
+
+68.18%
+63.89%
+68.51%
+66.39%
+80.87%
+
+Table 4: Comparison of entity extraction in unstructured data sources, Matype and Mitype is the F 1macro and
+F 1micro of the current type of unstructured data sources respectively.
+
+extraction. Performance was assessed using macroand micro-average F1-scores. The macro-average
+F1 is the mean of F1-scores computed separately
+for each entity type, while the micro-average F1
+is the mean obtained by considering all entity instances across different text genres. Equations 1
+and 2 present the respective calculation methods.
+n
+
+1X
+F 1macro =
+n
+i=1
+
+
+
+2 · T Pi
+2 · T P i + F P i + F Ni
+
+bining few-shot learning with an RAG framework,
+our method leverages both small-sample learning
+and retrieval-based techniques to achieve superior
+entity extraction performance.
+We randomly select 20 texts from each of the
+three text types, which means 60 texts in total, and
+arrange the entities extracted into combinations according to the predefined triple types. We then
+apply holdout cross-validation to implement binary
+judgment of triples. The dataset is split into training, validation, and test sets in an 8:1:1 ratio, with
+the three LLMs that achieved the best binary classification performance in the paper used for triple
+judgment. To ensure fair comparison across models
+and mitigate the influence of stochastic variation,
+we conducted each experiment three times using
+fixed random seeds across all models. The final extraction for each model was obtained by taking the
+union across the three runs. The results are shown
+in the Figure 2. Finally, we use the best-performing
+model to classify the remaining relations, obtaining the list of entities and triples extracted from the
+unstructured data sources.
+
+
+(1)
+
+P
+2 ni=1 T Pi
+P
+F 1micro =
+2 i=1 T Pi + ni=1 (F Pi + F Ni )
+(2)
+We selected four state-of-the-art NER models:
+GPT-NER(Wang et al., 2023), Cp-NER(Chen et al.,
+2023), ProML(Chen et al., 2022), CyberNERFT(Srivastava et al., 2023). We compared the experimental results of the various methods on both
+the macro-average and micro-average, as shown in
+Table 4. Because APT reports and repair notices
+tend to exhibit greater structural regularity and often contain publicly enumerated identifiers that are
+easier to extract, all five methods achieve higher
+scores on these genres than on papers. By comPn
+
+5.2.2
+
+Entity Alignment
+
+We regularly update and maintain the graph’s
+global list of entities and triples. For each new en7
+
+tity extracted from unstructured data, we locate all
+entities of the same type in the list and compute the
+semantic similarity of their "description" attributes
+using sentence-transformers, which can capture
+contextual information and long-distance dependencies, and thus offer more accurate semanticsimilarity measures. After fine-tuning, we set the
+similarity threshold θ to 0.9. Only nodes whose
+similarity exceeds θ are passed to the next stage.
+We then apply zero-shot prompting to identify the
+final matching node, replacing the original node’s
+properties in the extracted list with those of the
+matched node. Finally, we merge the revised entities and triples back into the existing global list.
+We randomly choose 50 instances for each of
+the six entity types and ask our expert team to
+judge how many of those matchings are correct,
+the results are shown in Figure 4. We find that the
+F1-score for vuln entities is the highest because
+vuln identifiers follow well-defined formats that
+can be captured by regular expressions. If two descriptions share the same ID, they match directly
+without semantic textual similarity. By contrast,
+group entities have the lowest F1-score. We find
+that many groups operate covertly and employ a
+wide variety of attack strategies, so their descriptions are highly diverse, making entity alignment
+for group entities especially difficult.
+5.3
+
+these map respectively to CAR-2021-02-002 (Get
+System Elevation) and D3-PLA (Process Lineage
+Analysis) successively. When tracing an actual intrusion path, a single node in the graph may spawn
+multiple branches, allowing analysts to navigate
+and drill down to the precise threat intelligence
+required.
+5.3.2 The importance of Unstructured Data
+During our experiments, we observed that numerous entities extracted from unstructured data
+sources could not be matched to existing nodes in
+the CKG. This discrepancy arises because such information has not yet been incorporated into structured data sources. For instance, the OrpaCrab
+backdoor, detailed in a November 2024 APT report
+(orp, 2025), employs the MQTT protocol for command and control, utilizes AES encryption to obfuscate its configuration, and leverages DNS over
+HTTPS to resolve its C2 domain, thereby evading
+traditional DNS monitoring. This malware was
+identified in a Gasboy fuel management system
+and was named "OrpaCrab" within that specific
+report. Consequently, in the CKG, it exists as a
+One-Edge Node associated with the group, lacking
+broader integration. Similarly, several vulnerabilities have been disclosed in recent papers, with authors indicating that they have reported these issues
+to relevant organizations. However, these vulnerabilities have yet to receive official identifiers. Such
+entities are critical for risk analysis, as attackers
+may exploit these vulnerabilities before they are
+patched. Therefore, extracting entities from unstructured data sources and aligning them within
+the CKG is essential for timely and comprehensive
+threat assessment.
+
+RQ3: Case Study
+
+We employ TRACE as the role of the attack analysts to illustrate how it bridges structured and
+unstructured data sources.
+5.3.1
+
+Connectivity between Entities
+
+As shown in Figure 3, TRACE identifies the ProxyLogon vulnerability in Microsoft Exchange (CVE2021-26855), which permits attackers to bypass
+authentication and assume administrator privileges
+(Khang and Abd Rahman, 2021). Analysis of
+APT reports attributes this exploit to the Hafnium
+group (Lechtik et al., 2021), known in ATT&CK as
+APT41. Subsequently, other threat actors such as
+ToddyCat (TG-3390) have also targeted this vulnerability. Within the ATT&CK framework, APT41’s
+attack sequence includes technique T1190 (Exploit Public-Facing Application), detected by data
+source DS0015 (events collected by third-party services such as mail servers or web applications),
+and technique T1548 (Abuse Elevation Control
+Mechanism), for which M1051 is recommended
+as mitigation. In our defensive knowledge bases,
+
+6
+
+Conclusion
+
+We introduce TRACE, a framework with a multidimensional cybersecurity ontology structure to enhance the construction and expansion of the CKG.
+TRACE integrates 24 structured data sources and 3
+categories of unstructured data sources, constructing a CKG that encompasses 56 distinct node types
+and 112 edge types. By leveraging LLMs for efficient entity extraction and alignment, TRACE
+enhances the CKG’s completeness and timeliness,
+providing a unified and dynamic view of cybersecurity information for security analysts and researchers with the latest knowledge. In the future,
+we plan to continuously expand the ontology structure, aiming to develop a more unified model of
+8
+
+Asset:
+ShadowPad
+target
+
+Analytics:
+2021-02-002
+
+Defend_technique:
+D3-PLA
+
+mitigated_by
+
+Mitigation: M1051
+
+cover
+
+Vuln: CVE-2021-26855
+
+Technique:
+Remote code
+execution
+
+maps
+
+maps
+Technique: T1548
+
+used_by
+
+mitigated_by
+
+used
+
+maps
+
+Mitigation:
+Remote code
+execution
+
+Group: Hafnium
+
+Intrusion-set: APT41
+
+mitigated_by Data Sources:
+DS0015
+detected_by
+Technique: T1190
+
+Figure 3: A sample of attack analysis using TRACE
+
+rebalance training samples to mitigate these
+effects.
+
+defend_technique
+group
+asset
+
+• Although we have implemented entity extraction, images in texts often contain critical information (e.g., exploit diagrams, technical
+schematics) that remains unexploited. We
+plan to adopt multimodal vision–language pretraining to tightly align visual and textual representations, enabling accurate interpretation
+of non-textual content in future work.
+
+mitigation
+vuln
+technique
+0
+
+20
+
+40
+
+60
+
+80
+
+100
+
+F1
+Claude 3.7
+
+DeepSeek-R1
+
+OpenAI o1
+
+Figure 4: F1-score comparison of entity alignment in
+unstructured data sources across LLMs.
+
+cybersecurity knowledge.
+
+Limitations
+
+References
+
+There are several limitations that we would like to
+address in future work.
+
+2025.
+OrpaCrab:
+A backdoor Trojan that
+abuses the MQTT protocol to target ORPAK
+devices. https://www.freebuf.com/articles/
+paper/416421.html.
+
+• TRACE integrates data from 24 structured
+data sources and 3 types of unstructured data
+sources, yielding a CKG with over four million nodes. Nevertheless, a non-negligible proportion of isolated nodes remains, revealing
+unlinked entities within the cybersecurity domain. We will continually expand TRACE’s
+data sources to drive further graph growth and
+improve its connectivity and application effectiveness.
+
+Garima Agrawal. 2023. Aiseckg: Knowledge graph
+dataset for cybersecurity education. AAAI-MAKE
+2023: Challenges Requiring the Combination of Machine Learning 2023.
+Hatoon Alharbi, Ali Hur, Hasan Alkahtani, and Hafiz Farooq Ahmad. 2025. Enhancing cybersecurity through
+autonomous knowledge graph construction by integrating heterogeneous data sources. PeerJ Computer
+Science, 11:e2768.
+Peter Chan, Jacques Theron, Renier Van Heerden, and
+Louise Leenen. 2015. An ontological knowledge
+base for cyber network attack planning. In Proceedings of the 10th International Conference on Cyber
+Warfare and Security, Kruger National Park, South
+Africa, pages 69–77.
+
+• We leverage LLMs augmented with RAG for
+entity extraction from unstructured sources.
+We find that hallucinations in LLM outputs
+remain unavoidable, leading to errors such as
+misclassifying “tool” entities as “technique”.
+These misclassifications are due to ambiguous
+class boundaries and unbalanced training data
+distributions. Future work will refine prompt
+definitions, broaden few-shot examples, and
+
+Xiang Chen, Lei Li, Shuofei Qiao, Ningyu Zhang,
+Chuanqi Tan, Yong Jiang, Fei Huang, and Huajun
+Chen. 2023. One model for all domains: Collaborative domain-prefix tuning for cross-domain ner.
+arXiv preprint arXiv:2301.10410.
+
+9
+
+Yanru Chen, Yanan Zheng, and Zhilin Yang. 2022.
+Prompt-based metric learning for few-shot ner. arXiv
+preprint arXiv:2211.04337.
+
+Mary C Parmelee. 2010. Toward an ontology architecture for cyber-security standards. STIDS, 713:116–
+123.
+
+Yutong Cheng, Osama Bajaber, Saimon Amanuel
+Tsegai, Dawn Song, and Peng Gao. 2024. Ctinexus:
+Automatic cyber threat intelligence knowledge graph
+construction using large language models. arXiv
+preprint arXiv:2410.21060.
+
+Aditya Pingle, Aritran Piplai, Sudip Mittal, Anupam
+Joshi, James Holt, and Richard Zak. 2019. Relext:
+Relation extraction using deep learning approaches
+for cybersecurity knowledge graph improvement. In
+Proceedings of the 2019 IEEE/ACM International
+Conference on Advances in Social Networks Analysis
+and Mining, pages 879–886.
+
+Ryan Christian, Sharmishtha Dutta, Youngja Park, and
+Nidhi Rastogi. 2021. An ontology-driven knowledge
+graph for android malware. In Proceedings of the
+2021 ACM SIGSAC Conference on Computer and
+Communications Security, pages 2435–2437.
+
+John Pinkston, Anupam Joshi, Tim Finin, and 1 others. 2003. A target-centric ontology for intrusion
+detection. In Workshop on Ontologies in Distributed
+Systems, held at The 18th International Joint Conference on Artificial Intelligence.
+
+Christoph Göpfert, Sheeba Samuel, and Martin Gaedke.
+2025. A method for integrating heterogeneous data
+into a knowledge graph. In International Conference on Information Integration and Web Intelligence,
+pages 277–282. Springer.
+
+Shengzhi Qin and KP Chow. 2019. Automatic analysis and reasoning based on vulnerability knowledge
+graph. In International Conference on Cyberspace
+Data and Intelligence, pages 3–19. Springer.
+
+Erik Hemberg, Matthew J Turner, Nick Rutar, and UnaMay O’reilly. 2024. Enhancements to threat, vulnerability, and mitigation knowledge for cyber analytics,
+hunting, and simulations. Digital Threats: Research
+and Practice, 5(1):1–33.
+
+Victor Raskin, Christian F Hempelmann, Katrina E
+Triezenberg, and Sergei Nirenburg. 2001. Ontology
+in information security: a useful theoretical foundation and methodological tool. In Proceedings of the
+2001 workshop on New security paradigms, pages
+53–59.
+
+Anders Mølmen Høst. 2022. Constructing a vulnerability knowledge graph. Master’s thesis, Norwegian
+University of Life Sciences, Ås.
+
+Abdul Razzaq, Zahid Anwar, H Farooq Ahmad, Khalid
+Latif, and Faisal Munir. 2014. Ontology for attack
+detection: An intelligent approach to web application
+security. computers & security, 45:124–146.
+
+Michael Iannacone, Shawn Bohn, Grant Nakamura,
+John Gerth, Kelly Huffer, Robert Bridges, Erik Ferragut, and John Goodall. 2015. Developing an ontology for cyber security knowledge graphs. In Proceedings of the 10th annual cyber and information
+security research conference, pages 1–4.
+
+Yitong Ren, Yanjun Xiao, Yinghai Zhou, Zhiyong
+Zhang, and Zhihong Tian. 2022. Cskg4apt: A cybersecurity knowledge graph for advanced persistent
+threat organization attribution. IEEE Transactions on
+Knowledge and Data Engineering, 35(6):5695–5709.
+
+Yan Jia, Yulu Qi, Huaijun Shang, Rong Jiang, and Aiping Li. 2018. A practical approach to constructing
+a knowledge graph for cybersecurity. Engineering,
+4(1):53–60.
+
+Sami Ruohonen, Alexey Kirichenko, Dmitriy Komashinskiy, and Mariam Pogosova. 2024. Instrumenting opencti with a capability for attack attribution support. Forensic Sciences, 4(1):12–23.
+
+Tan Yock Khang and Nor Azlina Abd Rahman. 2021.
+Botnet as a service towards national defense and security. In 2021 14th International Conference on Developments in eSystems Engineering (DeSE), pages
+86–91. IEEE.
+
+Smita Srivastava, Biswajit Paul, and Deepa Gupta. 2023.
+Study of word embeddings for enhanced cyber security named entity recognition. Procedia Computer
+Science, 218:449–460.
+
+M Lechtik, A Kayal, P Rascagneres, and V Berdnikov.
+2021. Ghostemperor: From proxylogon to kernel
+mode. kaspersky lab.
+
+Blake E Strom, Andy Applebaum, Doug P Miller,
+Kathryn C Nickels, Adam G Pennington, and Cody B
+Thomas. 2018. Mitre att&ck: Design and philosophy.
+In Technical report. The MITRE Corporation.
+
+Zhenyuan Li, Jun Zeng, Yan Chen, and Zhenkai Liang.
+2022. Attackg: Constructing technique knowledge
+graph from cyber threat intelligence reports. In European Symposium on Research in Computer Security,
+pages 589–609. Springer.
+
+Siqi Sun, Cheng Huang, Tiejun Wu, and Yi Shen. 2023.
+Sectkg: A knowledge graph for open-source security
+tools. International Journal of Intelligent Systems,
+2023(1):4464974.
+
+Leo Obrst, Penny Chase, and Richard Markeloff. 2012.
+Developing an ontology of the cyber security domain.
+In STIDS, pages 49–56.
+
+Yizhen Sun, Dandan Lin, Hong Song, Minjia Yan, and
+Linjing Cao. 2020. A method to construct vulnerability knowledge graph based on heterogeneous data.
+In 2020 16th International Conference on Mobility, Sensing and Networking (MSN), pages 740–745.
+IEEE.
+
+Alessandro Oltramari, Lorrie Faith Cranor, Robert J
+Walls, and Patrick D McDaniel. 2014. Building an
+ontology of cyber security. STIDS, 2014:54–61.
+
+10
+
+Zareen Syed, Ankur Padia, M Lisa Mathews, Tim Finin,
+Anupam Joshi, and 1 others. 2016. Uco: A unified
+cybersecurity ontology. In Proceedings of the AAAI
+Workshop on Artificial Intelligence for Cyber Security, pages 195–202.
+Shuhe Wang, Xiaofei Sun, Xiaoya Li, Rongbin Ouyang,
+Fei Wu, Tianwei Zhang, Jiwei Li, and Guoyin Wang.
+2023. Gpt-ner: Named entity recognition via large
+language models. arXiv preprint arXiv:2304.10428.
+
+11
+
+

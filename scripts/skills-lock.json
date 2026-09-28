@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "kali-tools": {
+      "source": "tzf1003/chatkali",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "91a919884ccadc16238b0a9007c8911834494b6d0a136038b7f2d2c6c34b76a5"
+    }
+  }
+}

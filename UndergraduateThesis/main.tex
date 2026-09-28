@@ -1,0 +1,471 @@
+\PassOptionsToPackage{colorlinks=true, allcolors=black}{hyperref}
+\documentclass[
+	%----------------------------------------------------------------------------------------%
+	% Opções da classe 'memoir'
+	%----------------------------------------------------------------------------------------%
+	12pt,		% Tamanho da Fonte.
+	a4paper,	% Tamanho da página.
+	openright,  % Capítulos começam em páginas ímpares (insere uma página vazia se necessário).
+	oneside,	% Para impressão em frente e verso utilizar twoside.
+	%----------------------------------------------------------------------------------------%
+	% Opções da classe 'abntex2'
+	%----------------------------------------------------------------------------------------%
+	chapter=TITLE,		%Títulos de capítulos convertidos em letras maiúsculas.
+	section=TITLE,		%Títulos de seções convertidos em letras maiúsculas.
+	%----------------------------------------------------------------------------------------%
+	% Opções da classe 'babel'
+	%----------------------------------------------------------------------------------------%
+	english,	%Idioma adicional para hifenização (Abstract).
+	brazil	    %Idioma principal do documento.
+	%----------------------------------------------------------------------------------------%
+]{abntex2}
+
+%----------------------------------------------------------------------------------------%
+% P A C O T E S
+%----------------------------------------------------------------------------------------%
+\usepackage{style}                  %Pacote Básico de formatação no padrão da UNESP/FEG
+\usepackage{color}		            %Controle das cores.
+\usepackage{graphicx}	            %Inclusão de gráficos.
+\usepackage{lipsum}		            %Para geração de 'Dummy Text'.
+\usepackage{pdfpages}               %Para inclusão de arquivos pdf
+\usepackage[alf]{abntex2cite}       %Para inclusão das referências
+\usepackage[table,xcdraw]{xcolor}
+
+%----------------------------------------------------------------------------------------%
+% I N F O R M A Ç Õ E S   B Á S I C A S   S O B R E   O   T R A B A L H O
+%----------------------------------------------------------------------------------------%
+%----------------------------------------------------------------------------------------%
+% D A D O S   P E S S O A I S
+%----------------------------------------------------------------------------------------%
+% Nome completo do autor do presente Trabalho acadêmico:
+\newcommand{\nomeDoAutor}{José Carlos da Silva Filho}
+
+% Nome do curso:
+\newcommand{\nomeDoCurso}{Ciência da Computação}
+
+%----------------------------------------------------------------------------------------%
+% D A D O S   S O B R E   O   T R A B A L H O
+%----------------------------------------------------------------------------------------%
+% Título do presente trabalho:
+\newcommand{\tituloDoTrabalho}{ALF-MoE}
+
+% Subtítulo do presente trabalho, se houver:
+\newcommand{\subtituloDoTrabalho}{Redes Especialistas com Fusão Aprendível Baseada em Atenção
+para Classificação e Mitigação de Ataques Cibernéticos}
+
+% Tipo do trabalho (Trabalho de Conclusão de Curso)
+\newcommand{\tipoDeTrabalho}{Trabalho de Conclusão de Curso}
+
+% Nome do curso
+\newcommand{\NomeDoCurso}{Ciência da Computação}
+
+%Grau acadêmico (Bacharel / Licenciatura)
+\newcommand{\GrauAcademico}{Bacharel}
+
+%Mês da entrega do trabalho
+\newcommand{\dataDeDefesa}{12/10/2026}
+
+%Ano da entrega do trabalho
+\newcommand{\anoDeEntrega}{2026}
+
+%----------------------------------------------------------------------------------------%
+% D A D O S   D O S   O R I E N T A D O R E S,   B A N C A   E   C O O R D E N A D O R
+%----------------------------------------------------------------------------------------%
+% Nome do orientador do presente trabalho:
+\newcommand{\nomeDoOrientador}{Rubens Barbosa Filho}
+% acrescentar intituição
+% Título do orientador:
+\newcommand{\tituloDoOrientador}{Profº. Dr.}
+
+% Nome do coorientador, se houver:
+% \newcommand{\NomeDoCoorientador}{}
+
+% Título do coorientador:
+% \newcommand{\tituloDoCoorientador}{}
+
+% Instituição do orientador
+\newcommand{\instituicaoorientador}{Universidade Estadual de Mato Grosso do Sul}
+
+% Instituição do coorientador
+% \newcommand{\instituicaocoorientador}{}
+
+% Nome do Membro da Banca 1:
+\newcommand{\nomeDoMembroA}{André Chastel Lima}
+% Título do Membro da Banca 1:
+\newcommand{\tituloDoMembroA}{Profº. Dr.}
+% Instituição do Membro da Banca 1
+\newcommand{\instituicaomembroA}{Universidade Estadual de Mato Grosso do Sul}
+
+% Nome do membro da Banca 2:
+\newcommand{\nomeDoMembroB}{Glaucia Gabriel}
+% Título do Membro da Banca 2:
+\newcommand{\tituloDoMembroB}{Profª. Dra.}
+% Instituição do Membro 2
+\newcommand{\instituicaomembroB}{Universidade Estadual de Mato Grosso do Sul}
+
+%Nome do membro da Banca 3:
+\newcommand{\nomeDoMembroC}{Raquel Marcia Müller}
+% Título do Membro da Banca 3:
+\newcommand{\tituloDoMembroC}{Profª. Dra.}
+% Instituição do Membro 3
+\newcommand{\instituicaomembroC}{Universidade Estadual de Mato Grosso do Sul}
+
+%----------------------------------------------------------------------------------------%
+% D A D O S   D A   I N S T I T U I Ç Ã O
+%----------------------------------------------------------------------------------------%
+% Nome da cidade de defesa
+\newcommand{\nomeDaCidade}{Dourados}
+
+%Nome da Universidade Nome do Curso - Campus nome da Cidade
+\newcommand{\nomeDaUniversidade}{
+	UNIVERSIDADE ESTADUAL DE MATO GROSSO DO SUL -- UEMS\\
+\NomeDoCurso -- Unidade Universitária de\ \nomeDaCidade}
+
+%----------------------------------------------------------------------------------------%
+% I N Í C I O   D O   D O C U M E N T O - P R É   T E X T U A L
+%----------------------------------------------------------------------------------------%
+\begin{document}
+\imprimircapa
+\imprimirfolhaderosto
+
+% F O L H A   D E   A P R O V A Ç Ã O
+%
+% OBRIGATÓRIO. Este é o modelo de folha de aprovação que deve ser digitalizada após as assinaturas da banca.
+% Utilize um software de edição de PDF para substituição posterior dessa folha. Se possível, utilize um
+% recurso de assinatura digital fornecido pela ferramenta de edição de PDF, evitando assim a digitalização da
+% folha toda.
+%------------------------------------------------------------------------------------%
+\begin{folhadeaprovacao}
+
+	\begin{center}
+		\normalsize{\textbf{\MakeUppercase\nomeDoAutor}}
+		\\
+		\vspace*{1cm}
+		\normalsize{\textbf{\MakeUppercase\tituloDoTrabalho:}}
+		\\
+		\subtituloDoTrabalho
+	\end{center}
+
+	\vspace*{2cm}
+
+	\noindent\tipoDeTrabalho\ apresentado à Universidade Estadual de Mato Grosso do Sul
+	(UEMS),\ \NomeDoCurso,\ \nomeDaCidade, para obtenção do título de\ \GrauAcademico{ }\em\ \nomeDoCurso.
+	\par
+	\vspace*{1cm}
+
+	\noindent Data de defesa: \dataDeDefesa
+	\vspace*{1cm}
+
+	\noindent{BANCA EXAMINADORA}
+
+	\vspace*{1cm}
+
+	\raggedright\makebox[2.5in]{\hrulefill}\\
+	\tituloDoOrientador \nomeDoOrientador \\ UEMS -- \NomeDoCurso\ -- Unidade Universitária de \nomeDaCidade
+
+	\vspace*{1cm}
+
+	\raggedright\makebox[2.5in]{\hrulefill}\\
+	\tituloDoMembroA\ \nomeDoMembroA \\ \instituicaomembroA
+
+	\vspace*{1cm}
+
+	\raggedright\makebox[2.5in]{\hrulefill}\\
+	\tituloDoMembroB\ \nomeDoMembroB \par \instituicaomembroB
+
+	\vspace*{1cm}
+
+	\raggedright\makebox[2.5in]{\hrulefill}\\
+	\tituloDoMembroC\ \nomeDoMembroC \\ \instituicaomembroC
+
+\end{folhadeaprovacao}
+
+
+%------------------------------------------------------------------------------------%
+% D E D I C A T Ó R I A
+%
+% ELEMENTO OPCIONAL. Se não for utilizar uma dedicatória, basta apagar essa seção.
+%------------------------------------------------------------------------------------%
+\begin{dedicatoria}
+	\vspace*{\fill}
+	\begin{flushright}
+		% Para as crianças adultas curiosas que cresceram sozinhas com um computador e um universo inteiro dentro
+		% da cabeça — e para todos os que, ainda que tenham se perdido no labirinto dos próprios pensamentos,
+		% encontraram forças para continuar vivendo.
+
+		% À todas as curiosas crianças adultas, que (re)encontraram seu propósito mesmo perdidos no labirinto da
+		% própria mente.
+
+		% À todos que vislumbraram o vazio e escolheram apenas continuar.
+
+		%Dedico este trabalho à todas as crianças com mentes adultas que aprenderam cedo demais que a própria
+		% companhia era a única que realmente dava para contar.
+
+		% Ao pequeno cientista que ousou sonhar com o infinito, e ao adulto que, mesmo atravessando o silêncio do
+		% próprio labirinto, escolheu não desistir de descobri-lo.
+
+		% Para a criança que encontrou um universo dentro de uma tela e para o sobrevivente que, entre o caos da
+		% mente e o peso do mundo, provou que persistir é o ato mais puro de descoberta.
+
+		% À criança que sempre soube que o mundo era vasto e ao adulto que, embora perdido nas sombras do próprio
+		% pensamento, encontrou na ciência a lanterna necessária para sair do labirinto.
+
+		% Ao pequeno cientista que viu o infinito em uma tela e ao adulto que sobreviveu ao colapso do próprio
+		% universo: descobrimos, enfim, que existir é a pesquisa mais difícil de todas.
+		\textit{À criança que sonhava ser cientista para entender o mundo e ao homem que precisou reaprender a
+		respirar nele: obrigado por não ter deixado o nosso laboratório ficar às escuras.}
+	\end{flushright}
+	\vspace*{1cm}
+\end{dedicatoria}
+
+%------------------------------------------------------------------------------------%
+% A G R A D E C I M E N T O S
+%
+% ELEMENTO OPCIONAL. PORÉM É OBRIGATÓRIO PARA BOLSISTAS.
+% Citar as pessoas, instituição, agência de fomento, entre outros que contribuíram de % maneira relevante à
+% elaboração do trabalho e na vida acadêmica.
+% Se não for utilizar os agradecimentos, basta apagar todo o código dessa seção.
+%------------------------------------------------------------------------------------%
+\begin{agradecimentos}
+
+	\par{Agradeço, primeiramente, a Deus, cuja providência me sustentou mesmo nos momentos em que me senti
+		distante. Obrigado por não me conceder fardo maior do que o que eu poderia carregar e por ser a força
+		silenciosa que me manteve de pé. À Maria, Mãe de Deus, agradeço pelo acalento materno e zeloso; por ser meu
+		refúgio nas horas de aflição, minha proteção contra as sombras e a clareza necessária nas madrugadas de
+	questionamento e exaustão.}
+
+	\par{À minha mãe, Rosirei, que transformou a escassez que viveu em abundância de oportunidades para o meu
+		futuro. Obrigado por responder a cada um dos meus ``porquês'' e por instigar a curiosidade que hoje me torna
+		cientista; cresci desejando ser tão inteligente quanto você. Através do seu exemplo, aprendi que o esforço é
+		a ponte para o impossível. Guardo com carinho a memória de acordarmos antes do raiar do sol para que você
+		trabalhasse e, à noite, ainda estudasse — você me pedia desculpas por me levar às suas aulas, sem saber que
+		para mim era o maior dos privilégios ver de perto a sua garra. Vi seus medos e incertezas, mas jamais a vi
+		recuar. À mulher que multiplicou o pouco para que eu tivesse tudo, e que me ensinou que o caráter e o
+	conhecimento são as únicas riquezas inalienáveis, dedico esta vitória.}
+
+	\par{À minha noiva, Maria Eduarda, a quem devo a doçura e a estabilidade desta conquista. Você foi muito
+		mais que uma companheira; foi o porto seguro onde ancorei nos dias de tempestade. Em meio à lógica fria dos
+		códigos e à pressão exaustiva da academia, seu amor foi a constante que me manteve íntegro. Obrigado por ser
+		o fôlego e a paciência nos momentos em que o \textit{burnout} tentou silenciar meu entusiasmo, e por ter a
+		sabedoria de me impulsionar quando minhas próprias forças falhavam. Você não apenas esteve ao meu lado; você
+		iluminou o caminho para que eu pudesse enxergar além das minhas limitações e exaustões. Obrigado por dividir
+		o peso da jornada e multiplicar a alegria da chegada. Este diploma é apenas o prefácio de uma vida inteira
+	que pretendo escrever ao seu lado. Amo você.}
+
+	\par{Ao meu psicólogo, Dr. Ricardo Tiosso Panassiol, por ser o guia que me auxiliou a encontrar o caminho de
+		volta em meio ao caos da ansiedade generalizada e do \textit{burnout}. Obrigado por me ensinar a reconstruir
+		minha perspectiva e por fornecer as ferramentas de resiliência necessárias para enfrentar as adversidades.
+	Sua atuação foi fundamental para que eu não apenas concluísse este trabalho, mas recuperasse a posse de mim mesmo.}
+
+	\par{Ao meu orientador, Prof. Dr. Rubens Barbosa Filho, expresso minha mais profunda admiração. Agradeço
+		pela orientação técnica impecável, mas, acima de tudo, pelo impacto do seu exemplo. Jamais esquecerei o dia
+		em que lhe apresentei um problema do \textit{Beecrowd} que me desafiava há quatro anos; vê-lo demonstrar que
+		o embasamento teórico — através da Transformada Rápida de Fourier — resolve o que a força bruta jamais
+		alcançaria, foi um divisor de águas em minha formação. Obrigado por me mostrar que a excelência nasce da
+	paixão pelo conhecimento. Você é a minha maior referência de onde pretendo chegar como profissional.}
+
+	\par{Aos meus ``irmãos de guerra'' do ``Bonde do Óclin'': Gustavo de Carvalho Brás Martins Lopes (Gustavin),
+		Leonardo Hirata (Hiratinha) e Luis Eduardo de Souza Vasconcelos (Louis). Nossa união transcendeu as salas de
+		aula, tornando-se uma irmandade de apoio mútuo. Obrigado pelas horas intermináveis de algoritmos, pelos
+	debates sobre cálculos e por tornarem o peso da graduação muito mais leve com sua lealdade e amizade.}
+
+	\par{Aos amigos Alexandre Arruda (Alê), Gabriel Fagá (Fagas) e Pedro Henrique Zaccaria (Z), agradeço pelos
+		momentos de descontração e pelas pausas necessárias. Seja nas partidas de \textit{Minecraft} ou nas
+		conversas sem pressa, vocês foram o alívio essencial para que a mente pudesse descansar e o riso pudesse
+	retornar. A jornada foi mais feliz por causa de vocês.}
+
+	\par{Aos mestres do Curso de Ciência da Computação da UEMS, cujas lições vão além dos livros. Em especial à
+		Profa. Dra. Glaucia Gabriel, pela imensa empatia e humanidade demonstradas em meus momentos mais difíceis;
+		ao Prof. Dr. André Chastel Lima, pela generosidade em compartilhar seu domínio sobre a Teoria dos Grafos. A
+	dedicação de vocês é o que sustenta a qualidade desta instituição.}
+
+	\par{Por fim, agradeço à Universidade Estadual de Mato Grosso do Sul (UEMS) e ao Curso de Ciência da
+		Computação, que me proporcionaram a base acadêmica necessária para a realização deste trabalho. Agradeço a
+	todos os funcionários que, direta ou indiretamente, contribuíram para minha formação.}
+
+\end{agradecimentos}
+
+%------------------------------------------------------------------------------------%
+
+%------------------------------------------------------------------------------------%
+% E P Í G R A F E
+%
+% ELEMENTO OPCIONAL. Texto em que o autor apresenta uma citação, seguida de indicação % de autoria.
+% Se não for utilizar uma epígrafe, basta apagar todo o código dessa seção.
+%------------------------------------------------------------------------------------%
+\begin{epigrafe}
+	\vspace*{\fill}
+	\begin{flushright}
+		\textit{
+			``Se você só fizer o que sabe, nunca será mais do que é agora.''\\
+			Shifu -- Kung Fu Panda 3 (2016)
+		}
+	\end{flushright}
+\end{epigrafe}
+
+%------------------------------------------------------------------------------------%
+% R E S U M O   N O   I D I O M A   D O   T E X T O
+%
+% OBRIGATÓRIO. Elaborado conforme a NBR 6028.
+% Deve ser redigido em um só parágrafo contendo de 150 a 500 palavras e ressaltar: objetivo, método,
+% resultados e as principais conclusões.
+% Após o resumo, são listadas palavras-chave relacionadas à temática do trabalho, separadas entre si por
+% ponto e virgula (;) e finalizadas por ponto final.  (NBR 6028)
+%------------------------------------------------------------------------------------%
+\begin{resumo}
+	O texto deve ser composto por frases concisas em parágrafo único, utilizando o verbo na terceira pessoa.
+	Evite símbolos e contrações que não sejam de uso corrente. Evite fórmulas, equações, diagramas etc., que não
+	sejam absolutamente necessários; quando seu emprego for imprescindível, defini-los na primeira vez que
+	aparecerem. Um resumo deve conter entre 150 a 500 palavras. As palavras-chave devem ficar logo abaixo do
+	resumo, separadas entre si por ponto e vírgula e finalizadas por ponto. Além disso, devem ser grafadas com
+	as iniciais em letra minúscula, exceto nomes próprios e nomes científicos. Para a escolha das palavras-chave
+	consulte descritores autorizados da área, que representam o conteúdo do trabalho.
+
+	\vspace*{0.5cm}
+	\noindent\textbf{{Palavras-Chave: }} palavra-chave; palavra-chave; palavra-chave.
+\end{resumo}
+
+%------------------------------------------------------------------------------------%
+% A B S T R A C T :   R E S U M O   N O   I D I O M A   E S T R A N G E I R O
+%
+% OBRIGATÓRIO. Elaborado com as mesmas características do resumo em língua portuguesa.
+% Se redigido em inglês-ABSTRACT. Após o resumo, são listadas palavras-chave %relacionadas à temática do
+% trabalho no idioma escolhido. Se redigido em inglês - KEYWORDS.
+%------------------------------------------------------------------------------------%
+\begin{resumo}[Abstract]
+	% Substitua 'Abstract' pela palavra no idioma desejado, caso precise.
+	The text should consist of concise sentences in a single paragraph, using the third person singular form of
+	the verb. Avoid symbols and contractions that are not commonly used. Avoid formulas, equations, diagrams,
+	etc., unless absolutely necessary; when their use is essential, define them the first time they appear. An
+	abstract should contain between 150 to 500 words. Keywords should be placed right below the abstract,
+	separated by semicolons and ending with a period. Additionally, they should be written in lowercase except
+	for proper names and scientific names. To choose keywords, consult authorized descriptors in the field that
+	represent the content of the work.
+
+	\vspace*{0.5cm}
+
+	%Subistitua 'Keywords' pela palavra no idioma desejado, caso precise.
+	\noindent\textbf{{Keywords: }} keyword; keyword; keyword.
+\end{resumo}
+
+%------------------------------------------------------------------------------------%
+% L I S T A   D E   I L U S T R A Ç Õ E S
+%
+% ELEMENTO OPCIONAL. Deve ser elaborada de acordo com a ordem em que se apresenta no texto, podendo ser em
+% lista própria para cada tipo de ilustração ou lista única para variados tipos de ilustrações (figuras,
+% fotografias, organogramas, quadros, etc).(NBR: 14724)
+% Se não for utilizar uma Lista de Ilustrações, basta apagar todo o código dessa seção.
+
+%------------------------------------------------------------------------------------%
+\listoffigures*
+\newpage
+%------------------------------------------------------------------------------------%
+% L I S T A   D E   T A B E L A S
+%
+% ELEMENTO OPCIONAL. Deve ser elaborada de acordo com a ordem em que se apresenta no texto.
+% Se não for utilizar uma Lista de Tabelas, basta apagar todo o código dessa seção.
+%------------------------------------------------------------------------------------%
+\listoftables*
+\newpage
+%------------------------------------------------------------------------------------%
+% L I S T A   D E   A B R E V I A T U R A S   E   S I G L A S
+%
+% ELEMENTO OPCIONAL. Deve ser elaborada em ordem alfabética, seguidas das palavras ou expressões
+% correspondentes por extenso.
+% Se não for utilizar uma Lista de Abreviaturas, basta apagar todo o código dessa seção.
+%------------------------------------------------------------------------------------%
+\begin{siglas}
+  \item [DDoS] Ataque Distribuído de Negação de Serviço (\emph{Distribuited Denial of Service})
+  \item [DoS] Ataque de Negação de Serviço (\emph{Denial of Service})
+  \item [IoT]	Internet das Coisas (\emph{Internet of Things})
+\end{siglas}
+
+%------------------------------------------------------------------------------------%
+% L I S T A   D E   S Í M B O L O S
+%
+% ELEMENTO OPCIONAL. Deve ser elaborada de acordo com a ordem em que se apresenta no texto, acompanhado com
+% seus respectivos significados. Se não for utilizar uma Lista de Símbolos, basta apagar todo o código dessa seção.
+%------------------------------------------------------------------------------------%
+\begin{simbolos}
+\item[$\alpha$] Letra Grega Alfa
+\item[$\beta$] Letra grega Beta
+\item[$\gamma$] Letra grega Gama
+\item[$e$] Número de Euler
+\item[R\$] Unidade monetária Brasileira (Real)
+\end{simbolos}
+%------------------------------------------------------------------------------------%
+% S U M Á R I O
+%
+% OBRIGATÓRIO. Recomenda-se atualizar o sumário apenas no fim da elaboração do trabalho.
+% Havendo mais de um volume, cada um deve conter o sumário completo do trabalho (NBR: 6024; NBR: 6027).
+% Não se deve confundir sumário com índice.
+%------------------------------------------------------------------------------------%
+\tableofcontents*
+\newpage
+%------------------------------------------------------------------------------------%
+%                                                                                    %
+%                           C O R P O   D O   T E X T O                              %
+%                                                                                    %
+%                     Seu trabalho começa a ser digitado aqui.                       %
+%                                                                                    %
+% Início do corpo do texto. A partir desse comando será impresso o número de páginas.%
+%------------------------------------------------------------------------------------%
+\textual
+\pagestyle{simple}
+%------------------------------------------------------------------------------------%
+% Para melhorar a organização do texto, você pode salvar cada capítulo em um arquivo % % separado e
+% incluí-los, na sequência com o comando \input{nomedocapítulo}
+
+\chapter{Introdução}
+\label{cap:introducao}
+\input{chapters/01_introducao.tex}
+
+%------------------------------------------------------------------------------------%
+\chapter{Fundamentação Teórica e Trabalhos Correlatos}
+\label{cap:fundamentacao}
+\input{chapters/02_fundamentacao.tex}
+
+%------------------------------------------------------------------------------------%
+\chapter{Materiais e Metodologia}
+\label{cap:metodologia}
+\input{chapters/03_metodologia.tex}
+
+%------------------------------------------------------------------------------------%
+\chapter{Pipeline de Extração e Ambiente de Inferência}
+\label{cap:pipeline}
+\input{chapters/04_pipeline_inferencia.tex}
+
+%------------------------------------------------------------------------------------%
+\chapter{Resultados e Discussão}
+\label{cap:resultados}
+\input{chapters/05_resultados.tex}
+
+%------------------------------------------------------------------------------------%
+\chapter{Conclusão}
+\label{cap:conclusao}
+\input{chapters/06_conclusao.tex}
+
+%------------------------------------------------------------------------------------%
+%                               P Ó S   T E X T U A L                                %
+%                                                                                    %
+% Fim do corpo do texto. A partir desse comando as indicações no sumário serão       %
+% marcadas como 'pós textuais'.                                                      %
+%------------------------------------------------------------------------------------%
+\postextual
+
+%------------------------------------------------------------------------------------%
+% R E F E R Ê N C I A S
+%
+% OBRIGATÓRIO. Será gerada automaticamente a partir do arquivo "references.bib".
+%------------------------------------------------------------------------------------%
+\bibliography{references.bib}
+
+%---------------------------------------------------------------------------------%
+% ELEMENTOS PÓS-TEXTUAIS OPCIONAIS (Desativados conforme orientações do template)
+% Se necessário incluir Glossário, Apêndices ou Anexos no futuro, descomentar as seções abaixo:
+% \chapter*{GLOSSÁRIO}
+% \begin{apendicesenv} ... \end{apendicesenv}
+% \begin{anexosenv} ... \end{anexosenv}
+%---------------------------------------------------------------------------------%
+%\newpage
+\end{document}

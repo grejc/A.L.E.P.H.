@@ -1,0 +1,58 @@
+- 1. INTRODUÇÃO
+  - 1.1 Contextualização e Motivação
+  - 1.2 Definição do Problema
+  - 1.3 Objetivos
+    - 1.3.1 Objetivo Geral
+    - 1.3.2 Objetivos Específicos
+  - 1.4 Principais Contribuições
+  - 1.5 Organização do Trabalho
+- 2. FUNDAMENTAÇÃO TEÓRICA E TRABALHOS CORRELATOS
+  - 2.1 Ataques Cibernéticos e Sistemas de Detecção de Intrusão (NIDS)
+    - 2.1.1 Taxonomia de Ataques de Rede
+    - 2.1.2 Métodos de Identificação e Mitigação
+  - 2.2 Aprendizado Profundo para Segurança de Redes
+    - 2.2.1 Redes Convolucionais e Recorrentes (CNN, LSTM, GRU)
+    - 2.2.2 Redes Autoencoders (CAE) e DNNs
+    - 2.2.3 Mixture of Experts (MoE) e Mecanismos de Atenção
+  - 2.3 Trabalhos Correlatos
+    - 2.3.1 NIDS Baseados em Aprendizado Profundo
+    - 2.3.2 Abordagens Ensemble e MoE em Cibersegurança
+    - 2.3.3 Síntese Comparativa
+- 3. MATERIAIS E METODOLOGIA
+  - 3.1 Datasets Utilizados
+    - 3.1.1 CSE-CIC-IDS2018 (Origem, geração, features e estatísticas)
+    - 3.1.2 CIC-BCCC-NRC-2024 (Origem, geração, features e estatísticas)
+    - 3.1.3 UNSW-NB15 (Origem, geração, features e estatísticas)
+  - 3.2 Pipeline de Pré-processamento e Engenharia de Features
+    - 3.2.1 Seleção, Normalização e Codificação
+    - 3.2.2 Tratamento de Desbalanceamento de Classes
+  - 3.3 Arquitetura Proposta: ALF-MoE
+    - 3.3.1 Visão Geral do Sistema e Fluxo de Dados
+    - 3.3.2 Modelos Especialistas (DNN, CNN, GRU, CAE, LSTM)
+    - 3.3.3 Gating Network
+    - 3.3.4 Mecanismo Attention-based Learnable Fusion (ALF)
+  - 3.4 Protocolo Experimental de Treinamento e Avaliação
+    - 3.4.1 Funções de Perda e Otimização
+    - 3.4.2 Métricas de Avaliação (Acurácia, Precision, Recall, F1-Score, Latência)
+- 4. PIPELINE DE EXTRAÇÃO E AMBIENTE DE INFERÊNCIA
+  - 4.1 Captura e Processamento de Tráfego
+    - 4.1.1 Extração com NFStream
+    - 4.1.2 Mapeamento e Alinhamento de Features (NFStream → CICFlowMeter)
+  - 4.2 Setup de Inferência em Tempo Real
+    - 4.2.1 Arquitetura do Ambiente de Execução
+    - 4.2.2 Cenários de Teste de Estresse (Benigno, Ataques Humanos e Agentes via LLM)
+- 5. RESULTADOS E DISCUSSÃO
+  - 5.1 Desempenho nos Datasets de Benchmark (Resultados Offline)
+    - 5.1.1 Análise por Classe e Desempenho Global
+    - 5.1.2 Estudo de Ablação (Contribuição de cada especialista e do bloco ALF)
+  - 5.2 Avaliação da Extração e Inferência em Tráfego Real/PCAPs
+    - 5.2.1 Impacto do Mapeamento NFStream → CICFlowMeter
+    - 5.2.2 Throughput, Latência e Consumo Computacional
+  - 5.3 Avaliação sob Cenários Adversariais
+    - 5.3.1 Desempenho sob Tráfego Estritamente Benigno (Taxa de Falsos Positivos)
+    - 5.3.2 Robustez Contra Adversários Humanos
+    - 5.3.3 Robustez Contra Adversários Guiados por LLMs
+- 6. CONCLUSÃO
+  - 6.1 Síntese do Trabalho
+  - 6.2 Limitações Identificadas
+  - 6.3 Trabalhos Futuros
