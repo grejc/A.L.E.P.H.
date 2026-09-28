@@ -13,15 +13,30 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Ataques/AGENTS.md",
+                "file": "Ataques/HUMAN.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "AGENTS"
+              "title": "HUMAN"
+            }
+          },
+          {
+            "id": "3fb68ea5f19b2043",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Relatórios/OPENCODE.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "OPENCODE"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -188,11 +203,13 @@
       "bases:Criar nova base": false
     }
   },
-  "active": "e86bbd05b41adae8",
+  "active": "3fb68ea5f19b2043",
   "lastOpenFiles": [
+    "Ataques/HUMAN.md",
+    "Relatórios/OPENCODE.md",
+    "Ataques/AGENTS.md",
     "NOTAS.md",
     "Atacante e Vítima.md",
-    "Ataques/HUMAN.md",
     "Modelo/Sem título.canvas",
     "Modelo/ALF-MoE.md",
     "Modelo/Sem título.base",
@@ -216,7 +233,6 @@
     "Ataques/DDoS - LOIC HTTP.md",
     "Ataques/DDoS - HOIC.md",
     "Ataques/Botnet - Ares.md",
-    "Ataques/AGENTS.md",
     "Ataques/00 - Mapeamento de Ataques Kali Linux.md",
     "Ambientes/Ambiente de Ataques.md",
     "Ambientes/assets/DVWA_4.png",
