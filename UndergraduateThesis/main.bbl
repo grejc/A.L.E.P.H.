@@ -7,26 +7,20 @@
 
 \bibitem[Abreu \& Abelém 2022]{sistema2022}
 \abntrefinfo{Abreu \& Abelém}{Abreu; Abelém}{2022}
-{ABREU, D.; ABELéM, A. Sistema híbrido e on-line de detecção e
-  classificação de tráfego malicioso.
-\textbf{Anais do XL Simpósio Brasileiro de Redes de Computadores e Sistemas
-  Distribuídos (SBRC 2022)}, Sociedade Brasileira de Computação, p.
-  322--335, 2022.}
+{ABREU, D.; ABELéM, A. Sistema híbrido e on-line de detecção e classificação de tráfego malicioso.
+\textbf{Anais do XL Simpósio Brasileiro de Redes de Computadores e Sistemas Distribuídos (SBRC 2022)}, Sociedade Brasileira de Computação, p. 322--335, 2022.}
 
 \bibitem[Aouini \& Pekar 2022]{AOUINI2022108719}
 \abntrefinfo{Aouini \& Pekar}{Aouini; Pekar}{2022}
 {AOUINI, Z.; PEKAR, A. {NFStream}: A flexible network data analysis framework.
 \textbf{Computer Networks}, v.~204, p. 108719, 2022.
 ISSN 1389-1286.
-Dispon{\'\i}vel em:
-  \url{https://www.sciencedirect.com/science/article/pii/S1389128621005739}.}
+Dispon{\'\i}vel em: \url{https://www.sciencedirect.com/science/article/pii/S1389128621005739}.}
 
 \bibitem[Borgioli et al. 2024]{borgioli2024cae}
 \abntrefinfo{Borgioli et al.}{Borgioli et al.}{2024}
-{BORGIOLI, N. et al. A convolutional autoencoder architecture for robust
-  network intrusion detection in embedded systems.
-\textbf{Journal of Systems Architecture}, Elsevier BV, v.~156, p. 103283,
-  2024.}
+{BORGIOLI, N. et al. A convolutional autoencoder architecture for robust network intrusion detection in embedded systems.
+\textbf{Journal of Systems Architecture}, Elsevier BV, v.~156, p. 103283, 2024.}
 
 \bibitem[Cao et al. 2022]{cao2022applsci}
 \abntrefinfo{Cao et al.}{Cao et al.}{2022}
@@ -34,63 +28,46 @@ Dispon{\'\i}vel em:
 \textbf{Applied Sciences}, MDPI, v.~12, n.~9, p.~4184, 2022.}
 
 \bibitem[Chandroth, Stoian \& Danciulescu 2026]{alfmoe2026}
-\abntrefinfo{Chandroth, Stoian \& Danciulescu}{Chandroth; Stoian;
-  Danciulescu}{2026}
-{CHANDROTH, J.; STOIAN, G.; DANCIULESCU, D. {ALF-MoE}: An attention-based
-  learnable fusion of specialized expert networks for accurate traffic
-  classification.
+\abntrefinfo{Chandroth, Stoian \& Danciulescu}{Chandroth; Stoian; Danciulescu}{2026}
+{CHANDROTH, J.; STOIAN, G.; DANCIULESCU, D. {ALF-MoE}: An attention-based learnable fusion of specialized expert networks for accurate traffic classification.
 \textbf{Mathematics}, MDPI AG, v.~14, n.~3, p.~525, 2026.}
 
 \bibitem[Chen et al. 2025]{p4nids2025}
 \abntrefinfo{Chen et al.}{Chen et al.}{2025}
-{CHEN, Y. et al. {P4-NIDS}: High-performance network monitoring and intrusion
-  detection in {P4}.
-\textbf{Lecture Notes in Networks and Systems}, Springer Nature Switzerland, p.
-  355--373, 2025.}
+{CHEN, Y. et al. {P4-NIDS}: High-performance network monitoring and intrusion detection in {P4}.
+\textbf{Lecture Notes in Networks and Systems}, Springer Nature Switzerland, p. 355--373, 2025.}
 
 \bibitem[Dari et al. 2024]{neuralcyber2025}
 \abntrefinfo{Dari et al.}{Dari et al.}{2024}
-{DARI, S.~S. et al. Neural networks and cyber resilience: Deep insights into
-  {AI} architectures for robust security framework.
-\textbf{Journal of Electrical Systems}, Science Research Society, v.~19, n.~3,
-  p. 78--95, 2024.}
+{DARI, S.~S. et al. Neural networks and cyber resilience: Deep insights into {AI} architectures for robust security framework.
+\textbf{Journal of Electrical Systems}, Science Research Society, v.~19, n.~3, p. 78--95, 2024.}
 
 \bibitem[Ding, Kulkarni \& Yekhanin 2017]{ding2017collecting}
 \abntrefinfo{Ding, Kulkarni \& Yekhanin}{Ding; Kulkarni; Yekhanin}{2017}
-{DING, B.; KULKARNI, J.; YEKHANIN, S. Collecting telemetry data privately. In:
-  \textbf{Advances in Neural Information Processing Systems (NeurIPS 2017)}.
-  [s.n.], 2017. v.~30, p. 3571--3580. Dispon{\'\i}vel em:
-  \url{https://arxiv.org/abs/1712.01524}.}
+{DING, B.; KULKARNI, J.; YEKHANIN, S. Collecting telemetry data privately. In:  \textbf{Advances in Neural Information Processing Systems (NeurIPS 2017)}. [s.n.], 2017. v.~30, p. 3571--3580. Dispon{\'\i}vel em: \url{https://arxiv.org/abs/1712.01524}.}
 
 \bibitem[Dreyer et al. 2018]{cyberrisk2025}
 \abntrefinfo{Dreyer et al.}{Dreyer et al.}{2018}
-{DREYER, P.~A. et al. \textbf{Estimating the Global Cost of Cyber Risk:
-  Methodology and Examples}.
+{DREYER, P.~A. et al. \textbf{Estimating the Global Cost of Cyber Risk: Methodology and Examples}.
 [S.l.], 2018.}
 
 \bibitem[Ferraz et al. 2025]{stix2026}
 \abntrefinfo{Ferraz et al.}{Ferraz et al.}{2025}
-{FERRAZ, {\'{A}}.~L. R. et al. The procedural semantics gap in structured
-  {CTI}: A measurement-driven {STIX} analysis for {APT} emulation.
+{FERRAZ, {\'{A}}.~L. R. et al. The procedural semantics gap in structured {CTI}: A measurement-driven {STIX} analysis for {APT} emulation.
 \textbf{arXiv preprint arXiv:2512.12078}, 2025.}
 
 \bibitem[Guadarrama et al. 2025]{advancedids2024}
 \abntrefinfo{Guadarrama et al.}{Guadarrama et al.}{2025}
-{GUADARRAMA, J. C.~M. et al. Advanced {IDS}: a comparative study of datasets
-  and machine learning algorithms for network flow-based intrusion detection
-  systems.
+{GUADARRAMA, J. C.~M. et al. Advanced {IDS}: a comparative study of datasets and machine learning algorithms for network flow-based intrusion detection systems.
 \textbf{Applied Intelligence}, 2025.}
 
 \bibitem[Guo et al. 2017]{guo2017calibration}
 \abntrefinfo{Guo et al.}{Guo et al.}{2017}
-{GUO, C. et al. On calibration of modern neural networks. In:  PMLR.
-  \textbf{International Conference on Machine Learning (ICML)}. [S.l.], 2017.
-  p. 1321--1330.}
+{GUO, C. et al. On calibration of modern neural networks. In:  PMLR. \textbf{International Conference on Machine Learning (ICML)}. [S.l.], 2017. p. 1321--1330.}
 
 \bibitem[He, Fu \& Zhang 2026]{trafficmoe2026}
 \abntrefinfo{He, Fu \& Zhang}{He; Fu; Zhang}{2026}
-{HE, Q.; FU, X.; ZHANG, L. Trafficmoe: Heterogeneity-aware mixture of experts
-  for encrypted traffic classification.
+{HE, Q.; FU, X.; ZHANG, L. Trafficmoe: Heterogeneity-aware mixture of experts for encrypted traffic classification.
 \textbf{arXiv preprint arXiv:2603.29520}, 2026.}
 
 \bibitem[Jacobs et al. 1991]{jacobs1991adaptive}
@@ -100,10 +77,8 @@ Dispon{\'\i}vel em:
 
 \bibitem[Jada \& Mayayise 2024]{aiimpact2026}
 \abntrefinfo{Jada \& Mayayise}{Jada; Mayayise}{2024}
-{JADA, I.; MAYAYISE, T.~O. The impact of artificial intelligence on
-  organisational cyber security: An outcome of a systematic literature review.
-\textbf{Data and Information Management}, Elsevier BV, v.~8, n.~2, p. 100063,
-  2024.}
+{JADA, I.; MAYAYISE, T.~O. The impact of artificial intelligence on organisational cyber security: An outcome of a systematic literature review.
+\textbf{Data and Information Management}, Elsevier BV, v.~8, n.~2, p. 100063, 2024.}
 
 \bibitem[Kaur \& Kaur 2016]{webattacks2024}
 \abntrefinfo{Kaur \& Kaur}{Kaur; Kaur}{2016}
@@ -112,168 +87,119 @@ Dispon{\'\i}vel em:
 
 \bibitem[Lin et al. 2017]{lin2017focal}
 \abntrefinfo{Lin et al.}{Lin et al.}{2017}
-{LIN, T.-Y. et al. Focal loss for dense object detection. In:  \textbf{IEEE
-  International Conference on Computer Vision (ICCV)}. [S.l.: s.n.], 2017. p.
-  2980--2988.}
+{LIN, T.-Y. et al. Focal loss for dense object detection. In:  \textbf{IEEE International Conference on Computer Vision (ICCV)}. [S.l.: s.n.], 2017. p. 2980--2988.}
 
 \bibitem[Liu et al. 2022]{liu2022error}
 \abntrefinfo{Liu et al.}{Liu et al.}{2022}
-{LIU, L. et al. Error prevalence in {NIDS} datasets: A case study on
-  {CIC-IDS-2017} and {CSE-CIC-IDS-2018}. In:  IEEE. \textbf{2022 IEEE
-  Conference on Communications and Network Security (CNS)}. [S.l.], 2022. p.
-  254--262.}
+{LIU, L. et al. Error prevalence in {NIDS} datasets: A case study on {CIC-IDS-2017} and {CSE-CIC-IDS-2018}. In:  IEEE. \textbf{2022 IEEE Conference on Communications and Network Security (CNS)}. [S.l.], 2022. p. 254--262.}
 
 \bibitem[Luay et al. 2025]{temporal2025}
 \abntrefinfo{Luay et al.}{Luay et al.}{2025}
-{LUAY, M. et al. Temporal analysis of netflow datasets for network intrusion
-  detection systems.
+{LUAY, M. et al. Temporal analysis of netflow datasets for network intrusion detection systems.
 \textbf{arXiv preprint arXiv:2503.04404}, 2025.}
 
 \bibitem[Luay et al. 2026]{timematters2025}
 \abntrefinfo{Luay et al.}{Luay et al.}{2026}
-{LUAY, M. et al. Time matters: Temporal netflow features for ml-based network
-  intrusion detection.
-\textbf{IEEE Access}, Institute of Electrical and Electronics Engineers (IEEE),
-  v.~14, p. 66899--66913, 2026.}
+{LUAY, M. et al. Time matters: Temporal netflow features for ml-based network intrusion detection.
+\textbf{IEEE Access}, Institute of Electrical and Electronics Engineers (IEEE), v.~14, p. 66899--66913, 2026.}
 
 \bibitem[Maciá-Fernández et al. 2018]{ugr162021}
 \abntrefinfo{Maciá-Fernández et al.}{Maciá-Fernández et al.}{2018}
-{MACIá-FERNáNDEZ, G. et al. Ugr‘16: A new dataset for the evaluation of
-  cyclostationarity-based network idss.
+{MACIá-FERNáNDEZ, G. et al. Ugr‘16: A new dataset for the evaluation of cyclostationarity-based network idss.
 \textbf{Computers \& Security}, Elsevier BV, v.~73, p. 411--424, 2018.}
 
 \bibitem[Moustafa \& Slay 2015]{moustafa2015unsw}
 \abntrefinfo{Moustafa \& Slay}{Moustafa; Slay}{2015}
-{MOUSTAFA, N.; SLAY, J. {UNSW-NB15}: a comprehensive data set for network
-  intrusion detection systems ({UNSW-NB15} network data set). In:  IEEE.
-  \textbf{2015 Military Communications and Information Systems Conference
-  (MilCIS)}. [S.l.], 2015. p.~1--6.}
+{MOUSTAFA, N.; SLAY, J. {UNSW-NB15}: a comprehensive data set for network intrusion detection systems ({UNSW-NB15} network data set). In:  IEEE. \textbf{2015 Military Communications and Information Systems Conference (MilCIS)}. [S.l.], 2015. p.~1--6.}
 
 \bibitem[{Netfilter Project} 2024]{nftables2024}
 \abntrefinfo{{Netfilter Project}}{{Netfilter Project}}{2024}
-{{Netfilter Project}. \textbf{nftables: High performance packet classification
-  framework}. 2024.
+{{Netfilter Project}. \textbf{nftables: High performance packet classification framework}. 2024.
 Acesso em: 25 set. 2026.
 Dispon{\'\i}vel em: \url{https://netfilter.org/projects/nftables/}.}
 
 \bibitem[Neto et al. 2023]{ciciot2023}
 \abntrefinfo{Neto et al.}{Neto et al.}{2023}
-{NETO, E. C.~P. et al. {CICIoT2023}: A real-time dataset and benchmark for
-  large-scale attacks in {IoT} environment.
+{NETO, E. C.~P. et al. {CICIoT2023}: A real-time dataset and benchmark for large-scale attacks in {IoT} environment.
 \textbf{Sensors}, MDPI AG, v.~23, n.~13, p.~5941, 2023.}
 
 \bibitem[Noor \& Ige 2025]{survey2025dl}
 \abntrefinfo{Noor \& Ige}{Noor; Ige}{2025}
-{NOOR, M.~H. M.; IGE, A.~O. A survey on state-of-the-art deep learning
-  applications and challenges.
-\textbf{Engineering Applications of Artificial Intelligence}, Elsevier BV,
-  v.~159, p. 111225, 2025.}
+{NOOR, M.~H. M.; IGE, A.~O. A survey on state-of-the-art deep learning applications and challenges.
+\textbf{Engineering Applications of Artificial Intelligence}, Elsevier BV, v.~159, p. 111225, 2025.}
 
 \bibitem[Oliveira, Gonçalves \& Filho 2025]{fnids2025}
 \abntrefinfo{Oliveira, Gonçalves \& Filho}{Oliveira; Gonçalves; Filho}{2025}
-{OLIVEIRA, J.~A. de; GONçALVES, V.~P.; FILHO, G.~P. R. {F-NIDS}: Sistema de
-  detecção de intrusão baseado em aprendizado federado.
-\textbf{Anais Estendidos do XLIII Simpósio Brasileiro de Redes de Computadores
-  e Sistemas Distribuídos (SBRC 2025)}, Sociedade Brasileira de Computação -
-  SBC, p. 212--221, 2025.}
+{OLIVEIRA, J.~A. de; GONçALVES, V.~P.; FILHO, G.~P. R. {F-NIDS}: Sistema de detecção de intrusão baseado em aprendizado federado.
+\textbf{Anais Estendidos do XLIII Simpósio Brasileiro de Redes de Computadores e Sistemas Distribuídos (SBRC 2025)}, Sociedade Brasileira de Computação - SBC, p. 212--221, 2025.}
 
 \bibitem[Orbinato et al. 2024]{laccolith2024}
 \abntrefinfo{Orbinato et al.}{Orbinato et al.}{2024}
-{ORBINATO, V. et al. Laccolith: Hypervisor-based adversary emulation with
-  anti-detection.
-\textbf{IEEE Transactions on Dependable and Secure Computing}, Institute of
-  Electrical and Electronics Engineers (IEEE), v.~21, n.~6, p. 5374--5387,
-  2024.}
+{ORBINATO, V. et al. Laccolith: Hypervisor-based adversary emulation with anti-detection.
+\textbf{IEEE Transactions on Dependable and Secure Computing}, Institute of Electrical and Electronics Engineers (IEEE), v.~21, n.~6, p. 5374--5387, 2024.}
 
 \bibitem[Phan, Nguyen \& Bauschert 2026]{deepstage2026}
 \abntrefinfo{Phan, Nguyen \& Bauschert}{Phan; Nguyen; Bauschert}{2026}
-{PHAN, T.~V.; NGUYEN, T.~G.; BAUSCHERT, T. {DeepStage}: Learning autonomous
-  defense policies against multi-stage {APT} campaigns.
+{PHAN, T.~V.; NGUYEN, T.~G.; BAUSCHERT, T. {DeepStage}: Learning autonomous defense policies against multi-stage {APT} campaigns.
 \textbf{arXiv preprint arXiv:2603.16969}, 2026.}
 
 \bibitem[Sainis, Srivastava \& Singh 2018]{feature2018}
 \abntrefinfo{Sainis, Srivastava \& Singh}{Sainis; Srivastava; Singh}{2018}
-{SAINIS, N.; SRIVASTAVA, D.; SINGH, R. Feature classification and outlier
-  detection to increased accuracy in intrusion detection system.
-\textbf{International Journal of Applied Engineering Research}, v.~13, n.~10,
-  p. 7249--7255, 2018.}
+{SAINIS, N.; SRIVASTAVA, D.; SINGH, R. Feature classification and outlier detection to increased accuracy in intrusion detection system.
+\textbf{International Journal of Applied Engineering Research}, v.~13, n.~10, p. 7249--7255, 2018.}
 
 \bibitem[Sarhan et al. 2021]{netflow2020}
 \abntrefinfo{Sarhan et al.}{Sarhan et al.}{2021}
-{SARHAN, M. et al. Netflow datasets for machine learning-based network
-  intrusion detection systems.
-\textbf{Lecture Notes of the Institute for Computer Sciences, Social
-  Informatics and Telecommunications Engineering}, Springer International
-  Publishing, p. 117--135, 2021.}
+{SARHAN, M. et al. Netflow datasets for machine learning-based network intrusion detection systems.
+\textbf{Lecture Notes of the Institute for Computer Sciences, Social Informatics and Telecommunications Engineering}, Springer International Publishing, p. 117--135, 2021.}
 
 \bibitem[Sarhan, Layeghy \& Portmann 2022]{standard2021}
 \abntrefinfo{Sarhan, Layeghy \& Portmann}{Sarhan; Layeghy; Portmann}{2022}
-{SARHAN, M.; LAYEGHY, S.; PORTMANN, M. Towards a standard feature set for
-  network intrusion detection system datasets.
-\textbf{Mobile Networks and Applications}, Springer Science and Business Media
-  LLC, v.~27, n.~1, p. 357--370, 2022.}
+{SARHAN, M.; LAYEGHY, S.; PORTMANN, M. Towards a standard feature set for network intrusion detection system datasets.
+\textbf{Mobile Networks and Applications}, Springer Science and Business Media LLC, v.~27, n.~1, p. 357--370, 2022.}
 
 \bibitem[Sasi et al. 2025]{sasi2025efficient}
 \abntrefinfo{Sasi et al.}{Sasi et al.}{2025}
-{SASI, T. et al. An efficient self attention-based {1D-CNN-LSTM} network for
-  {IoT} attack detection and identification using network traffic.
-\textbf{Journal of Information and Intelligence}, Elsevier, v.~3, n.~4, p.
-  375--400, 2025.}
+{SASI, T. et al. An efficient self attention-based {1D-CNN-LSTM} network for {IoT} attack detection and identification using network traffic.
+\textbf{Journal of Information and Intelligence}, Elsevier, v.~3, n.~4, p. 375--400, 2025.}
 
 \bibitem[Sharafaldin, Lashkari \& Ghorbani 2018]{Sharafaldin2018TowardGA}
-\abntrefinfo{Sharafaldin, Lashkari \& Ghorbani}{Sharafaldin; Lashkari;
-  Ghorbani}{2018}
-{SHARAFALDIN, I.; LASHKARI, A.~H.; GHORBANI, A.~A. Toward generating a new
-  intrusion detection dataset and intrusion traffic characterization. In:
-  \textbf{International Conference on Information Systems Security and
-  Privacy}. [s.n.], 2018. Dispon{\'\i}vel em:
-  \url{https://api.semanticscholar.org/CorpusID:4707749}.}
+\abntrefinfo{Sharafaldin, Lashkari \& Ghorbani}{Sharafaldin; Lashkari; Ghorbani}{2018}
+{SHARAFALDIN, I.; LASHKARI, A.~H.; GHORBANI, A.~A. Toward generating a new intrusion detection dataset and intrusion traffic characterization. In:  \textbf{International Conference on Information Systems Security and Privacy}. [s.n.], 2018. Dispon{\'\i}vel em: \url{https://api.semanticscholar.org/CorpusID:4707749}.}
 
 \bibitem[Sharif 2022]{webattacks2024b}
 \abntrefinfo{Sharif}{Sharif}{2022}
 {SHARIF, M. H.~U. Web attacks analysis and mitigation techniques.
-\textbf{International Journal of Engineering Research \& Technology (IJERT)},
-  v.~11, n.~02, 2022.}
+\textbf{International Journal of Engineering Research \& Technology (IJERT)}, v.~11, n.~02, 2022.}
 
 \bibitem[Shazeer et al. 2017]{shazeer2017outrageously}
 \abntrefinfo{Shazeer et al.}{Shazeer et al.}{2017}
-{SHAZEER, N. et al. Outrageously large neural networks: The sparsely-gated
-  mixture-of-experts layer. In:  \textbf{International Conference on Learning
-  Representations (ICLR)}. [S.l.: s.n.], 2017. p. 1--19.}
+{SHAZEER, N. et al. Outrageously large neural networks: The sparsely-gated mixture-of-experts layer. In:  \textbf{International Conference on Learning Representations (ICLR)}. [S.l.: s.n.], 2017. p. 1--19.}
 
 \bibitem[Silva 2025]{hsae2025}
 \abntrefinfo{Silva}{Silva}{2025}
 {SILVA, F. C.~d.
-\textbf{HSAE: Um Autoencoder Híbrido Não Supervisionado para Detecção de
-  Ataques Zero-Day e sua Extensão Ensemble}.
-2025. Disserta\c{c}\~{a}o (Dissertação de Mestrado) --- Universidade Federal
-  de Pernambuco, 2025.}
+\textbf{HSAE: Um Autoencoder Híbrido Não Supervisionado para Detecção de Ataques Zero-Day e sua Extensão Ensemble}.
+2025. Disserta\c{c}\~{a}o (Dissertação de Mestrado) --- Universidade Federal de Pernambuco, 2025.}
 
 \bibitem[Souza 2023]{fogids2024}
 \abntrefinfo{Souza}{Souza}{2023}
 {SOUZA, C. A.~d.
-\textbf{Detecção e prevenção de intrusão em computação de nevoeiro e
-  Internet das Coisas}.
-2023. Tese (Tese de Doutorado) --- Universidade Federal de Santa Catarina,
-  2023.}
+\textbf{Detecção e prevenção de intrusão em computação de nevoeiro e Internet das Coisas}.
+2023. Tese (Tese de Doutorado) --- Universidade Federal de Santa Catarina, 2023.}
 
 \bibitem[Wang, Houng \& Lin 2023]{wang2023deep}
 \abntrefinfo{Wang, Houng \& Lin}{Wang; Houng; Lin}{2023}
-{WANG, Y.-C.; HOUNG, Y.-C.; LIN, H.-X. Network anomaly intrusion detection
-  based on deep learning approach.
+{WANG, Y.-C.; HOUNG, Y.-C.; LIN, H.-X. Network anomaly intrusion detection based on deep learning approach.
 \textbf{Sensors}, MDPI, v.~23, n.~4, p.~2171, 2023.}
 
 \bibitem[Yang et al. 2025]{moevd2025}
 \abntrefinfo{Yang et al.}{Yang et al.}{2025}
-{YANG, X. et al. One-for-all does not work! enhancing vulnerability detection
-  by mixture-of-experts (moe). In:  \textbf{Proceedings of the ACM on Software
-  Engineering}. [S.l.]: Association for Computing Machinery (ACM), 2025. v.~2,
-  n.~FSE, p. 446--464.}
+{YANG, X. et al. One-for-all does not work! enhancing vulnerability detection by mixture-of-experts (moe). In:  \textbf{Proceedings of the ACM on Software Engineering}. [S.l.]: Association for Computing Machinery (ACM), 2025. v.~2, n.~FSE, p. 446--464.}
 
 \bibitem[Čenys, Hora \& Goranin 2025]{emuiot2025}
 \abntrefinfo{Čenys, Hora \& Goranin}{Čenys; Hora; Goranin}{2025}
-{ČENYS, A.; HORA, S.~K.; GORANIN, N. Emulation-based dataset {EmuIoT-VT} for
-  {NIDS} in {IoT} systems.
+{ČENYS, A.; HORA, S.~K.; GORANIN, N. Emulation-based dataset {EmuIoT-VT} for {NIDS} in {IoT} systems.
 \textbf{Sensors}, MDPI AG, v.~25, n.~16, p.~5077, 2025.}
 
 \end{thebibliography}

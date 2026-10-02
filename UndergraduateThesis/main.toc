@@ -89,39 +89,38 @@
 \contentsline {subsubsection}{\numberline {4.1.1.6}Ciclo de Vida dos Fluxos e Temporizadores de Rede}{66}{subsubsection.4.1.1.6}%
 \contentsline {subsection}{\numberline {4.1.2}Mapeamento e Alinhamento de Features (NFStream $\to $ CICFlowMeter)}{67}{subsection.4.1.2}%
 \contentsline {subsubsection}{\numberline {4.1.2.1}Correspondência Semântica e Estrutural das Variáveis}{67}{subsubsection.4.1.2.1}%
-\contentsline {subsubsection}{\numberline {4.1.2.2}Aproximações Operacionais e Nuances de Cálculo}{70}{subsubsection.4.1.2.2}%
-\contentsline {section}{\numberline {4.2}Setup de Inferência em Tempo Real}{71}{section.4.2}%
-\contentsline {subsection}{\numberline {4.2.1}Arquitetura do Ambiente de Execução}{71}{subsection.4.2.1}%
-\contentsline {subsubsection}{\numberline {4.2.1.1}Especificações do Hardware e Ambiente Operacional}{71}{subsubsection.4.2.1.1}%
-\contentsline {subsubsection}{\numberline {4.2.1.2}Mecanismo de Defesa Ativa (ActiveDefenseAgent)}{72}{subsubsection.4.2.1.2}%
-\contentsline {paragraph}{\numberline {4.2.1.2.1}Integração de Baixo Nível com o Firewall nftables}{72}{paragraph.4.2.1.2.1}%
-\contentsline {paragraph}{\numberline {4.2.1.2.2}Algoritmo de Resolução Direcional de Alvo (\texttt {select\_target})}{73}{paragraph.4.2.1.2.2}%
-\contentsline {paragraph}{\numberline {4.2.1.2.3}Salvaguarda Anti-Auto-Bloqueio e Lista Branca (Whitelist)}{74}{paragraph.4.2.1.2.3}%
-\contentsline {paragraph}{\numberline {4.2.1.2.4}Responder TCP Ativo (\texttt {\_ActiveTCPResponder})}{74}{paragraph.4.2.1.2.4}%
-\contentsline {paragraph}{\numberline {4.2.1.2.5}Subsistema de Auditoria Forense e SIEM (\texttt {InferenceAuditor})}{75}{paragraph.4.2.1.2.5}%
-\contentsline {subsection}{\numberline {4.2.2}Síntese Operacional do Pipeline de Inferência e Contenção Ativa}{75}{subsection.4.2.2}%
+\contentsline {subsubsection}{\numberline {4.1.2.2}Aproximações Operacionais e Nuances de Cálculo}{69}{subsubsection.4.1.2.2}%
+\contentsline {section}{\numberline {4.2}Setup de Inferência}{70}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Arquitetura do Ambiente de Execução}{70}{subsection.4.2.1}%
+\contentsline {subsubsection}{\numberline {4.2.1.1}Especificações do Hardware e Ambiente Operacional}{70}{subsubsection.4.2.1.1}%
+\contentsline {subsubsection}{\numberline {4.2.1.2}Mecanismo de Defesa Ativa}{71}{subsubsection.4.2.1.2}%
+\contentsline {paragraph}{\numberline {4.2.1.2.1}Integração de Baixo Nível com o Firewall nftables}{71}{paragraph.4.2.1.2.1}%
+\contentsline {paragraph}{\numberline {4.2.1.2.2}Algoritmo de Resolução Direcional de Alvo (\texttt {select\_target})}{72}{paragraph.4.2.1.2.2}%
+\contentsline {paragraph}{\numberline {4.2.1.2.3}Salvaguarda Anti-Auto-Bloqueio e Whitelist}{73}{paragraph.4.2.1.2.3}%
+\contentsline {paragraph}{\numberline {4.2.1.2.4}Subsistema de Auditoria Forense e SIEM (\texttt {InferenceAuditor})}{73}{paragraph.4.2.1.2.4}%
+\contentsline {subsection}{\numberline {4.2.2}Síntese Operacional do Pipeline de Inferência e Contenção Ativa}{74}{subsection.4.2.2}%
 \setlength {\cftchapterindent }{0em} \setlength {\cftchapternumwidth }{\cftlastnumwidth }
-\contentsline {chapter}{\chapternumberline {5}\MakeTextUppercase []{Resultados e Discussão}}{77}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Desempenho nos Datasets de Benchmark (Resultados Offline)}{77}{section.5.1}%
-\contentsline {subsection}{\numberline {5.1.1}Análise por Classe e Desempenho Global}{77}{subsection.5.1.1}%
-\contentsline {subsubsection}{\numberline {5.1.1.1}Eixo 1: Impacto da Granularidade de Ameaças (Nível 0 vs. Nível 2)}{77}{subsubsection.5.1.1.1}%
-\contentsline {subsubsection}{\numberline {5.1.1.2}Eixo 2: Impacto da Sanitização de Rótulos de Liu et al. (2022) no CSE-CIC-IDS2018}{78}{subsubsection.5.1.1.2}%
-\contentsline {subsubsection}{\numberline {5.1.1.3}Eixo 3: Generalização em Tráfego de Alta Densidade (CIC-UNSW-NB15)}{78}{subsubsection.5.1.1.3}%
-\contentsline {subsubsection}{\numberline {5.1.1.4}Matrizes de Confusão Normalizadas}{78}{subsubsection.5.1.1.4}%
-\contentsline {subsection}{\numberline {5.1.2}Análise Comparativa dos Especialistas e do Bloco ALF}{80}{subsection.5.1.2}%
-\contentsline {subsubsection}{\numberline {5.1.2.1}Gráficos Radar de Especialistas}{81}{subsubsection.5.1.2.1}%
-\contentsline {section}{\numberline {5.2}Avaliação da Extração e Inferência em Tráfego Real/PCAPs}{81}{section.5.2}%
-\contentsline {subsection}{\numberline {5.2.1}Impacto do Mapeamento NFStream $\to $ CICFlowMeter}{82}{subsection.5.2.1}%
-\contentsline {subsection}{\numberline {5.2.2}Throughput, Latência e Consumo Computacional}{83}{subsection.5.2.2}%
-\contentsline {subsubsection}{\numberline {5.2.2.1}Métricas Quantitativas de Inferência Neural}{84}{subsubsection.5.2.2.1}%
-\contentsline {subsubsection}{\numberline {5.2.2.2}O Gargalo Estrutural da Latência Ponta a Ponta (End-to-End Latency)}{85}{subsubsection.5.2.2.2}%
-\contentsline {subsection}{\numberline {5.2.3}Avaliação de Falsos Positivos em Tráfego Operacional e Calibração de Salvaguardas}{86}{subsection.5.2.3}%
-\contentsline {subsubsection}{\numberline {5.2.3.1}Diagnóstico de Falsos Positivos Iniciais e Calibração}{86}{subsubsection.5.2.3.1}%
+\contentsline {chapter}{\chapternumberline {5}\MakeTextUppercase []{Resultados e Discussão}}{75}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Desempenho nos Datasets de Benchmark (Resultados Offline)}{75}{section.5.1}%
+\contentsline {subsection}{\numberline {5.1.1}Análise por Classe e Desempenho Global}{75}{subsection.5.1.1}%
+\contentsline {subsubsection}{\numberline {5.1.1.1}Eixo 1: Impacto da Granularidade de Ameaças (Nível 0 vs. Nível 2)}{75}{subsubsection.5.1.1.1}%
+\contentsline {subsubsection}{\numberline {5.1.1.2}Eixo 2: Impacto da Sanitização de Rótulos de Liu et al. (2022) no CSE-CIC-IDS2018}{76}{subsubsection.5.1.1.2}%
+\contentsline {subsubsection}{\numberline {5.1.1.3}Eixo 3: Generalização em Tráfego de Alta Densidade (CIC-UNSW-NB15)}{76}{subsubsection.5.1.1.3}%
+\contentsline {subsubsection}{\numberline {5.1.1.4}Matrizes de Confusão Normalizadas}{76}{subsubsection.5.1.1.4}%
+\contentsline {subsection}{\numberline {5.1.2}Análise Comparativa dos Especialistas e do Bloco ALF}{78}{subsection.5.1.2}%
+\contentsline {subsubsection}{\numberline {5.1.2.1}Gráficos Radar de Especialistas}{79}{subsubsection.5.1.2.1}%
+\contentsline {section}{\numberline {5.2}Avaliação da Extração e Inferência em Tráfego Real/PCAPs}{79}{section.5.2}%
+\contentsline {subsection}{\numberline {5.2.1}Impacto do Mapeamento NFStream $\to $ CICFlowMeter}{80}{subsection.5.2.1}%
+\contentsline {subsection}{\numberline {5.2.2}Throughput, Latência e Consumo Computacional}{81}{subsection.5.2.2}%
+\contentsline {subsubsection}{\numberline {5.2.2.1}Métricas Quantitativas de Inferência Neural}{82}{subsubsection.5.2.2.1}%
+\contentsline {subsubsection}{\numberline {5.2.2.2}O Gargalo Estrutural da Latência Ponta a Ponta (End-to-End Latency)}{83}{subsubsection.5.2.2.2}%
+\contentsline {subsection}{\numberline {5.2.3}Avaliação de Falsos Positivos em Tráfego Operacional e Calibração de Salvaguardas}{84}{subsection.5.2.3}%
+\contentsline {subsubsection}{\numberline {5.2.3.1}Diagnóstico de Falsos Positivos Iniciais e Calibração}{84}{subsubsection.5.2.3.1}%
 \setlength {\cftchapterindent }{0em} \setlength {\cftchapternumwidth }{\cftlastnumwidth }
-\contentsline {chapter}{\chapternumberline {6}\MakeTextUppercase []{Conclusão}}{87}{chapter.6}%
-\contentsline {section}{\numberline {6.1}Síntese do Trabalho}{87}{section.6.1}%
-\contentsline {section}{\numberline {6.2}Limitações Identificadas}{88}{section.6.2}%
-\contentsline {section}{\numberline {6.3}Trabalhos Futuros}{88}{section.6.3}%
+\contentsline {chapter}{\chapternumberline {6}\MakeTextUppercase []{Conclusão}}{85}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Síntese do Trabalho}{85}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Limitações Identificadas}{86}{section.6.2}%
+\contentsline {section}{\numberline {6.3}Trabalhos Futuros}{86}{section.6.3}%
 \vspace {\cftbeforechapterskip }
 \setlength {\cftchapterindent }{\cftlastnumwidth } \setlength {\cftchapternumwidth }{2em}
-\contentsline {chapter}{\MakeTextUppercase []{Refer\^encias}}{90}{section*.34}%
+\contentsline {chapter}{\MakeTextUppercase []{Refer\^encias}}{88}{section*.34}%

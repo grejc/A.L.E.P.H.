@@ -5,8 +5,8 @@
 \contentsline {table}{\numberline {4}{\ignorespaces Distribuição de classes e suporte amostral no benchmark CIC-UNSW-NB15.}}{53}{table.caption.22}%
 \contentsline {table}{\numberline {5}{\ignorespaces Mapeamento funcional entre domínios de telemetria, subvetores de entrada e especialistas neurais.}}{56}{table.caption.23}%
 \contentsline {table}{\numberline {6}{\ignorespaces Mapeamento posicional da máscara binária de sinalizadores TCP.}}{65}{table.caption.24}%
-\contentsline {table}{\numberline {7}{\ignorespaces Mapeamento estruturado das 76 características do fluxo de rede: padrão CICFlowMeter versus implementação NFStream.}}{68}{table.7}%
-\contentsline {table}{\numberline {8}{\ignorespaces Desempenho global consolidado do modelo ALF-MoE nos 7 cenários de benchmark.}}{77}{table.caption.25}%
-\contentsline {table}{\numberline {9}{\ignorespaces Estudo de ablação: Macro $F_1$-Score e Acurácia dos especialistas individuais vs. ALF-MoE.}}{81}{table.caption.27}%
-\contentsline {table}{\numberline {10}{\ignorespaces Comparativo metodológico e estatístico entre o extrator offline (CICFlowMeter) e o extrator em tempo real (NFStream + Plugin ALF).}}{84}{table.caption.29}%
-\contentsline {table}{\numberline {11}{\ignorespaces Decomposição temporal e perfil de latência do pipeline de inferência em tempo real (GPU NVIDIA GeForce RTX 4050 6GB Laptop).}}{85}{table.caption.30}%
+\contentsline {table}{\numberline {7}{\ignorespaces Mapeamento estruturado das 76 características do fluxo de rede: padrão CICFlowMeter versus implementação NFStream.}}{67}{table.7}%
+\contentsline {table}{\numberline {8}{\ignorespaces Desempenho global consolidado do modelo ALF-MoE nos 7 cenários de benchmark.}}{75}{table.caption.25}%
+\contentsline {table}{\numberline {9}{\ignorespaces Estudo de ablação: Macro $F_1$-Score e Acurácia dos especialistas individuais vs. ALF-MoE.}}{79}{table.caption.27}%
+\contentsline {table}{\numberline {10}{\ignorespaces Comparativo metodológico e estatístico entre o extrator offline (CICFlowMeter) e o extrator em tempo real (NFStream + Plugin ALF).}}{82}{table.caption.29}%
+\contentsline {table}{\numberline {11}{\ignorespaces Decomposição temporal e perfil de latência do pipeline de inferência em tempo real (GPU NVIDIA GeForce RTX 4050 6GB Laptop).}}{83}{table.caption.30}%
