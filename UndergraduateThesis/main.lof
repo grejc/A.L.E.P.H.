@@ -1,4 +1,8 @@
 \babel@toc {brazil}{}\relax 
-\contentsline {quadro}{\numberline {Quadro~1}{\ignorespaces Síntese comparativa dos conjuntos de dados selecionados para treinamento e avaliação.}}{49}{quadro.caption.19}%
-\contentsline {figure}{\numberline {Figura~1}{\ignorespaces Painel comparativo de matrizes de confusão normalizadas nos quatro cenários de avaliação.}}{77}{figure.caption.26}%
-\contentsline {figure}{\numberline {Figura~2}{\ignorespaces Gráficos radar comparativos de desempenho por classe: Especialistas individuais vs. ALF-MoE.}}{80}{figure.caption.28}%
+\contentsline {quadro}{\numberline {Quadro~1}{\ignorespaces Síntese comparativa dos conjuntos de dados selecionados para treinamento e avaliação.}}{48}{quadro.caption.19}%
+\contentsline {figure}{\numberline {Figura~1}{\ignorespaces Diagramas das topologias neurais dos modelos especialistas heterogêneos.}}{58}{figure.caption.24}%
+\contentsline {figure}{\numberline {Figura~2}{\ignorespaces Topologia interna da Gating Network com refinamento atencional e compressão simétrica.}}{59}{figure.caption.25}%
+\contentsline {figure}{\numberline {Figura~3}{\ignorespaces Topologia interna do módulo de fusão ALF (\emph {Attention-based Learnable Fusion}).}}{59}{figure.caption.26}%
+\contentsline {figure}{\numberline {Figura~4}{\ignorespaces Visão arquitetural integrada do modelo ALF-MoE, evidenciando o fluxo de tensores entre especialistas, Gating Network e fusão ALF.}}{60}{figure.caption.27}%
+\contentsline {figure}{\numberline {Figura~5}{\ignorespaces Painel comparativo de matrizes de confusão normalizadas nos quatro cenários de avaliação.}}{79}{figure.caption.30}%
+\contentsline {figure}{\numberline {Figura~6}{\ignorespaces Gráficos radar comparativos de desempenho por classe: Especialistas individuais vs. ALF-MoE.}}{82}{figure.caption.32}%

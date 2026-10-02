@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025/Debian) (preloaded format=pdflatex 2026.6.19)  2 OCT 2026 07:09
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025/Debian) (preloaded format=pdflatex 2026.6.19)  2 OCT 2026 14:24
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1120,56 +1120,55 @@ Cap\'{\i }tulo 3.
 
 ]
 Package hyperref Info: bookmark level for unknown quadro defaults to 0 on input line 37.
-
-Overfull \hbox (8.42043pt too wide) in paragraph at lines 47--47
-[]|\T1/ptm/b/n/10.95 (-20) Ambiente 
- []
-
-
-Overfull \hbox (16.16817pt too wide) in paragraph at lines 47--47
-[]|\T1/ptm/b/n/10.95 (-20) Mecanismo 
- []
-
-
-Overfull \hbox (2.68285pt too wide) in paragraph at lines 47--47
-\T1/ptm/m/n/10.95 (-20) (ataques)|  
- []
-
-
-Overfull \hbox (29.87111pt too wide) in paragraph at lines 47--47
-[]|\T1/ptm/m/n/10.95 (-20) Reclassificação 
- []
-
-
-Overfull \hbox (3.6221pt too wide) in paragraph at lines 47--47
-\T1/ptm/m/n/10.95 (-20) fechadas/ 
- []
-
-
-Overfull \hbox (4.29924pt too wide) in paragraph at lines 47--47
-\T1/ptm/m/n/10.95 (-20) tentativas|  
- []
-
-
-Overfull \hbox (18.55042pt too wide) in paragraph at lines 47--47
-[]|\T1/ptm/m/n/10.95 (-20) Laboratórios 
- []
-
-
-Overfull \hbox (6.89001pt too wide) in paragraph at lines 47--47
-\T1/ptm/m/n/10.95 (-20) IoT/IoMT 
- []
-
-
-Overfull \hbox (12.71353pt too wide) in paragraph at lines 47--47
-[]|\T1/ptm/m/n/10.95 (-20) Dispositivo 
- []
-
-[48] [49] [50] [51] [52] [53] [54] [55] [56] [57] [58] [59]) [60]
+ [48] [49] [50] [51] [52] [53] [54] [55] [56]
+<figures/architecture/DNN.png, id=1131, 451.6875pt x 200.75pt>
+File: figures/architecture/DNN.png Graphic file (type png)
+<use figures/architecture/DNN.png>
+Package pdftex.def Info: figures/architecture/DNN.png  used on input line 332.
+(pdftex.def)             Requested size: 191.20169pt x 84.97913pt.
+<figures/architecture/CNN.png, id=1133, 621.32124pt x 200.75pt>
+File: figures/architecture/CNN.png Graphic file (type png)
+<use figures/architecture/CNN.png>
+Package pdftex.def Info: figures/architecture/CNN.png  used on input line 339.
+(pdftex.def)             Requested size: 245.82875pt x 79.42555pt.
+<figures/architecture/GRU.png, id=1134, 404.51125pt x 200.75pt>
+File: figures/architecture/GRU.png Graphic file (type png)
+<use figures/architecture/GRU.png>
+Package pdftex.def Info: figures/architecture/GRU.png  used on input line 348.
+(pdftex.def)             Requested size: 195.75163pt x 97.1492pt.
+<figures/architecture/CAE.png, id=1135, 501.875pt x 200.75pt>
+File: figures/architecture/CAE.png Graphic file (type png)
+<use figures/architecture/CAE.png>
+Package pdftex.def Info: figures/architecture/CAE.png  used on input line 355.
+(pdftex.def)             Requested size: 241.27881pt x 96.51205pt.
+<figures/architecture/LSTM.png, id=1136, 421.575pt x 200.75pt>
+File: figures/architecture/LSTM.png Graphic file (type png)
+<use figures/architecture/LSTM.png>
+Package pdftex.def Info: figures/architecture/LSTM.png  used on input line 364.
+(pdftex.def)             Requested size: 204.85846pt x 97.55354pt.
+ [57]
+<figures/architecture/GATING_NETWORK.png, id=1149, 493.845pt x 200.75pt>
+File: figures/architecture/GATING_NETWORK.png Graphic file (type png)
+<use figures/architecture/GATING_NETWORK.png>
+Package pdftex.def Info: figures/architecture/GATING_NETWORK.png  used on input line 404.
+(pdftex.def)             Requested size: 341.43307pt x 138.79332pt.
+ [58 <./figures/architecture/DNN.png> <./figures/architecture/CNN.png> <./figures/architecture/GRU.png> <./figures/architecture/CAE.png> <./figures/architecture/LSTM.png>]
+<figures/architecture/ALF.png, id=1163, 501.875pt x 200.75pt>
+File: figures/architecture/ALF.png Graphic file (type png)
+<use figures/architecture/ALF.png>
+Package pdftex.def Info: figures/architecture/ALF.png  used on input line 439.
+(pdftex.def)             Requested size: 341.43307pt x 136.57863pt.
+ [59 <./figures/architecture/GATING_NETWORK.png> <./figures/architecture/ALF.png>]
+<figures/architecture/ALF-MoE.png, id=1179, 481.8pt x 316.18124pt>
+File: figures/architecture/ALF-MoE.png Graphic file (type png)
+<use figures/architecture/ALF-MoE.png>
+Package pdftex.def Info: figures/architecture/ALF-MoE.png  used on input line 449.
+(pdftex.def)             Requested size: 341.43307pt x 224.07051pt.
+ [60 <./figures/architecture/ALF-MoE.png>] [61]) [62]
 Cap\'{\i }tulo 4.
-(./chapters/04_pipeline_inferencia.tex [61
+(./chapters/04_pipeline_inferencia.tex [63
 
-] [62] [63]
+] [64] [65]
 Underfull \hbox (badness 2790) in paragraph at lines 105--105
 []|\T1/ptm/b/n/10.95 (+20) Semântica no Pro-to-colo
  []
@@ -1204,92 +1203,63 @@ Underfull \hbox (badness 1418) in paragraph at lines 105--105
 \T1/ptm/m/n/10.95 (+20) reini-cial-iza-ção forçada da
  []
 
-[64] [65] [66]
-Overfull \hbox (22.68874pt too wide) in paragraph at lines 263--263
-[]|\T1/pcr/m/n/10 bidirectional_first_seen_ms|  
- []
-
-
-Overfull \hbox (10.68874pt too wide) in paragraph at lines 263--263
-[]|\T1/pcr/m/n/10 bidirectional_duration_ms 
- []
-
-
-Overfull \hbox (58.68874pt too wide) in paragraph at lines 263--263
-[]|\T1/pcr/m/n/10 bidirectional_mean/stddev_piat_ms 
- []
-
-
-Overfull \hbox (34.68874pt too wide) in paragraph at lines 263--263
-[]|\T1/pcr/m/n/10 bidirectional_max/min_piat_ms 
- []
-
-
-Overfull \hbox (22.68874pt too wide) in paragraph at lines 263--263
-[]|\T1/pcr/m/n/10 src2dst_mean/stddev_piat_ms 
- []
-
-
-Overfull \hbox (22.68874pt too wide) in paragraph at lines 263--263
-[]|\T1/pcr/m/n/10 dst2src_mean/stddev_piat_ms 
- []
-
-./chapters/04_pipeline_inferencia.tex:263: ignored error: Infinite glue shrinkage found in box being split [67]
-./chapters/04_pipeline_inferencia.tex:263: ignored error: Infinite glue shrinkage found in box being split [68] [69] [70] [71] [72] [73]) [74]
+[66] [67] [68]
+./chapters/04_pipeline_inferencia.tex:281: ignored error: Infinite glue shrinkage found in box being split [69]
+./chapters/04_pipeline_inferencia.tex:281: ignored error: Infinite glue shrinkage found in box being split [70] [71] [72] [73] [74] [75]) [76]
 Cap\'{\i }tulo 5.
-(./chapters/05_resultados.tex [75
+(./chapters/05_resultados.tex [77
 
 ]
-<figures/benchmarks/cm_norm_cse2018_l2.png, id=1285, 518.4168pt x 452.1693pt>
+<figures/benchmarks/cm_norm_cse2018_l2.png, id=1331, 518.4168pt x 452.1693pt>
 File: figures/benchmarks/cm_norm_cse2018_l2.png Graphic file (type png)
 <use figures/benchmarks/cm_norm_cse2018_l2.png>
 Package pdftex.def Info: figures/benchmarks/cm_norm_cse2018_l2.png  used on input line 69.
 (pdftex.def)             Requested size: 218.51521pt x 190.59285pt.
-<figures/benchmarks/cm_norm_cse2018_imp_l2.png, id=1287, 691.6239pt x 575.751pt>
+<figures/benchmarks/cm_norm_cse2018_imp_l2.png, id=1332, 691.6239pt x 575.751pt>
 File: figures/benchmarks/cm_norm_cse2018_imp_l2.png Graphic file (type png)
 <use figures/benchmarks/cm_norm_cse2018_imp_l2.png>
 Package pdftex.def Info: figures/benchmarks/cm_norm_cse2018_imp_l2.png  used on input line 76.
 (pdftex.def)             Requested size: 218.51521pt x 181.90721pt.
-<figures/benchmarks/cm_norm_bccc2024_l2.png, id=1288, 668.9793pt x 582.7371pt>
+<figures/benchmarks/cm_norm_bccc2024_l2.png, id=1333, 668.9793pt x 582.7371pt>
 File: figures/benchmarks/cm_norm_bccc2024_l2.png Graphic file (type png)
 <use figures/benchmarks/cm_norm_bccc2024_l2.png>
 Package pdftex.def Info: figures/benchmarks/cm_norm_bccc2024_l2.png  used on input line 85.
 (pdftex.def)             Requested size: 218.51521pt x 190.33875pt.
-<figures/benchmarks/cm_norm_unsw_l0.png, id=1289, 741.972pt x 648.5028pt>
+<figures/benchmarks/cm_norm_unsw_l0.png, id=1334, 741.972pt x 648.5028pt>
 File: figures/benchmarks/cm_norm_unsw_l0.png Graphic file (type png)
 <use figures/benchmarks/cm_norm_unsw_l0.png>
 Package pdftex.def Info: figures/benchmarks/cm_norm_unsw_l0.png  used on input line 92.
 (pdftex.def)             Requested size: 218.51521pt x 190.98012pt.
- [76] [77 <./figures/benchmarks/cm_norm_cse2018_l2.png> <./figures/benchmarks/cm_norm_cse2018_imp_l2.png> <./figures/benchmarks/cm_norm_bccc2024_l2.png> <./figures/benchmarks/cm_norm_unsw_l0.png>] [78]
-<figures/benchmarks/radar_cse2018_l2.png, id=1324, 566.5968pt x 494.5677pt>
+ [78] [79 <./figures/benchmarks/cm_norm_cse2018_l2.png> <./figures/benchmarks/cm_norm_cse2018_imp_l2.png> <./figures/benchmarks/cm_norm_bccc2024_l2.png> <./figures/benchmarks/cm_norm_unsw_l0.png>] [80]
+<figures/benchmarks/radar_cse2018_l2.png, id=1368, 566.5968pt x 494.5677pt>
 File: figures/benchmarks/radar_cse2018_l2.png Graphic file (type png)
 <use figures/benchmarks/radar_cse2018_l2.png>
 Package pdftex.def Info: figures/benchmarks/radar_cse2018_l2.png  used on input line 188.
 (pdftex.def)             Requested size: 218.51521pt x 190.72987pt.
-<figures/benchmarks/radar_cse2018_imp_l2.png, id=1325, 562.5015pt x 479.391pt>
+<figures/benchmarks/radar_cse2018_imp_l2.png, id=1369, 562.5015pt x 479.391pt>
 File: figures/benchmarks/radar_cse2018_imp_l2.png Graphic file (type png)
 <use figures/benchmarks/radar_cse2018_imp_l2.png>
 Package pdftex.def Info: figures/benchmarks/radar_cse2018_imp_l2.png  used on input line 195.
 (pdftex.def)             Requested size: 218.51521pt x 186.22293pt.
-<figures/benchmarks/radar_bccc2024_l2.png, id=1326, 561.5379pt x 483.0045pt>
+<figures/benchmarks/radar_bccc2024_l2.png, id=1370, 561.5379pt x 483.0045pt>
 File: figures/benchmarks/radar_bccc2024_l2.png Graphic file (type png)
 <use figures/benchmarks/radar_bccc2024_l2.png>
 Package pdftex.def Info: figures/benchmarks/radar_bccc2024_l2.png  used on input line 204.
 (pdftex.def)             Requested size: 218.51521pt x 187.9509pt.
-<figures/benchmarks/radar_unsw_l0.png, id=1327, 564.1878pt x 503.9628pt>
+<figures/benchmarks/radar_unsw_l0.png, id=1371, 564.1878pt x 503.9628pt>
 File: figures/benchmarks/radar_unsw_l0.png Graphic file (type png)
 <use figures/benchmarks/radar_unsw_l0.png>
 Package pdftex.def Info: figures/benchmarks/radar_unsw_l0.png  used on input line 211.
 (pdftex.def)             Requested size: 218.51521pt x 195.19128pt.
- [79] [80 <./figures/benchmarks/radar_cse2018_l2.png> <./figures/benchmarks/radar_cse2018_imp_l2.png> <./figures/benchmarks/radar_bccc2024_l2.png> <./figures/benchmarks/radar_unsw_l0.png>] [81] [82] [83]) [84]
+ [81] [82 <./figures/benchmarks/radar_cse2018_l2.png> <./figures/benchmarks/radar_cse2018_imp_l2.png> <./figures/benchmarks/radar_bccc2024_l2.png> <./figures/benchmarks/radar_unsw_l0.png>] [83] [84] [85]) [86]
 Cap\'{\i }tulo 6.
-(./chapters/06_conclusao.tex [85
+(./chapters/06_conclusao.tex [87
 
-] [86]) (./main.bbl [87]
+] [88]) (./main.bbl [89]
 bibitemlist
-[88
+[90
 
-]) [89] [90]
+]) [91] [92]
 \tf@lof=\write4
 \openout4 = `main.lof'.
 
@@ -1306,18 +1276,18 @@ L3 programming layer <2020/03/25>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 26057 strings out of 469514
- 421460 string characters out of 5470072
- 1077537 words of memory out of 5000000
- 52837 multiletter control sequences out of 15000+600000
- 744994 words of font info for 777 fonts, out of 8000000 for 9000
+ 26133 strings out of 469514
+ 423893 string characters out of 5470072
+ 1066437 words of memory out of 5000000
+ 52907 multiletter control sequences out of 15000+600000
+ 745092 words of font info for 777 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  99i,13n,107p,1568b,818s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/courier/ucrb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/courier/ucrro8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on main.pdf (92 pages, 3701820 bytes).
+Output written on main.pdf (94 pages, 3797047 bytes).
 PDF statistics:
- 2001 PDF objects out of 2073 (max. 8388607)
- 1761 compressed objects within 18 object streams
- 465 named destinations out of 1000 (max. 500000)
- 87521 words of extra memory for PDF output out of 89155 (max. 10000000)
+ 2047 PDF objects out of 2073 (max. 8388607)
+ 1789 compressed objects within 18 object streams
+ 471 named destinations out of 1000 (max. 500000)
+ 87561 words of extra memory for PDF output out of 89155 (max. 10000000)
 

@@ -173,92 +173,110 @@ As características que compõem o vetor de fluxo dividem-se em duas categorias 
 
 A Tabela~\ref{tab:mapeamento_features_completo} apresenta o catálogo estruturado agrupando os 76 atributos em 7 categorias funcionais, discriminando a correspondência exata entre a nomenclatura CICFlowMeter, o atributo correspondente no NFStream/Plugin, a unidade de mensuração padronizada e a forma de obtenção.
 
-%! TODO: Corrigir espaçamento da tabela
-
+\enlargethispage{1.5\baselineskip}
 \footnotesize
-\begin{xltabular}{\textwidth}{>{\raggedright\arraybackslash}p{1.5cm} >{\raggedright\arraybackslash}p{3.8cm} >{\raggedright\arraybackslash\sloppy}X c c}
+\begin{xltabular}{\textwidth}{>{\raggedright\arraybackslash}p{4.2cm} >{\raggedright\arraybackslash}X c c}
 \caption{Mapeamento estruturado das 76 características do fluxo de rede: padrão CICFlowMeter versus implementação NFStream.} \label{tab:mapeamento_features_completo} \\
 \hline
-\textbf{Categoria} & \textbf{Atributo CICFlowMeter} & \textbf{Atributo NFStream / Plugin UDPS} & \textbf{Unidade} & \textbf{Origem} \\
+\textbf{Atributo CICFlowMeter} & \textbf{Atributo NFStream / Plugin UDPS} & \textbf{Unidade} & \textbf{Origem} \\
 \hline
 \endfirsthead
 
-\multicolumn{5}{c}%
+\multicolumn{4}{c}%
 {{\footnotesize\tablename\ \thetable{} -- Continuação da página anterior}} \\
 \hline
-\textbf{Categoria} & \textbf{Atributo CICFlowMeter} & \textbf{Atributo NFStream / Plugin UDPS} & \textbf{Unidade} & \textbf{Origem} \\
+\textbf{Atributo CICFlowMeter} & \textbf{Atributo NFStream / Plugin UDPS} & \textbf{Unidade} & \textbf{Origem} \\
 \hline
 \endhead
 
 \hline
-\multicolumn{5}{r}{\footnotesize\textit{Continua na próxima página}} \\
+\multicolumn{4}{r}{\footnotesize\textit{Continua na próxima página}} \\
 \endfoot
 
 \hline
 \endlastfoot
 
-\multicolumn{5}{l}{\textbf{1. Identificação e Duração}} \\
-& Flow ID & \texttt{id} & --- & Nativo \\
-& Src IP & \texttt{src\_ip} & IPv4/v6 & Nativo \\
-& Src Port & \texttt{src\_port} & Porta L4 & Nativo \\
-& Dst IP & \texttt{dst\_ip} & IPv4/v6 & Nativo \\
-& Dst Port & \texttt{dst\_port} & Porta L4 & Nativo \\
-& Protocol & \texttt{protocol} & IANA & Nativo \\
-& Timestamp & \texttt{bidirectional\_first\_seen\_ms} & Epoch ms & Nativo \\
-& Flow Duration & \texttt{bidirectional\_duration\_ms} $\times 10^3$ & $\mu\text{s}$ & Nativo ($\times 10^3$) \\
+\multicolumn{4}{l}{\textbf{1. Identificação e Duração}} \\*
+\addlinespace[0.3ex]
+Flow ID & \texttt{id} & --- & Nativo \\
+Src IP & \texttt{src\_ip} & IPv4/v6 & Nativo \\
+Src Port & \texttt{src\_port} & Porta L4 & Nativo \\
+Dst IP & \texttt{dst\_ip} & IPv4/v6 & Nativo \\
+Dst Port & \texttt{dst\_port} & Porta L4 & Nativo \\
+Protocol & \texttt{protocol} & IANA & Nativo \\
+Timestamp & \texttt{bidirectional\_}\allowbreak\texttt{first\_seen\_ms} & Epoch ms & Nativo \\
+Flow Duration & \texttt{bidirectional\_}\allowbreak\texttt{duration\_ms} $\times 10^3$ & $\mu\text{s}$ & Nativo ($\times 10^3$) \\
+\\[0.3ex]
 \hline
-\multicolumn{5}{l}{\textbf{2. Estatísticas de Tamanho de Pacote}} \\
-& Total Fwd Packet & \texttt{src2dst\_packets} & Contagem & Nativo \\
-& Total Bwd packets & \texttt{dst2src\_packets} & Contagem & Nativo \\
-& Total Length of Fwd Packet & \texttt{src2dst\_bytes} & Bytes & Nativo \\
-& Total Length of Bwd Packet & \texttt{dst2src\_bytes} & Bytes & Nativo \\
-& Fwd Packet Length Min / Max & \texttt{src2dst\_min\_ps} / \texttt{max\_ps} & Bytes & Nativo \\
-& Fwd Packet Length Mean / Std & \texttt{src2dst\_mean\_ps} / \texttt{stddev\_ps} & Bytes & Nativo \\
-& Bwd Packet Length Min / Max & \texttt{dst2src\_min\_ps} / \texttt{max\_ps} & Bytes & Nativo \\
-& Bwd Packet Length Mean / Std & \texttt{dst2src\_mean\_ps} / \texttt{stddev\_ps} & Bytes & Nativo \\
-& Packet Length Min / Max & \texttt{bidirectional\_min\_ps} / \texttt{max\_ps} & Bytes & Nativo \\
-& Packet Length Mean / Std & \texttt{bidirectional\_mean\_ps} / \texttt{stddev\_ps} & Bytes & Nativo \\
-& Packet Length Variance & \texttt{packet\_length\_variance} & $\text{Bytes}^2$ & Plugin UDPS \\
+\addlinespace[0.5ex]
+\multicolumn{4}{l}{\textbf{2. Estatísticas de Tamanho de Pacote}} \\*
+\addlinespace[0.3ex]
+Total Fwd Packet & \texttt{src2dst\_packets} & Contagem & Nativo \\
+Total Bwd packets & \texttt{dst2src\_packets} & Contagem & Nativo \\
+Total Length of Fwd Packet & \texttt{src2dst\_bytes} & Bytes & Nativo \\
+Total Length of Bwd Packet & \texttt{dst2src\_bytes} & Bytes & Nativo \\
+Fwd Packet Length Min / Max & \texttt{src2dst\_min\_ps} / \texttt{max\_ps} & Bytes & Nativo \\
+Fwd Packet Length Mean / Std & \texttt{src2dst\_mean\_ps} / \texttt{stddev\_ps} & Bytes & Nativo \\
+Bwd Packet Length Min / Max & \texttt{dst2src\_min\_ps} / \texttt{max\_ps} & Bytes & Nativo \\
+Bwd Packet Length Mean / Std & \texttt{dst2src\_mean\_ps} / \texttt{stddev\_ps} & Bytes & Nativo \\
+Packet Length Min / Max & \texttt{bidirectional\_}\allowbreak\texttt{min\_ps} / \texttt{max\_ps} & Bytes & Nativo \\
+Packet Length Mean / Std & \texttt{bidirectional\_}\allowbreak\texttt{mean\_ps} / \texttt{stddev\_ps} & Bytes & Nativo \\
+Packet Length Variance & \texttt{packet\_length\_variance} & $\text{Bytes}^2$ & Plugin UDPS \\
+\\[0.3ex]
 \hline
-\multicolumn{5}{l}{\textbf{3. Intervalos entre Chegadas (Inter-Arrival Times -- IAT)}} \\
-& Flow IAT Mean / Std & \texttt{bidirectional\_mean/stddev\_piat\_ms} $\times 10^3$ & $\mu\text{s}$ & Nativo ($\times 10^3$) \\
-& Flow IAT Max / Min & \texttt{bidirectional\_max/min\_piat\_ms} $\times 10^3$ & $\mu\text{s}$ & Nativo ($\times 10^3$) \\
-& Fwd IAT Total & \texttt{src2dst\_duration\_ms} $\times 10^3$ & $\mu\text{s}$ & Nativo ($\times 10^3$) \\
-& Fwd IAT Mean / Std & \texttt{src2dst\_mean/stddev\_piat\_ms} $\times 10^3$ & $\mu\text{s}$ & Nativo ($\times 10^3$) \\
-& Fwd IAT Max / Min & \texttt{src2dst\_max/min\_piat\_ms} $\times 10^3$ & $\mu\text{s}$ & Nativo ($\times 10^3$) \\
-& Bwd IAT Total & \texttt{dst2src\_duration\_ms} $\times 10^3$ & $\mu\text{s}$ & Nativo ($\times 10^3$) \\
-& Bwd IAT Mean / Std & \texttt{dst2src\_mean/stddev\_piat\_ms} $\times 10^3$ & $\mu\text{s}$ & Nativo ($\times 10^3$) \\
-& Bwd IAT Max / Min & \texttt{dst2src\_max/min\_piat\_ms} $\times 10^3$ & $\mu\text{s}$ & Nativo ($\times 10^3$) \\
+\addlinespace[0.5ex]
+\multicolumn{4}{l}{\textbf{3. Intervalos entre Chegadas (Inter-Arrival Times -- IAT)}} \\*
+\addlinespace[0.3ex]
+Flow IAT Mean / Std & \texttt{bidirectional\_}\allowbreak\texttt{mean/}\allowbreak\texttt{stddev\_piat\_ms} $\times 10^3$ & $\mu\text{s}$ & Nativo ($\times 10^3$) \\
+Flow IAT Max / Min & \texttt{bidirectional\_}\allowbreak\texttt{max/}\allowbreak\texttt{min\_piat\_ms} $\times 10^3$ & $\mu\text{s}$ & Nativo ($\times 10^3$) \\
+Fwd IAT Total & \texttt{src2dst\_duration\_ms} $\times 10^3$ & $\mu\text{s}$ & Nativo ($\times 10^3$) \\
+Fwd IAT Mean / Std & \texttt{src2dst\_}\allowbreak\texttt{mean/}\allowbreak\texttt{stddev\_piat\_ms} $\times 10^3$ & $\mu\text{s}$ & Nativo ($\times 10^3$) \\
+Fwd IAT Max / Min & \texttt{src2dst\_}\allowbreak\texttt{max/}\allowbreak\texttt{min\_piat\_ms} $\times 10^3$ & $\mu\text{s}$ & Nativo ($\times 10^3$) \\
+Bwd IAT Total & \texttt{dst2src\_duration\_ms} $\times 10^3$ & $\mu\text{s}$ & Nativo ($\times 10^3$) \\
+Bwd IAT Mean / Std & \texttt{dst2src\_}\allowbreak\texttt{mean/}\allowbreak\texttt{stddev\_piat\_ms} $\times 10^3$ & $\mu\text{s}$ & Nativo ($\times 10^3$) \\
+Bwd IAT Max / Min & \texttt{dst2src\_}\allowbreak\texttt{max/}\allowbreak\texttt{min\_piat\_ms} $\times 10^3$ & $\mu\text{s}$ & Nativo ($\times 10^3$) \\
+\\[0.3ex]
 \hline
-\multicolumn{5}{l}{\textbf{4. Sinalizadores (Flags) TCP}} \\
-& Fwd PSH Flags / Bwd PSH Flags & \texttt{src2dst/}\allowbreak\texttt{dst2src\_}\allowbreak\texttt{psh\_packets} & Contagem & Nativo \\
-& Fwd URG Flags / Bwd URG Flags$^{\dagger}$ & \texttt{src2dst/}\allowbreak\texttt{dst2src\_}\allowbreak\texttt{urg\_packets} & Contagem & Nativo \\
-& FIN / SYN / RST Flag Count & \texttt{bidirectional\_}\allowbreak\texttt{fin/syn/rst\_packets} & Contagem & Nativo \\
-& PSH / ACK / URG$^{\dagger}$ Flag Count & \texttt{bidirectional\_}\allowbreak\texttt{psh/ack/urg\_packets} & Contagem & Nativo \\
-& CWR / ECE Flag Count & \texttt{bidirectional\_}\allowbreak\texttt{cwr/ece\_packets} & Contagem & Nativo \\
+\addlinespace[0.5ex]
+\multicolumn{4}{l}{\textbf{4. Sinalizadores (Flags) TCP}} \\*
+\addlinespace[0.3ex]
+Fwd PSH Flags / Bwd PSH Flags & \texttt{src2dst/}\allowbreak\texttt{dst2src\_}\allowbreak\texttt{psh\_packets} & Contagem & Nativo \\
+Fwd URG Flags / Bwd URG Flags$^{\dagger}$ & \texttt{src2dst/}\allowbreak\texttt{dst2src\_}\allowbreak\texttt{urg\_packets} & Contagem & Nativo \\
+FIN / SYN / RST Flag Count & \texttt{bidirectional\_}\allowbreak\texttt{fin/}\allowbreak\texttt{syn/}\allowbreak\texttt{rst\_packets} & Contagem & Nativo \\
+PSH / ACK / URG$^{\dagger}$ Flag Count & \texttt{bidirectional\_}\allowbreak\texttt{psh/}\allowbreak\texttt{ack/}\allowbreak\texttt{urg\_packets} & Contagem & Nativo \\
+CWR / ECE Flag Count & \texttt{bidirectional\_}\allowbreak\texttt{cwr/}\allowbreak\texttt{ece\_packets} & Contagem & Nativo \\
+\\[0.3ex]
 \hline
-\multicolumn{5}{l}{\textbf{5. Cabeçalhos e Taxas de Transferência}} \\
-& Fwd / Bwd Header Length & \texttt{fwd/}\allowbreak\texttt{bwd\_header\_length} & Bytes & Plugin UDPS \\
-& Flow Bytes/s & \texttt{bytes\_per\_second} & Bytes/s & Plugin UDPS \\
-& Flow Packets/s & \texttt{packets\_per\_second} & Pkts/s & Plugin UDPS \\
-& FWD Packets/s / Bwd Packets/s & \texttt{fwd/}\allowbreak\texttt{bwd\_}\allowbreak\texttt{packets\_per\_second} & Pkts/s & Plugin UDPS \\
-& Down/Up Ratio & \texttt{down\_up\_ratio} & Proporção & Plugin UDPS \\
-& Average Packet Size & \texttt{avg\_bytes\_per\_packet} & Bytes & Plugin UDPS \\
-& Fwd / Bwd Segment Size Avg & \texttt{fwd/}\allowbreak\texttt{bwd\_}\allowbreak\texttt{segment\_size\_avg} & Bytes & Plugin UDPS \\
+\addlinespace[0.5ex]
+\multicolumn{4}{l}{\textbf{5. Cabeçalhos e Taxas de Transferência}} \\*
+\addlinespace[0.3ex]
+Fwd / Bwd Header Length & \texttt{fwd/}\allowbreak\texttt{bwd\_header\_length} & Bytes & Plugin UDPS \\
+Flow Bytes/s & \texttt{bytes\_per\_second} & Bytes/s & Plugin UDPS \\
+Flow Packets/s & \texttt{packets\_per\_second} & Pkts/s & Plugin UDPS \\
+FWD Packets/s / Bwd Packets/s & \texttt{fwd/}\allowbreak\texttt{bwd\_}\allowbreak\texttt{packets\_per\_second} & Pkts/s & Plugin UDPS \\
+Down/Up Ratio & \texttt{down\_up\_ratio} & Proporção & Plugin UDPS \\
+Average Packet Size & \texttt{avg\_bytes\_per\_packet} & Bytes & Plugin UDPS \\
+Fwd / Bwd Segment Size Avg & \texttt{fwd/}\allowbreak\texttt{bwd\_}\allowbreak\texttt{segment\_size\_avg} & Bytes & Plugin UDPS \\
+\\[0.3ex]
 \hline
-\multicolumn{5}{l}{\textbf{6. Subfluxos e Transmissão em Lote (Bulk)}} \\
-& Subflow Fwd / Bwd Packets & \texttt{subflow\_}\allowbreak\texttt{fwd/bwd\_packets} & Contagem & Plugin UDPS \\
-& Subflow Fwd / Bwd Bytes & \texttt{subflow\_}\allowbreak\texttt{fwd/bwd\_bytes} & Bytes & Plugin UDPS \\
-& Fwd / Bwd Bytes/Bulk Avg & \texttt{fwd/}\allowbreak\texttt{bwd\_}\allowbreak\texttt{bytes\_bulk\_avg} & Bytes & Plugin UDPS \\
-& Fwd / Bwd Packet/Bulk Avg & \texttt{fwd/}\allowbreak\texttt{bwd\_}\allowbreak\texttt{packet\_bulk\_avg} & Pkts & Plugin UDPS \\
-& Fwd / Bwd Bulk Rate Avg & \texttt{fwd/}\allowbreak\texttt{bwd\_}\allowbreak\texttt{bulk\_rate\_avg} & Taxa & Plugin UDPS \\
+\addlinespace[0.5ex]
+\multicolumn{4}{l}{\textbf{6. Subfluxos e Transmissão em Lote (Bulk)}} \\*
+\addlinespace[0.3ex]
+Subflow Fwd / Bwd Packets & \texttt{subflow\_}\allowbreak\texttt{fwd/}\allowbreak\texttt{bwd\_packets} & Contagem & Plugin UDPS \\
+Subflow Fwd / Bwd Bytes & \texttt{subflow\_}\allowbreak\texttt{fwd/}\allowbreak\texttt{bwd\_bytes} & Bytes & Plugin UDPS \\
+Fwd / Bwd Bytes/Bulk Avg & \texttt{fwd/}\allowbreak\texttt{bwd\_}\allowbreak\texttt{bytes\_bulk\_avg} & Bytes & Plugin UDPS \\
+Fwd / Bwd Packet/Bulk Avg & \texttt{fwd/}\allowbreak\texttt{bwd\_}\allowbreak\texttt{packet\_bulk\_avg} & Pkts & Plugin UDPS \\
+Fwd / Bwd Bulk Rate Avg & \texttt{fwd/}\allowbreak\texttt{bwd\_}\allowbreak\texttt{bulk\_rate\_avg} & Taxa & Plugin UDPS \\
+\\[0.3ex]
 \hline
-\multicolumn{5}{l}{\textbf{7. Janelas TCP e Métricas de Atividade / Inatividade (Active/Idle)}} \\
-& Fwd / Bwd Init Win Bytes & \texttt{fwd/}\allowbreak\texttt{bwd\_}\allowbreak\texttt{init\_win\_bytes} & Bytes (16b) & Plugin UDPS \\
-& Fwd Act Data Pkts & \texttt{fwd\_act\_data\_pkts} & Contagem & Plugin UDPS \\
-& Fwd Seg Size Min & \texttt{fwd\_seg\_size\_min} & Bytes & Plugin UDPS \\
-& Active Mean / Std / Max / Min & \texttt{active\_}\allowbreak\texttt{mean, std, max, min} & $\mu\text{s}$ & Plugin UDPS \\
-& Idle Mean / Std / Max / Min & \texttt{idle\_}\allowbreak\texttt{mean, std, max, min} & $\mu\text{s}$ & Plugin UDPS \\
+\addlinespace[0.5ex]
+\multicolumn{4}{l}{\textbf{7. Janelas TCP e Métricas de Atividade / Inatividade (Active/Idle)}} \\*
+\addlinespace[0.3ex]
+Fwd / Bwd Init Win Bytes & \texttt{fwd/}\allowbreak\texttt{bwd\_}\allowbreak\texttt{init\_win\_bytes} & Bytes (16b) & Plugin UDPS \\
+Fwd Act Data Pkts & \texttt{fwd\_act\_data\_pkts} & Contagem & Plugin UDPS \\
+Fwd Seg Size Min & \texttt{fwd\_seg\_size\_min} & Bytes & Plugin UDPS \\
+Active Mean / Std / Max / Min & \texttt{active\_}\allowbreak\texttt{mean,}\allowbreak\texttt{ std,}\allowbreak\texttt{ max,}\allowbreak\texttt{ min} & $\mu\text{s}$ & Plugin UDPS \\
+Idle Mean / Std / Max / Min & \texttt{idle\_}\allowbreak\texttt{mean,}\allowbreak\texttt{ std,}\allowbreak\texttt{ max,}\allowbreak\texttt{ min} & $\mu\text{s}$ & Plugin UDPS \\
 \hline
 \end{xltabular}
 \fonte{Elaborado pelo autor (2026). $^{\dagger}$Atributos de variância nula descartados na camada pré-processadora.}
@@ -307,7 +325,7 @@ O ambiente físico compõe-se de dois nós computacionais heterogêneos conectad
 
 % ! NÃO HAVERÁ DESCRITIVOS DE ATAQUE 
 
-A interface de rede sem fio da máquina vítima (\texttt{wlp63s0}) opera com a flag promíscua ativada pelo NFStream, assegurando que todo o tráfego que transita pelo canal rádio direcionado ou originado pelo host seja capturado e espelhado para a pilha de inspeção.
+A interface de rede sem fio da máquina (\texttt{wlp63s0}) opera com a flag promíscua ativada pelo NFStream, assegurando que todo o tráfego que transita pelo canal rádio direcionado ou originado pelo host seja capturado e espelhado para a pilha de inspeção.
 
 \subsubsection{Mecanismo de Defesa Ativa}
 

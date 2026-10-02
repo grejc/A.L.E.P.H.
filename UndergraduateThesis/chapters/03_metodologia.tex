@@ -30,20 +30,22 @@ Neste trabalho, são selecionados conjuntos de dados consolidados e complementar
     \item \textbf{CIC-UNSW-NB15:} base de referência analítica contendo tráfego sintético e realístico de alta densidade gerado por hardware dedicado de emulação (IXIA PerfectStorm), estruturada em 10 classes e processada via amostragem com entropia comportamental.
 \end{itemize}
 
-O Quadro~\ref{quadro:comparativo_geral_datasets} sintetiza as propriedades fundamentais, origens e características operacionais dos conjuntos de dados analisados nesta pesquisa.
+O \ref{quadro:comparativo_geral_datasets} sintetiza as propriedades fundamentais, origens e características operacionais dos conjuntos de dados analisados nesta pesquisa.
 
 \begin{quadro}[htb]
 \centering
 \caption{Síntese comparativa dos conjuntos de dados selecionados para treinamento e avaliação.}
 \label{quadro:comparativo_geral_datasets}
-\small
-\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{2.8cm}|c|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X|c|c|}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{2.6cm}|c|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X|>{\centering\arraybackslash}p{2.3cm}|>{\centering\arraybackslash}p{2.0cm}|}
 \hline
 \textbf{Dataset} & \textbf{Ano} & \textbf{Ambiente de Captura} & \textbf{Mecanismo de Geração} & \textbf{Atributos} & \textbf{Classes} \\ \hline
-CSE-CIC-IDS2018 (Original) & 2018 & Nuvem AWS corporativa (5 departamentos e \emph{server room}) & Agentes B-Profile (humanos) e M-Profiles (ataques) & 80 $\to$ 76 (73 ativas) & 15 (L0) / 7 (L2) \\ \hline
-CSE-CIC-IDS2018 (Corrigido) & 2022 & Nuvem AWS corporativa (auditoria Liu et al., 2022) & Reclassificação de fluxos com portas fechadas\slash tentativas & 91 $\to$ 81 $\to$ 76 (73 ativas) & 15 (25 orig.) / 9 (L2) \\ \hline
-CIC-BCCC-NRC TabularIoTAttack-2024 & 2024 & Laboratórios físicos e híbridos IoT/IoMT (IoTRL e UNB) & Produto de 9 sub-datasets (sensores, MQTT e rotinas) & 85 $\to$ 71 (73 ativas) & 49 (L0) / 9 (L2) \\ \hline
-CIC-UNSW-NB15 & 2015 & Cyber Range Lab (ACCS / UNSW Canberra) & Dispositivo IXIA PerfectStorm e tráfego realístico & 84 $\to$ 75 (73 ativas) & 10 (L0) \\ \hline
+CSE-CIC-IDS2018\newline(Original) & 2018 & Nuvem AWS corporativa (5 departamentos e \emph{server room}) & Agentes B-Profile (humanos) e M-Profiles (ataques) & 80 $\to$ 76\newline(73 ativas) & 15 (L0) \slash\newline 7 (L2) \\ \hline
+CSE-CIC-IDS2018\newline(Corrigido) & 2022 & Nuvem AWS corporativa (auditoria Liu et al., 2022) & Reclassificação de fluxos com portas fechadas\slash tentativas & 91 $\to$ 81 $\to$ 76\newline(73 ativas) & 15 (25 orig.) \slash\newline 9 (L2) \\ \hline
+CIC-BCCC-NRC\newline TabularIoTAttack-2024 & 2024 & Laboratórios físicos e híbridos IoT\slash IoMT (IoTRL e UNB) & Produto de 9 sub-datasets (sensores, MQTT e rotinas) & 85 $\to$ 71\newline(73 ativas) & 49 (L0) \slash\newline 9 (L2) \\ \hline
+CIC-UNSW-NB15 & 2015 & Cyber Range Lab (ACCS\slash UNSW Canberra) & Dispositivo IXIA PerfectStorm e tráfego realístico & 84 $\to$ 75\newline(73 ativas) & 10 (L0) \\ \hline
 \end{tabularx}
 \fonte{Elaborado pelo autor (2026).}
 \end{quadro}
@@ -56,7 +58,7 @@ O conjunto de dados CSE-CIC-IDS2018 (\emph{Communications Security Establishment
 
 \subsubsection{Topologia e Infraestrutura de Rede}
 
-A concepção experimental do CSE-CIC-IDS2018 compreendeu duas redes completamente apartadas: a Rede da Vítima (\emph{Victim-Network}) e a Rede de Ataque (\emph{Attack-Network}). A \emph{Victim-Network} replica a infraestrutura de uma organização corporativa de médio e grande porte, estruturada em cinco departamentos operacionais independentes conectados a uma sala de servidores (\emph{Server Room}):
+A concepção experimental do CSE-CIC-IDS2018 compreendeu duas redes completamente divididas: a Rede da Vítima (\emph{Victim-Network}) e a Rede de Ataque (\emph{Attack-Network}). A \emph{Victim-Network} replica a infraestrutura de uma organização corporativa de médio e grande porte, estruturada em cinco departamentos operacionais independentes conectados a uma sala de servidores (\emph{Server Room}):
 \begin{itemize}
     \item \textbf{Controladora de Domínio e Infraestrutura Central:} servidor Windows Server 2016 desempenhando funções de Diretório Ativo (\emph{Active Directory}), DNS e autenticação centralizada;
     \item \textbf{Servidores de Aplicação:} servidores com Ubuntu Linux (versões 12, 14.04 e 16.04) hospedando serviços web HTTP/HTTPS, bancos de dados relacionais e servidores FTP;
@@ -300,26 +302,71 @@ $\mathcal{E}_{\mathrm{LSTM}}$ & $\mathbf{x}_t \in \mathbb{R}^{18 \to 6 \times 3}
 \subsection{Modelos Especialistas Heterogêneos}
 \label{subsec:especialistas}
 
-Cada um dos cinco especialistas neurais foi desenhado para maximizar a extração de representações discriminativas em seu respectivo domínio de entrada:
+Cada um dos cinco especialistas neurais foi desenhado para maximizar a extração de representações discriminativas em seu respectivo domínio de entrada, cujas topologias de camadas e conexões são ilustradas na \ref{fig:especialistas_arquiteturas}:
 
 \begin{enumerate}
     \item \textbf{Especialista DNN ($\mathcal{E}_{\mathrm{DNN}}$):}
-    Recebe o vetor global $\mathbf{x}_g \in \mathbb{R}^{27}$ contendo sinalizadores (SYN, ACK, FIN, RST, PSH), contadores de pacotes/bytes e durações totais. Sua topologia compreende duas camadas densas totalmente conectadas ($256$ e $128$ unidades) com ativação ReLU, normalização em lote (\emph{Batch Normalization}) e regularização via Dropout ($p = 0{,}1$), produzindo o embedding latente $\mathbf{h}_{\mathrm{dnn}} \in \mathbb{R}^{128}$;
+    Recebe o vetor global $\mathbf{x}_g \in \mathbb{R}^{27}$ contendo sinalizadores (SYN, ACK, FIN, RST, PSH), contadores de pacotes/bytes e durações totais. Sua topologia compreende duas camadas densas totalmente conectadas ($256$ e $128$ unidades) com ativação LeakyReLU, normalização em lote (\emph{Batch Normalization}) e regularização via Dropout ($p = 0{,}1$), produzindo o embedding latente $\mathbf{h}_{\mathrm{dnn}} \in \mathbb{R}^{128}$ (Figura~\ref{subfig:arch_dnn});
     
     \item \textbf{Especialista CNN 2D ($\mathcal{E}_{\mathrm{CNN}}$):}
-    Recebe 16 métricas de tamanho de pacotes e segmentos $\mathbf{x}_s$, reorganizadas matricialmente em formato de grade pseudo-imagem $4 \times 4 \times 1$. A rede aplica duas camadas convolucionais bidimensionais com filtros de dimensões $(2, 2)$, $64$ e $128$ canais, ativação LeakyReLU ($\alpha=0{,}2$), pooling máximo, projeção densa para $128$ unidades e Dropout ($p = 0{,}2$), gerando $\mathbf{h}_{\mathrm{cnn}} \in \mathbb{R}^{128}$;
+    Recebe 16 métricas de tamanho de pacotes e segmentos $\mathbf{x}_s$, reorganizadas matricialmente em formato de grade pseudo-imagem $4 \times 4 \times 1$. A rede aplica duas camadas convolucionais bidimensionais com filtros de dimensões $(2, 2)$, $64$ e $128$ canais, ativação LeakyReLU ($\alpha=0{,}2$), pooling máximo, projeção densa para $128$ unidades e Dropout ($p = 0{,}2$), gerando $\mathbf{h}_{\mathrm{cnn}} \in \mathbb{R}^{128}$ (Figura~\ref{subfig:arch_cnn});
     
     \item \textbf{Especialista GRU ($\mathcal{E}_{\mathrm{GRU}}$):}
-    Processa as 32 variáveis de tempos entre chegadas de pacotes (\emph{IAT} médio, mínimo, máximo e desvio padrão para direções de avanço e retrocesso) estruturadas como tensores temporais em $8$ passos com $4$ atributos por passo. Emprega uma camada de unidades recorrentes com portas (\emph{Gated Recurrent Units}) de $64$ unidades com Dropout recorrente de $0{,}1$ e projeção densa, sintetizando a correlação temporal de rajadas rápidas em $\mathbf{h}_{\mathrm{gru}} \in \mathbb{R}^{128}$;
+    Processa as 32 variáveis de tempos entre chegadas de pacotes (\emph{IAT} médio, mínimo, máximo e desvio padrão para direções de avanço e retrocesso) estruturadas como tensores temporais em $8$ passos com $4$ atributos por passo. Emprega uma camada de unidades recorrentes bidirecionais com portas (\emph{Bidirectional GRU}) de $64$ unidades com Dropout recorrente de $0{,}1$ e projeção densa, sintetizando a correlação temporal de rajadas rápidas em $\mathbf{h}_{\mathrm{gru}} \in \mathbb{R}^{128}$ (Figura~\ref{subfig:arch_gru});
     
     \item \textbf{Especialista Autoencoder Convolucional ($\mathcal{E}_{\mathrm{CAE}}$):}
-    Especializado no perfil estatístico de rajadas e periodicidade. A entrada $\mathbf{x}_f \in \mathbb{R}^{27}$ é primeiramente processada pela camada customizada \texttt{HannFFTLayer}, que aplica a janela de Hann $w(n) = 0{,}5 - 0{,}5 \cos\left(\frac{2\pi n}{L-1}\right)$ e calcula a magnitude do espectro via transformada rápida de Fourier para sinais reais ($\mathbf{s} = |\operatorname{RFFT}(\mathbf{x}_f \odot \mathbf{w})| \in \mathbb{R}^{14}$). O sinal espectral é codificado por um autoencoder convolucional 1D ($16, 32, 64$ filtros, \emph{kernel} 5, ReLU) acoplado a um decodificador simétrico Conv1DTranspose ($32, 16, 1$ filtros), computando a perda de reconstrução MSE $\mathcal{L}_{\mathrm{CAE,rec}} = \|\mathbf{s} - \hat{\mathbf{s}}\|^2_2$ com $\lambda_{\mathrm{rec}} = 1{,}0$, enquanto o gargalo latente é projetado para $\mathbf{h}_{\mathrm{cae}} \in \mathbb{R}^{128}$;
+    Especializado no perfil estatístico de rajadas e periodicidade. A entrada $\mathbf{x}_f \in \mathbb{R}^{27}$ é primeiramente processada pela camada customizada \texttt{HannFFTLayer}, que aplica a janela de Hann $w(n) = 0{,}5 - 0{,}5 \cos\left(\frac{2\pi n}{L-1}\right)$ e calcula a magnitude do espectro via transformada rápida de Fourier para sinais reais ($\mathbf{s} = |\operatorname{RFFT}(\mathbf{x}_f \odot \mathbf{w})| \in \mathbb{R}^{14}$). O sinal espectral é codificado por um autoencoder convolucional 1D ($16, 32, 64$ filtros, \emph{kernel} 5, LeakyReLU) acoplado a um decodificador simétrico Conv1DTranspose ($32, 16, 1$ filtros), computando a perda de reconstrução MSE $\mathcal{L}_{\mathrm{CAE,rec}} = \|\mathbf{s} - \hat{\mathbf{s}}\|^2_2$ com $\lambda_{\mathrm{rec}} = 1{,}0$, enquanto o gargalo latente é projetado para $\mathbf{h}_{\mathrm{cae}} \in \mathbb{R}^{128}$ (Figura~\ref{subfig:arch_cae});
     
     \item \textbf{Especialista LSTM ($\mathcal{E}_{\mathrm{LSTM}}$):}
-    Recebe as 18 métricas temporais $\mathbf{x}_t$ compostas pelos intervalos de atividade (\emph{Active Mean/Std/Min/Max}) e inatividade (\emph{Idle Mean/Std/Min/Max}), estruturadas em $6$ timesteps de dimensão $3$. A arquitetura adota células \emph{Long Short-Term Memory} ($64$ unidades) encarregadas de reter dependências temporais prolongadas (\emph{slow rate}), com projeção densa final para $\mathbf{h}_{\mathrm{lstm}} \in \mathbb{R}^{128}$ e Dropout ($p = 0{,}1$).
+    Recebe as 18 métricas temporais $\mathbf{x}_t$ compostas pelos intervalos de atividade (\emph{Active Mean/Std/Min/Max}) e inatividade (\emph{Idle Mean/Std/Min/Max}), estruturadas em $6$ timesteps de dimensão $3$. A arquitetura adota células \emph{Bidirectional Long Short-Term Memory} ($64$ unidades) encarregadas de reter dependências temporais prolongadas (\emph{slow rate}), com projeção densa final para $\mathbf{h}_{\mathrm{lstm}} \in \mathbb{R}^{128}$ e Dropout ($p = 0{,}1$) (Figura~\ref{subfig:arch_lstm}).
 \end{enumerate}
 
 Cada especialista possui adicionalmente uma cabeça de classificação supervisionada auxiliar linear com ativação Softmax, projetando $\mathbf{h}_k$ sobre o espaço de classes: $\hat{\mathbf{y}}^{(k)} = \operatorname{softmax}(\mathbf{W}_k \mathbf{h}_k + \mathbf{b}_k) \in \mathbb{R}^C$, permitindo supervisão intermediária direta.
+
+\begin{figure}[htb]
+\centering
+\caption{Diagramas das topologias neurais dos modelos especialistas heterogêneos.}
+\label{fig:especialistas_arquiteturas}
+\begin{subfigure}[b]{0.42\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/architecture/DNN.png}
+    \caption{Especialista DNN ($\mathcal{E}_{\mathrm{DNN}}$).}
+    \label{subfig:arch_dnn}
+\end{subfigure}
+\hfill
+\begin{subfigure}[b]{0.54\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/architecture/CNN.png}
+    \caption{Especialista CNN 2D ($\mathcal{E}_{\mathrm{CNN}}$).}
+    \label{subfig:arch_cnn}
+\end{subfigure}
+
+\vspace{0.3cm}
+
+\begin{subfigure}[b]{0.43\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/architecture/GRU.png}
+    \caption{Especialista GRU ($\mathcal{E}_{\mathrm{GRU}}$).}
+    \label{subfig:arch_gru}
+\end{subfigure}
+\hfill
+\begin{subfigure}[b]{0.53\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/architecture/CAE.png}
+    \caption{Especialista CAE ($\mathcal{E}_{\mathrm{CAE}}$).}
+    \label{subfig:arch_cae}
+\end{subfigure}
+
+\vspace{0.3cm}
+
+\begin{subfigure}[b]{0.45\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/architecture/LSTM.png}
+    \caption{Especialista LSTM ($\mathcal{E}_{\mathrm{LSTM}}$).}
+    \label{subfig:arch_lstm}
+\end{subfigure}
+\fonte{Elaborado pelo autor (2026).}
+\end{figure}
 
 
 \subsection{Gating Network com Refinamento Atencional e Compressão Simétrica}
@@ -327,7 +374,7 @@ Cada especialista possui adicionalmente uma cabeça de classificação supervisi
 
 A rede de roteamento (\emph{Gating Network}) atua como o árbitro inteligente do comitê de especialistas. Ao contrário de abordagens ensemble com votação estática ou ponderação fixa, a Gating Network inspeciona o vetor completo de telemetria $\mathbf{x} \in \mathbb{R}^{73}$ e calcula dinamicamente a relevância de cada especialista para o fluxo específico sob análise.
 
-Formalmente, a Gating Network processa $\mathbf{x}$ através de duas camadas densas ($128$ e $64$ unidades com Batch Normalization, ativação LeakyReLU com $\alpha=0{,}2$ e Dropout $p=0{,}1$), projetando os logits brutos $\mathbf{z}_{\mathrm{raw}} \in \mathbb{R}^5$. A distribuição preliminar de confiança $\boldsymbol{\alpha}$ é calculada via Softmax:
+Formalmente, a Gating Network processa $\mathbf{x}$ através de duas camadas densas ($128$ e $64$ unidades com Batch Normalization, ativação LeakyReLU com $\alpha=0{,}2$ e Dropout $p=0{,}1$), projetando os logits brutos $\mathbf{z}_{\mathrm{raw}} \in \mathbb{R}^5$, conforme esquematizado na \ref{fig:arch_gating_network}. A distribuição preliminar de confiança $\boldsymbol{\alpha}$ é calculada via Softmax:
 \begin{equation}
 \label{eq:gating_alpha}
 \boldsymbol{\alpha} = \operatorname{softmax}(\mathbf{z}_{\mathrm{raw}}) \in \mathbb{R}^5.
@@ -350,11 +397,19 @@ confinando estritamente os logits refinados no intervalo $[-1, 1]$. A distribui�
 \end{equation}
 em que $\sum_{k=1}^5 a_k = 1$ e $a_k > 0$, mantendo a temperatura inicial calibrada em $\tau = 1{,}0$ \cite{guo2017calibration}.
 
+\begin{figure}[htb]
+\centering
+\caption{Topologia interna da Gating Network com refinamento atencional e compressão simétrica.}
+\label{fig:arch_gating_network}
+\includegraphics[width=0.75\textwidth]{figures/architecture/GATING_NETWORK.png}
+\fonte{Elaborado pelo autor (2026).}
+\end{figure}
+
 
 \subsection{Mecanismo Attention-based Learnable Fusion (ALF)}
 \label{subsec:mecanismo_alf}
 
-A integração final das decisões é conduzida pelo módulo customizado \textbf{ALF} (\emph{Attention-based Learnable Fusion}), estruturado em dois blocos determinísticos:
+A integração final das decisões é conduzida pelo módulo customizado \textbf{ALF} (\emph{Attention-based Learnable Fusion}), cuja topologia interna é apresentada na \ref{fig:arch_alf}, estruturado em dois blocos determinísticos:
 
 \begin{enumerate}
     \item \textbf{Fusão Estrita por Soma Ponderada (\texttt{WeightedSumFusion}):}
@@ -376,6 +431,24 @@ A integração final das decisões é conduzida pelo módulo customizado \textbf
     \hat{\mathbf{y}}_{\mathrm{ALF}} &= \operatorname{softmax}(\mathbf{W}_3 \mathbf{u}_2 + \mathbf{b}_3) \in \mathbb{R}^C.
     \end{align}
 \end{enumerate}
+
+\begin{figure}[htb]
+\centering
+\caption{Topologia interna do módulo de fusão ALF (\emph{Attention-based Learnable Fusion}).}
+\label{fig:arch_alf}
+\includegraphics[width=0.75\textwidth]{figures/architecture/ALF.png}
+\fonte{Elaborado pelo autor (2026).}
+\end{figure}
+
+A arquitetura macroscópica unificada do modelo ALF-MoE, integrando a recepção da telemetria de rede, o roteamento pelos especialistas heterogêneos, a arbitragem dinâmica pela Gating Network e a combinação ponderada das probabilidades com refinamento profundo no módulo ALF, é ilustrada na \ref{fig:arch_alf_moe}.
+
+\begin{figure}[htb]
+\centering
+\caption{Visão arquitetural integrada do modelo ALF-MoE, evidenciando o fluxo de tensores entre especialistas, Gating Network e fusão ALF.}
+\label{fig:arch_alf_moe}
+\includegraphics[width=0.75\textwidth]{figures/architecture/ALF-MoE.png}
+\fonte{Elaborado pelo autor (2026).}
+\end{figure}
 
 
 \section{Protocolo Experimental de Treinamento e Avaliação}

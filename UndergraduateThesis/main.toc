@@ -54,73 +54,73 @@
 \contentsline {chapter}{\chapternumberline {3}\MakeTextUppercase []{Materiais e Metodologia}}{47}{chapter.3}%
 \contentsline {section}{\numberline {3.1}Datasets Utilizados}{47}{section.3.1}%
 \contentsline {subsection}{\numberline {3.1.1}CSE-CIC-IDS2018: Versão Canônica e Versão Corrigida}{48}{subsection.3.1.1}%
-\contentsline {subsubsection}{\numberline {3.1.1.1}Topologia e Infraestrutura de Rede}{48}{subsubsection.3.1.1.1}%
-\contentsline {subsubsection}{\numberline {3.1.1.2}Metodologia de Geração de Tráfego e Limitações Metodológicas do Estado da Arte}{50}{subsubsection.3.1.1.2}%
+\contentsline {subsubsection}{\numberline {3.1.1.1}Topologia e Infraestrutura de Rede}{49}{subsubsection.3.1.1.1}%
+\contentsline {subsubsection}{\numberline {3.1.1.2}Metodologia de Geração de Tráfego e Limitações Metodológicas do Estado da Arte}{49}{subsubsection.3.1.1.2}%
 \contentsline {subsubsection}{\numberline {3.1.1.3}Distribuição Amostral: Canônica vs. Corrigida}{50}{subsubsection.3.1.1.3}%
-\contentsline {subsection}{\numberline {3.1.2}CIC-BCCC-NRC TabularIoTAttack-2024: Origem, Geração, Atributos e Distribuição Amostral}{51}{subsection.3.1.2}%
-\contentsline {subsubsection}{\numberline {3.1.2.1}Amostragem Estratificada Hare-Niemeyer e Distribuição Amostral}{52}{subsubsection.3.1.2.1}%
+\contentsline {subsection}{\numberline {3.1.2}CIC-BCCC-NRC TabularIoTAttack-2024: Origem, Geração, Atributos e Distribuição Amostral}{50}{subsection.3.1.2}%
+\contentsline {subsubsection}{\numberline {3.1.2.1}Amostragem Estratificada Hare-Niemeyer e Distribuição Amostral}{51}{subsubsection.3.1.2.1}%
 \contentsline {subsection}{\numberline {3.1.3}CIC-UNSW-NB15: Origem, Geração, Atributos e Distribuição Amostral}{52}{subsection.3.1.3}%
-\contentsline {subsubsection}{\numberline {3.1.3.1}Mitigação de GIGO e Amostragem com Máxima Entropia}{53}{subsubsection.3.1.3.1}%
-\contentsline {subsection}{\numberline {3.1.4}Modelagem de Hierarquia de Ameaças (\emph {Threat Levels})}{54}{subsection.3.1.4}%
+\contentsline {subsubsection}{\numberline {3.1.3.1}Mitigação de GIGO e Amostragem com Máxima Entropia}{52}{subsubsection.3.1.3.1}%
+\contentsline {subsection}{\numberline {3.1.4}Modelagem de Hierarquia de Ameaças (\emph {Threat Levels})}{53}{subsection.3.1.4}%
 \contentsline {section}{\numberline {3.2}Pipeline de Pré-processamento e Engenharia de Features}{54}{section.3.2}%
 \contentsline {subsection}{\numberline {3.2.1}Seleção, Normalização e Codificação}{54}{subsection.3.2.1}%
 \contentsline {subsection}{\numberline {3.2.2}Tratamento de Desbalanceamento de Classes}{55}{subsection.3.2.2}%
-\contentsline {section}{\numberline {3.3}Arquitetura Proposta: ALF-MoE}{56}{section.3.3}%
-\contentsline {subsection}{\numberline {3.3.1}Visão Geral do Sistema e Fluxo de Dados}{56}{subsection.3.3.1}%
+\contentsline {section}{\numberline {3.3}Arquitetura Proposta: ALF-MoE}{55}{section.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}Visão Geral do Sistema e Fluxo de Dados}{55}{subsection.3.3.1}%
 \contentsline {subsection}{\numberline {3.3.2}Modelos Especialistas Heterogêneos}{56}{subsection.3.3.2}%
 \contentsline {subsection}{\numberline {3.3.3}Gating Network com Refinamento Atencional e Compressão Simétrica}{57}{subsection.3.3.3}%
 \contentsline {subsection}{\numberline {3.3.4}Mecanismo Attention-based Learnable Fusion (ALF)}{58}{subsection.3.3.4}%
-\contentsline {section}{\numberline {3.4}Protocolo Experimental de Treinamento e Avaliação}{59}{section.3.4}%
-\contentsline {subsection}{\numberline {3.4.1}Funções de Perda e Otimização Multitarefa}{59}{subsection.3.4.1}%
-\contentsline {subsection}{\numberline {3.4.2}Métricas de Avaliação}{59}{subsection.3.4.2}%
-\contentsline {subsubsection}{\numberline {3.4.2.1}Métricas de Eficácia Estatística}{60}{subsubsection.3.4.2.1}%
-\contentsline {subsubsection}{\numberline {3.4.2.2}Métricas de Eficiência Computacional}{60}{subsubsection.3.4.2.2}%
+\contentsline {section}{\numberline {3.4}Protocolo Experimental de Treinamento e Avaliação}{60}{section.3.4}%
+\contentsline {subsection}{\numberline {3.4.1}Funções de Perda e Otimização Multitarefa}{60}{subsection.3.4.1}%
+\contentsline {subsection}{\numberline {3.4.2}Métricas de Avaliação}{61}{subsection.3.4.2}%
+\contentsline {subsubsection}{\numberline {3.4.2.1}Métricas de Eficácia Estatística}{61}{subsubsection.3.4.2.1}%
+\contentsline {subsubsection}{\numberline {3.4.2.2}Métricas de Eficiência Computacional}{62}{subsubsection.3.4.2.2}%
 \setlength {\cftchapterindent }{0em} \setlength {\cftchapternumwidth }{\cftlastnumwidth }
-\contentsline {chapter}{\chapternumberline {4}\MakeTextUppercase []{Pipeline de Extração e Ambiente de Inferência}}{61}{chapter.4}%
-\contentsline {section}{\numberline {4.1}Captura e Processamento de Tráfego}{61}{section.4.1}%
-\contentsline {subsection}{\numberline {4.1.1}Extração com NFStream}{61}{subsection.4.1.1}%
-\contentsline {subsubsection}{\numberline {4.1.1.1}Princípio da Responsabilidade Única (SRP) na Classe FeatureExtractor}{61}{subsubsection.4.1.1.1}%
-\contentsline {subsubsection}{\numberline {4.1.1.2}Problema de Concorrência, Multiprocessamento Fork e Contexto CUDA}{62}{subsubsection.4.1.1.2}%
-\contentsline {subsubsection}{\numberline {4.1.1.3}Escalas Temporais e Fator de Conversão de Unidades}{63}{subsubsection.4.1.1.3}%
-\contentsline {subsubsection}{\numberline {4.1.1.4}Descarte de Atributos de Variância Nula}{63}{subsubsection.4.1.1.4}%
-\contentsline {subsubsection}{\numberline {4.1.1.5}Dissecação de Baixo Nível dos Métodos Customizados}{64}{subsubsection.4.1.1.5}%
-\contentsline {paragraph}{\numberline {4.1.1.5.1}Codificação Compacta de Flags TCP (\texttt {encode\_tcp\_flags})}{64}{paragraph.4.1.1.5.1}%
-\contentsline {paragraph}{\numberline {4.1.1.5.2}Extração de Janela TCP em Bytes Brutos (\texttt {extract\_tcp\_window\_size})}{65}{paragraph.4.1.1.5.2}%
-\contentsline {subsubsection}{\numberline {4.1.1.6}Ciclo de Vida dos Fluxos e Temporizadores de Rede}{66}{subsubsection.4.1.1.6}%
-\contentsline {subsection}{\numberline {4.1.2}Mapeamento e Alinhamento de Features (NFStream $\to $ CICFlowMeter)}{67}{subsection.4.1.2}%
-\contentsline {subsubsection}{\numberline {4.1.2.1}Correspondência Semântica e Estrutural das Variáveis}{67}{subsubsection.4.1.2.1}%
-\contentsline {subsubsection}{\numberline {4.1.2.2}Aproximações Operacionais e Nuances de Cálculo}{69}{subsubsection.4.1.2.2}%
-\contentsline {section}{\numberline {4.2}Setup de Inferência}{70}{section.4.2}%
-\contentsline {subsection}{\numberline {4.2.1}Arquitetura do Ambiente de Execução}{70}{subsection.4.2.1}%
-\contentsline {subsubsection}{\numberline {4.2.1.1}Especificações do Hardware e Ambiente Operacional}{70}{subsubsection.4.2.1.1}%
-\contentsline {subsubsection}{\numberline {4.2.1.2}Mecanismo de Defesa Ativa}{71}{subsubsection.4.2.1.2}%
-\contentsline {paragraph}{\numberline {4.2.1.2.1}Integração de Baixo Nível com o Firewall nftables}{71}{paragraph.4.2.1.2.1}%
-\contentsline {paragraph}{\numberline {4.2.1.2.2}Algoritmo de Resolução Direcional de Alvo (\texttt {select\_target})}{72}{paragraph.4.2.1.2.2}%
-\contentsline {paragraph}{\numberline {4.2.1.2.3}Salvaguarda Anti-Auto-Bloqueio e Whitelist}{73}{paragraph.4.2.1.2.3}%
-\contentsline {paragraph}{\numberline {4.2.1.2.4}Subsistema de Auditoria Forense e SIEM (\texttt {InferenceAuditor})}{73}{paragraph.4.2.1.2.4}%
-\contentsline {subsection}{\numberline {4.2.2}Síntese Operacional do Pipeline de Inferência e Contenção Ativa}{74}{subsection.4.2.2}%
+\contentsline {chapter}{\chapternumberline {4}\MakeTextUppercase []{Pipeline de Extração e Ambiente de Inferência}}{63}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Captura e Processamento de Tráfego}{63}{section.4.1}%
+\contentsline {subsection}{\numberline {4.1.1}Extração com NFStream}{63}{subsection.4.1.1}%
+\contentsline {subsubsection}{\numberline {4.1.1.1}Princípio da Responsabilidade Única (SRP) na Classe FeatureExtractor}{63}{subsubsection.4.1.1.1}%
+\contentsline {subsubsection}{\numberline {4.1.1.2}Problema de Concorrência, Multiprocessamento Fork e Contexto CUDA}{64}{subsubsection.4.1.1.2}%
+\contentsline {subsubsection}{\numberline {4.1.1.3}Escalas Temporais e Fator de Conversão de Unidades}{65}{subsubsection.4.1.1.3}%
+\contentsline {subsubsection}{\numberline {4.1.1.4}Descarte de Atributos de Variância Nula}{65}{subsubsection.4.1.1.4}%
+\contentsline {subsubsection}{\numberline {4.1.1.5}Dissecação de Baixo Nível dos Métodos Customizados}{66}{subsubsection.4.1.1.5}%
+\contentsline {paragraph}{\numberline {4.1.1.5.1}Codificação Compacta de Flags TCP (\texttt {encode\_tcp\_flags})}{66}{paragraph.4.1.1.5.1}%
+\contentsline {paragraph}{\numberline {4.1.1.5.2}Extração de Janela TCP em Bytes Brutos (\texttt {extract\_tcp\_window\_size})}{67}{paragraph.4.1.1.5.2}%
+\contentsline {subsubsection}{\numberline {4.1.1.6}Ciclo de Vida dos Fluxos e Temporizadores de Rede}{68}{subsubsection.4.1.1.6}%
+\contentsline {subsection}{\numberline {4.1.2}Mapeamento e Alinhamento de Features (NFStream $\to $ CICFlowMeter)}{69}{subsection.4.1.2}%
+\contentsline {subsubsection}{\numberline {4.1.2.1}Correspondência Semântica e Estrutural das Variáveis}{69}{subsubsection.4.1.2.1}%
+\contentsline {subsubsection}{\numberline {4.1.2.2}Aproximações Operacionais e Nuances de Cálculo}{71}{subsubsection.4.1.2.2}%
+\contentsline {section}{\numberline {4.2}Setup de Inferência}{72}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Arquitetura do Ambiente de Execução}{72}{subsection.4.2.1}%
+\contentsline {subsubsection}{\numberline {4.2.1.1}Especificações do Hardware e Ambiente Operacional}{72}{subsubsection.4.2.1.1}%
+\contentsline {subsubsection}{\numberline {4.2.1.2}Mecanismo de Defesa Ativa}{73}{subsubsection.4.2.1.2}%
+\contentsline {paragraph}{\numberline {4.2.1.2.1}Integração de Baixo Nível com o Firewall nftables}{73}{paragraph.4.2.1.2.1}%
+\contentsline {paragraph}{\numberline {4.2.1.2.2}Algoritmo de Resolução Direcional de Alvo (\texttt {select\_target})}{74}{paragraph.4.2.1.2.2}%
+\contentsline {paragraph}{\numberline {4.2.1.2.3}Salvaguarda Anti-Auto-Bloqueio e Whitelist}{75}{paragraph.4.2.1.2.3}%
+\contentsline {paragraph}{\numberline {4.2.1.2.4}Subsistema de Auditoria Forense e SIEM (\texttt {InferenceAuditor})}{75}{paragraph.4.2.1.2.4}%
+\contentsline {subsection}{\numberline {4.2.2}Síntese Operacional do Pipeline de Inferência e Contenção Ativa}{76}{subsection.4.2.2}%
 \setlength {\cftchapterindent }{0em} \setlength {\cftchapternumwidth }{\cftlastnumwidth }
-\contentsline {chapter}{\chapternumberline {5}\MakeTextUppercase []{Resultados e Discussão}}{75}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Desempenho nos Datasets de Benchmark (Resultados Offline)}{75}{section.5.1}%
-\contentsline {subsection}{\numberline {5.1.1}Análise por Classe e Desempenho Global}{75}{subsection.5.1.1}%
-\contentsline {subsubsection}{\numberline {5.1.1.1}Eixo 1: Impacto da Granularidade de Ameaças (Nível 0 vs. Nível 2)}{75}{subsubsection.5.1.1.1}%
-\contentsline {subsubsection}{\numberline {5.1.1.2}Eixo 2: Impacto da Sanitização de Rótulos de Liu et al. (2022) no CSE-CIC-IDS2018}{76}{subsubsection.5.1.1.2}%
-\contentsline {subsubsection}{\numberline {5.1.1.3}Eixo 3: Generalização em Tráfego de Alta Densidade (CIC-UNSW-NB15)}{76}{subsubsection.5.1.1.3}%
-\contentsline {subsubsection}{\numberline {5.1.1.4}Matrizes de Confusão Normalizadas}{76}{subsubsection.5.1.1.4}%
-\contentsline {subsection}{\numberline {5.1.2}Análise Comparativa dos Especialistas e do Bloco ALF}{78}{subsection.5.1.2}%
-\contentsline {subsubsection}{\numberline {5.1.2.1}Gráficos Radar de Especialistas}{79}{subsubsection.5.1.2.1}%
-\contentsline {section}{\numberline {5.2}Avaliação da Extração e Inferência em Tráfego Real/PCAPs}{79}{section.5.2}%
-\contentsline {subsection}{\numberline {5.2.1}Impacto do Mapeamento NFStream $\to $ CICFlowMeter}{80}{subsection.5.2.1}%
-\contentsline {subsection}{\numberline {5.2.2}Throughput, Latência e Consumo Computacional}{81}{subsection.5.2.2}%
-\contentsline {subsubsection}{\numberline {5.2.2.1}Métricas Quantitativas de Inferência Neural}{82}{subsubsection.5.2.2.1}%
-\contentsline {subsubsection}{\numberline {5.2.2.2}O Gargalo Estrutural da Latência Ponta a Ponta (End-to-End Latency)}{83}{subsubsection.5.2.2.2}%
-\contentsline {subsection}{\numberline {5.2.3}Avaliação de Falsos Positivos em Tráfego Operacional e Calibração de Salvaguardas}{84}{subsection.5.2.3}%
-\contentsline {subsubsection}{\numberline {5.2.3.1}Diagnóstico de Falsos Positivos Iniciais e Calibração}{84}{subsubsection.5.2.3.1}%
+\contentsline {chapter}{\chapternumberline {5}\MakeTextUppercase []{Resultados e Discussão}}{77}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Desempenho nos Datasets de Benchmark (Resultados Offline)}{77}{section.5.1}%
+\contentsline {subsection}{\numberline {5.1.1}Análise por Classe e Desempenho Global}{77}{subsection.5.1.1}%
+\contentsline {subsubsection}{\numberline {5.1.1.1}Eixo 1: Impacto da Granularidade de Ameaças (Nível 0 vs. Nível 2)}{77}{subsubsection.5.1.1.1}%
+\contentsline {subsubsection}{\numberline {5.1.1.2}Eixo 2: Impacto da Sanitização de Rótulos de Liu et al. (2022) no CSE-CIC-IDS2018}{78}{subsubsection.5.1.1.2}%
+\contentsline {subsubsection}{\numberline {5.1.1.3}Eixo 3: Generalização em Tráfego de Alta Densidade (CIC-UNSW-NB15)}{78}{subsubsection.5.1.1.3}%
+\contentsline {subsubsection}{\numberline {5.1.1.4}Matrizes de Confusão Normalizadas}{78}{subsubsection.5.1.1.4}%
+\contentsline {subsection}{\numberline {5.1.2}Análise Comparativa dos Especialistas e do Bloco ALF}{80}{subsection.5.1.2}%
+\contentsline {subsubsection}{\numberline {5.1.2.1}Gráficos Radar de Especialistas}{81}{subsubsection.5.1.2.1}%
+\contentsline {section}{\numberline {5.2}Avaliação da Extração e Inferência em Tráfego Real/PCAPs}{81}{section.5.2}%
+\contentsline {subsection}{\numberline {5.2.1}Impacto do Mapeamento NFStream $\to $ CICFlowMeter}{82}{subsection.5.2.1}%
+\contentsline {subsection}{\numberline {5.2.2}Throughput, Latência e Consumo Computacional}{83}{subsection.5.2.2}%
+\contentsline {subsubsection}{\numberline {5.2.2.1}Métricas Quantitativas de Inferência Neural}{84}{subsubsection.5.2.2.1}%
+\contentsline {subsubsection}{\numberline {5.2.2.2}O Gargalo Estrutural da Latência Ponta a Ponta (End-to-End Latency)}{85}{subsubsection.5.2.2.2}%
+\contentsline {subsection}{\numberline {5.2.3}Avaliação de Falsos Positivos em Tráfego Operacional e Calibração de Salvaguardas}{86}{subsection.5.2.3}%
+\contentsline {subsubsection}{\numberline {5.2.3.1}Diagnóstico de Falsos Positivos Iniciais e Calibração}{86}{subsubsection.5.2.3.1}%
 \setlength {\cftchapterindent }{0em} \setlength {\cftchapternumwidth }{\cftlastnumwidth }
-\contentsline {chapter}{\chapternumberline {6}\MakeTextUppercase []{Conclusão}}{85}{chapter.6}%
-\contentsline {section}{\numberline {6.1}Síntese do Trabalho}{85}{section.6.1}%
-\contentsline {section}{\numberline {6.2}Limitações Identificadas}{86}{section.6.2}%
-\contentsline {section}{\numberline {6.3}Trabalhos Futuros}{86}{section.6.3}%
+\contentsline {chapter}{\chapternumberline {6}\MakeTextUppercase []{Conclusão}}{87}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Síntese do Trabalho}{87}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Limitações Identificadas}{88}{section.6.2}%
+\contentsline {section}{\numberline {6.3}Trabalhos Futuros}{88}{section.6.3}%
 \vspace {\cftbeforechapterskip }
 \setlength {\cftchapterindent }{\cftlastnumwidth } \setlength {\cftchapternumwidth }{2em}
-\contentsline {chapter}{\MakeTextUppercase []{Refer\^encias}}{88}{section*.34}%
+\contentsline {chapter}{\MakeTextUppercase []{Refer\^encias}}{90}{section*.38}%
