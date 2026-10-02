@@ -1,0 +1,10 @@
+,Benign Traffic,Botnet/Malware,BruteForce,DDoS,DoS,IoT/MQTT,MITM,Reconnaissance,WebAttack
+Benign Traffic,70185,0,0,0,0,0,0,0,0
+Botnet/Malware,14691,0,0,0,0,0,0,0,0
+BruteForce,39443,0,0,0,0,0,0,0,0
+DDoS,207074,0,0,0,0,0,0,0,0
+DoS,211296,0,0,0,0,0,0,0,0
+IoT/MQTT,50282,0,0,0,0,0,0,0,0
+MITM,3793,0,0,0,0,0,0,0,0
+Reconnaissance,34461,0,0,0,0,0,0,0,0
+WebAttack,21620,0,0,0,0,0,0,0,0

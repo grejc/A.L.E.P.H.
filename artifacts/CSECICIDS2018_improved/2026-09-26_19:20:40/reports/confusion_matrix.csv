@@ -1,0 +1,10 @@
+,BENIGN,Botnet,DDoS,DoS,Infiltration - Communication Victim Attacker,Infiltration - Dropbox Download,Infiltration - NMAP Portscan,SSH-BruteForce,Web Attack
+BENIGN,1127976,1,2,37,11,0,198,0,54
+Botnet,0,28584,0,0,0,0,0,0,0
+DDoS,1,0,27937,0,0,0,0,0,0
+DoS,3,0,0,42270,0,0,0,0,0
+Infiltration - Communication Victim Attacker,3,0,0,0,38,0,0,0,0
+Infiltration - Dropbox Download,15,0,0,0,0,2,0,0,0
+Infiltration - NMAP Portscan,248,0,0,0,0,0,17627,0,0
+SSH-BruteForce,0,0,0,0,0,0,0,18839,0
+Web Attack,0,0,0,0,0,0,0,0,57

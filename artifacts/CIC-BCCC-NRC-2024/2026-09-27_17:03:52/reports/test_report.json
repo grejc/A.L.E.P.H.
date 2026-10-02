@@ -1,0 +1,438 @@
+{
+  "timestamp": "2026-09-27T17:58:45.383883Z",
+  "num_test_samples": 652845,
+  "inference_time_sec": 11.4237,
+  "latency_ms_per_sample": 0.0175,
+  "throughput_samples_per_sec": 57148.34,
+  "alf_moe_metrics": {
+    "accuracy": 0.9213,
+    "macro_f1": 0.839,
+    "macro_precision": 0.8191,
+    "macro_recall": 0.8739,
+    "weighted_f1": 0.926,
+    "weighted_precision": 0.9347,
+    "weighted_recall": 0.9213
+  },
+  "alf_per_class_breakdown": {
+    "Benign Traffic": {
+      "balanced_accuracy": 0.9486,
+      "precision": 0.9223,
+      "recall": 0.9065,
+      "f1_score": 0.9143,
+      "support": 70185
+    },
+    "Botnet/Malware": {
+      "balanced_accuracy": 0.9004,
+      "precision": 0.5627,
+      "recall": 0.8155,
+      "f1_score": 0.6659,
+      "support": 14691
+    },
+    "BruteForce": {
+      "balanced_accuracy": 0.9724,
+      "precision": 0.9377,
+      "recall": 0.9488,
+      "f1_score": 0.9432,
+      "support": 39443
+    },
+    "DDoS": {
+      "balanced_accuracy": 0.9849,
+      "precision": 0.9856,
+      "recall": 0.9764,
+      "f1_score": 0.981,
+      "support": 207074
+    },
+    "DoS": {
+      "balanced_accuracy": 0.9442,
+      "precision": 0.9698,
+      "recall": 0.9018,
+      "f1_score": 0.9346,
+      "support": 211296
+    },
+    "IoT/MQTT": {
+      "balanced_accuracy": 0.9741,
+      "precision": 0.9765,
+      "recall": 0.9501,
+      "f1_score": 0.9631,
+      "support": 50282
+    },
+    "MITM": {
+      "balanced_accuracy": 0.8641,
+      "precision": 0.4885,
+      "recall": 0.7327,
+      "f1_score": 0.5862,
+      "support": 3793
+    },
+    "Reconnaissance": {
+      "balanced_accuracy": 0.8666,
+      "precision": 0.5615,
+      "recall": 0.7665,
+      "f1_score": 0.6482,
+      "support": 34461
+    },
+    "WebAttack": {
+      "balanced_accuracy": 0.933,
+      "precision": 0.9671,
+      "recall": 0.867,
+      "f1_score": 0.9143,
+      "support": 21620
+    }
+  },
+  "experts_metrics": {
+    "DNN": {
+      "accuracy": 0.0843,
+      "macro_f1": 0.0714,
+      "macro_precision": 0.1041,
+      "macro_recall": 0.168,
+      "per_class": {
+        "Benign Traffic": {
+          "balanced_accuracy": 0.4994,
+          "precision": 0.0686,
+          "recall": 0.0018,
+          "f1_score": 0.0034,
+          "support": 70185
+        },
+        "Botnet/Malware": {
+          "balanced_accuracy": 0.5098,
+          "precision": 0.1378,
+          "recall": 0.0229,
+          "f1_score": 0.0392,
+          "support": 14691
+        },
+        "BruteForce": {
+          "balanced_accuracy": 0.7152,
+          "precision": 0.349,
+          "recall": 0.4892,
+          "f1_score": 0.4074,
+          "support": 39443
+        },
+        "DDoS": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 207074
+        },
+        "DoS": {
+          "balanced_accuracy": 0.4972,
+          "precision": 0.0409,
+          "recall": 0.0005,
+          "f1_score": 0.0011,
+          "support": 211296
+        },
+        "IoT/MQTT": {
+          "balanced_accuracy": 0.5199,
+          "precision": 0.2844,
+          "recall": 0.0504,
+          "f1_score": 0.0857,
+          "support": 50282
+        },
+        "MITM": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 3793
+        },
+        "Reconnaissance": {
+          "balanced_accuracy": 0.5299,
+          "precision": 0.0561,
+          "recall": 0.9474,
+          "f1_score": 0.106,
+          "support": 34461
+        },
+        "WebAttack": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 21620
+        }
+      }
+    },
+    "CNN": {
+      "accuracy": 0.5693,
+      "macro_f1": 0.5543,
+      "macro_precision": 0.7618,
+      "macro_recall": 0.5321,
+      "per_class": {
+        "Benign Traffic": {
+          "balanced_accuracy": 0.8365,
+          "precision": 0.9061,
+          "recall": 0.6815,
+          "f1_score": 0.7779,
+          "support": 70185
+        },
+        "Botnet/Malware": {
+          "balanced_accuracy": 0.7141,
+          "precision": 0.7808,
+          "recall": 0.431,
+          "f1_score": 0.5554,
+          "support": 14691
+        },
+        "BruteForce": {
+          "balanced_accuracy": 0.9032,
+          "precision": 0.9635,
+          "recall": 0.8084,
+          "f1_score": 0.8791,
+          "support": 39443
+        },
+        "DDoS": {
+          "balanced_accuracy": 0.527,
+          "precision": 0.8571,
+          "recall": 0.0585,
+          "f1_score": 0.1095,
+          "support": 207074
+        },
+        "DoS": {
+          "balanced_accuracy": 0.6944,
+          "precision": 0.4414,
+          "recall": 0.986,
+          "f1_score": 0.6098,
+          "support": 211296
+        },
+        "IoT/MQTT": {
+          "balanced_accuracy": 0.9429,
+          "precision": 0.9898,
+          "recall": 0.8865,
+          "f1_score": 0.9353,
+          "support": 50282
+        },
+        "MITM": {
+          "balanced_accuracy": 0.5301,
+          "precision": 0.5887,
+          "recall": 0.0604,
+          "f1_score": 0.1095,
+          "support": 3793
+        },
+        "Reconnaissance": {
+          "balanced_accuracy": 0.5501,
+          "precision": 0.3991,
+          "recall": 0.1095,
+          "f1_score": 0.1718,
+          "support": 34461
+        },
+        "WebAttack": {
+          "balanced_accuracy": 0.8824,
+          "precision": 0.9301,
+          "recall": 0.7668,
+          "f1_score": 0.8406,
+          "support": 21620
+        }
+      }
+    },
+    "GRU": {
+      "accuracy": 0.9182,
+      "macro_f1": 0.8375,
+      "macro_precision": 0.8235,
+      "macro_recall": 0.8711,
+      "per_class": {
+        "Benign Traffic": {
+          "balanced_accuracy": 0.9511,
+          "precision": 0.9152,
+          "recall": 0.9123,
+          "f1_score": 0.9138,
+          "support": 70185
+        },
+        "Botnet/Malware": {
+          "balanced_accuracy": 0.8363,
+          "precision": 0.6777,
+          "recall": 0.68,
+          "f1_score": 0.6789,
+          "support": 14691
+        },
+        "BruteForce": {
+          "balanced_accuracy": 0.9705,
+          "precision": 0.9438,
+          "recall": 0.9446,
+          "f1_score": 0.9442,
+          "support": 39443
+        },
+        "DDoS": {
+          "balanced_accuracy": 0.987,
+          "precision": 0.9683,
+          "recall": 0.989,
+          "f1_score": 0.9785,
+          "support": 207074
+        },
+        "DoS": {
+          "balanced_accuracy": 0.9331,
+          "precision": 0.9816,
+          "recall": 0.8741,
+          "f1_score": 0.9247,
+          "support": 211296
+        },
+        "IoT/MQTT": {
+          "balanced_accuracy": 0.9704,
+          "precision": 0.9763,
+          "recall": 0.9426,
+          "f1_score": 0.9592,
+          "support": 50282
+        },
+        "MITM": {
+          "balanced_accuracy": 0.8839,
+          "precision": 0.438,
+          "recall": 0.7735,
+          "f1_score": 0.5593,
+          "support": 3793
+        },
+        "Reconnaissance": {
+          "balanced_accuracy": 0.9117,
+          "precision": 0.5464,
+          "recall": 0.8634,
+          "f1_score": 0.6693,
+          "support": 34461
+        },
+        "WebAttack": {
+          "balanced_accuracy": 0.9298,
+          "precision": 0.9639,
+          "recall": 0.8606,
+          "f1_score": 0.9093,
+          "support": 21620
+        }
+      }
+    },
+    "CAE": {
+      "accuracy": 0.784,
+      "macro_f1": 0.4504,
+      "macro_precision": 0.4363,
+      "macro_recall": 0.476,
+      "per_class": {
+        "Benign Traffic": {
+          "balanced_accuracy": 0.9157,
+          "precision": 0.5814,
+          "recall": 0.9105,
+          "f1_score": 0.7097,
+          "support": 70185
+        },
+        "Botnet/Malware": {
+          "balanced_accuracy": 0.6126,
+          "precision": 0.3248,
+          "recall": 0.2365,
+          "f1_score": 0.2737,
+          "support": 14691
+        },
+        "BruteForce": {
+          "balanced_accuracy": 0.7836,
+          "precision": 0.6219,
+          "recall": 0.5903,
+          "f1_score": 0.6057,
+          "support": 39443
+        },
+        "DDoS": {
+          "balanced_accuracy": 0.9439,
+          "precision": 0.9647,
+          "recall": 0.9032,
+          "f1_score": 0.933,
+          "support": 207074
+        },
+        "DoS": {
+          "balanced_accuracy": 0.9194,
+          "precision": 0.8155,
+          "recall": 0.9407,
+          "f1_score": 0.8736,
+          "support": 211296
+        },
+        "IoT/MQTT": {
+          "balanced_accuracy": 0.8335,
+          "precision": 0.6182,
+          "recall": 0.7033,
+          "f1_score": 0.658,
+          "support": 50282
+        },
+        "MITM": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 3793
+        },
+        "Reconnaissance": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 34461
+        },
+        "WebAttack": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 21620
+        }
+      }
+    },
+    "LSTM": {
+      "accuracy": 0.9017,
+      "macro_f1": 0.8002,
+      "macro_precision": 0.7869,
+      "macro_recall": 0.8371,
+      "per_class": {
+        "Benign Traffic": {
+          "balanced_accuracy": 0.943,
+          "precision": 0.9077,
+          "recall": 0.897,
+          "f1_score": 0.9023,
+          "support": 70185
+        },
+        "Botnet/Malware": {
+          "balanced_accuracy": 0.806,
+          "precision": 0.6501,
+          "recall": 0.6198,
+          "f1_score": 0.6346,
+          "support": 14691
+        },
+        "BruteForce": {
+          "balanced_accuracy": 0.9567,
+          "precision": 0.9271,
+          "recall": 0.918,
+          "f1_score": 0.9225,
+          "support": 39443
+        },
+        "DDoS": {
+          "balanced_accuracy": 0.9773,
+          "precision": 0.9733,
+          "recall": 0.9669,
+          "f1_score": 0.9701,
+          "support": 207074
+        },
+        "DoS": {
+          "balanced_accuracy": 0.9347,
+          "precision": 0.978,
+          "recall": 0.8789,
+          "f1_score": 0.9258,
+          "support": 211296
+        },
+        "IoT/MQTT": {
+          "balanced_accuracy": 0.9497,
+          "precision": 0.9322,
+          "recall": 0.9048,
+          "f1_score": 0.9183,
+          "support": 50282
+        },
+        "MITM": {
+          "balanced_accuracy": 0.8505,
+          "precision": 0.3586,
+          "recall": 0.7084,
+          "f1_score": 0.4761,
+          "support": 3793
+        },
+        "Reconnaissance": {
+          "balanced_accuracy": 0.8966,
+          "precision": 0.4961,
+          "recall": 0.8408,
+          "f1_score": 0.624,
+          "support": 34461
+        },
+        "WebAttack": {
+          "balanced_accuracy": 0.8975,
+          "precision": 0.859,
+          "recall": 0.7994,
+          "f1_score": 0.8281,
+          "support": 21620
+        }
+      }
+    }
+  }
+}

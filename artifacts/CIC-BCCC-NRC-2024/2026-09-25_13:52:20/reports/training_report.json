@@ -1,0 +1,10 @@
+{
+  "timestamp": "2026-09-25T14:20:17.862804Z",
+  "train_time_sec": 1621.49,
+  "num_train_samples": 2089100,
+  "throughput_samples_per_sec": 1288.38,
+  "total_epochs": 5,
+  "best_epoch": 1,
+  "best_val_f1_macro": 0.4007,
+  "final_val_loss": NaN
+}

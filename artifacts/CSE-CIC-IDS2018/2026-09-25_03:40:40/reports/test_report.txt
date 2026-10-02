@@ -1,0 +1,41 @@
+======================================================================
+           RELATÓRIO DE AVALIAÇÃO DE TESTE - ALF-MoE
+======================================================================
+Data/Hora:                     2026-09-25T04:39:13.533013Z
+Total de Amostras de Teste:    522,431
+Tempo de Inferência:           10.5901 s
+Latência por Amostra:          0.0203 ms/fluxo
+Vazão de Inferência:           49,332.15 fluxos/s
+----------------------------------------------------------------------
+DESEMPENHO GLOBAL DO MODELO ALF-MoE:
+  Acurácia:                    86.74%
+  Macro F1-Score:              0.7568
+  Macro Precisão:              0.8127
+  Macro Recall:                0.7697
+  Weighted F1-Score:           0.8849
+----------------------------------------------------------------------
+DESEMPENHO INDIVIDUAL DOS ESPECIALISTAS (F1-Macro):
+  DNN        F1: 0.6446 | Acc: 88.86%
+  CNN        F1: 0.0068 | Acc: 4.41%
+  GRU        F1: 0.7438 | Acc: 96.83%
+  CAE        F1: 0.6135 | Acc: 94.22%
+  LSTM       F1: 0.6960 | Acc: 96.52%
+----------------------------------------------------------------------
+Classe de Ameaça          Precisão     Recall       F1-Score     Suporte   
+----------------------------------------------------------------------
+Benign                    0.9888       0.9709       0.9798       257,371   
+Bot                       0.9985       0.9955       0.9970       28,898    
+Brute Force -Web          0.9268       0.6847       0.7876       111       
+Brute Force -XSS          0.7073       0.6444       0.6744       45        
+DDOS attack-HOIC          0.9996       0.9996       0.9996       39,772    
+DDOS attack-LOIC-UDP      0.7505       1.0000       0.8575       346       
+DDoS attacks-LOIC-HTTP    1.0000       0.5035       0.6698       115,003   
+DoS attacks-GoldenEye     0.9998       0.6288       0.7720       8,278     
+DoS attacks-Hulk          0.9275       0.9993       0.9621       29,040    
+DoS attacks-SlowHTTPTest  0.0000       0.0000       0.0000       1         
+DoS attacks-Slowloris     0.9969       0.9851       0.9909       1,942     
+FTP-BruteForce            0.6429       0.8182       0.7200       11        
+Infilteration             0.2513       0.9422       0.3968       22,789    
+SQL Injection             1.0000       0.3750       0.5455       16        
+SSH-Bruteforce            1.0000       0.9988       0.9994       18,808    
+======================================================================

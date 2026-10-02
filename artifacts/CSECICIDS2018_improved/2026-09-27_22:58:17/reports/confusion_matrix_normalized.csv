@@ -1,0 +1,16 @@
+,BENIGN,Botnet Ares,DDoS-HOIC,DDoS-LOIC-HTTP,DDoS-LOIC-UDP,DoS GoldenEye,DoS Hulk,DoS Slowloris,Infiltration - Communication Victim Attacker,Infiltration - Dropbox Download,Infiltration - NMAP Portscan,SSH-BruteForce,Web Attack - Brute Force,Web Attack - SQL,Web Attack - XSS
+BENIGN,0.9999,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0001,0.0,0.0,0.0,0.0
+Botnet Ares,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+DDoS-HOIC,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+DDoS-LOIC-HTTP,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+DDoS-LOIC-UDP,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+DoS GoldenEye,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+DoS Hulk,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+DoS Slowloris,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+Infiltration - Communication Victim Attacker,0.0732,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.9268,0.0,0.0,0.0,0.0,0.0,0.0
+Infiltration - Dropbox Download,0.8235,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.1765,0.0,0.0,0.0,0.0,0.0
+Infiltration - NMAP Portscan,0.0124,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.9876,0.0,0.0,0.0,0.0
+SSH-BruteForce,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0
+Web Attack - Brute Force,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0
+Web Attack - SQL,0.375,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.625,0.0
+Web Attack - XSS,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0

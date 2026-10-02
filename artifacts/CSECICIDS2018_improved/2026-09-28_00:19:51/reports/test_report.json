@@ -1,0 +1,438 @@
+{
+  "timestamp": "2026-09-28T01:39:47.134958Z",
+  "num_test_samples": 1263903,
+  "inference_time_sec": 14.8942,
+  "latency_ms_per_sample": 0.0118,
+  "throughput_samples_per_sec": 84858.49,
+  "alf_moe_metrics": {
+    "accuracy": 0.9996,
+    "macro_f1": 0.8851,
+    "macro_precision": 0.9579,
+    "macro_recall": 0.8927,
+    "weighted_f1": 0.9996,
+    "weighted_precision": 0.9996,
+    "weighted_recall": 0.9996
+  },
+  "alf_per_class_breakdown": {
+    "BENIGN": {
+      "balanced_accuracy": 0.9987,
+      "precision": 0.9997,
+      "recall": 0.9998,
+      "f1_score": 0.9998,
+      "support": 1128279
+    },
+    "Botnet": {
+      "balanced_accuracy": 1.0,
+      "precision": 0.9999,
+      "recall": 1.0,
+      "f1_score": 0.9999,
+      "support": 28584
+    },
+    "DDoS": {
+      "balanced_accuracy": 1.0,
+      "precision": 0.9999,
+      "recall": 1.0,
+      "f1_score": 0.9999,
+      "support": 27938
+    },
+    "DoS": {
+      "balanced_accuracy": 0.9999,
+      "precision": 0.9993,
+      "recall": 0.9999,
+      "f1_score": 0.9996,
+      "support": 42273
+    },
+    "Infiltration - Communication Victim Attacker": {
+      "balanced_accuracy": 0.9756,
+      "precision": 0.8298,
+      "recall": 0.9512,
+      "f1_score": 0.8864,
+      "support": 41
+    },
+    "Infiltration - Dropbox Download": {
+      "balanced_accuracy": 0.5588,
+      "precision": 1.0,
+      "recall": 0.1176,
+      "f1_score": 0.2105,
+      "support": 17
+    },
+    "Infiltration - NMAP Portscan": {
+      "balanced_accuracy": 0.9916,
+      "precision": 0.9924,
+      "recall": 0.9833,
+      "f1_score": 0.9879,
+      "support": 17875
+    },
+    "SSH-BruteForce": {
+      "balanced_accuracy": 1.0,
+      "precision": 0.9999,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "support": 18839
+    },
+    "Web Attack": {
+      "balanced_accuracy": 0.9912,
+      "precision": 0.8,
+      "recall": 0.9825,
+      "f1_score": 0.8819,
+      "support": 57
+    }
+  },
+  "experts_metrics": {
+    "DNN": {
+      "accuracy": 0.9985,
+      "macro_f1": 0.8134,
+      "macro_precision": 0.7792,
+      "macro_recall": 0.8891,
+      "per_class": {
+        "BENIGN": {
+          "balanced_accuracy": 0.9977,
+          "precision": 0.9996,
+          "recall": 0.9987,
+          "f1_score": 0.9992,
+          "support": 1128279
+        },
+        "Botnet": {
+          "balanced_accuracy": 1.0,
+          "precision": 0.9998,
+          "recall": 1.0,
+          "f1_score": 0.9999,
+          "support": 28584
+        },
+        "DDoS": {
+          "balanced_accuracy": 1.0,
+          "precision": 0.9984,
+          "recall": 1.0,
+          "f1_score": 0.9992,
+          "support": 27938
+        },
+        "DoS": {
+          "balanced_accuracy": 0.9999,
+          "precision": 0.996,
+          "recall": 1.0,
+          "f1_score": 0.998,
+          "support": 42273
+        },
+        "Infiltration - Communication Victim Attacker": {
+          "balanced_accuracy": 0.9634,
+          "precision": 0.6786,
+          "recall": 0.9268,
+          "f1_score": 0.7835,
+          "support": 41
+        },
+        "Infiltration - Dropbox Download": {
+          "balanced_accuracy": 0.5588,
+          "precision": 0.0625,
+          "recall": 0.1176,
+          "f1_score": 0.0816,
+          "support": 17
+        },
+        "Infiltration - NMAP Portscan": {
+          "balanced_accuracy": 0.9877,
+          "precision": 0.9432,
+          "recall": 0.9763,
+          "f1_score": 0.9595,
+          "support": 17875
+        },
+        "SSH-BruteForce": {
+          "balanced_accuracy": 1.0,
+          "precision": 0.9993,
+          "recall": 1.0,
+          "f1_score": 0.9996,
+          "support": 18839
+        },
+        "Web Attack": {
+          "balanced_accuracy": 0.9912,
+          "precision": 0.3353,
+          "recall": 0.9825,
+          "f1_score": 0.5,
+          "support": 57
+        }
+      }
+    },
+    "CNN": {
+      "accuracy": 0.9284,
+      "macro_f1": 0.6953,
+      "macro_precision": 0.7523,
+      "macro_recall": 0.8434,
+      "per_class": {
+        "BENIGN": {
+          "balanced_accuracy": 0.9643,
+          "precision": 0.9997,
+          "recall": 0.9309,
+          "f1_score": 0.9641,
+          "support": 1128279
+        },
+        "Botnet": {
+          "balanced_accuracy": 0.9999,
+          "precision": 0.9991,
+          "recall": 0.9999,
+          "f1_score": 0.9995,
+          "support": 28584
+        },
+        "DDoS": {
+          "balanced_accuracy": 0.932,
+          "precision": 0.7077,
+          "recall": 0.8722,
+          "f1_score": 0.7814,
+          "support": 27938
+        },
+        "DoS": {
+          "balanced_accuracy": 0.8954,
+          "precision": 0.8901,
+          "recall": 0.7942,
+          "f1_score": 0.8394,
+          "support": 42273
+        },
+        "Infiltration - Communication Victim Attacker": {
+          "balanced_accuracy": 0.9633,
+          "precision": 0.1413,
+          "recall": 0.9268,
+          "f1_score": 0.2452,
+          "support": 41
+        },
+        "Infiltration - Dropbox Download": {
+          "balanced_accuracy": 0.5588,
+          "precision": 1.0,
+          "recall": 0.1176,
+          "f1_score": 0.2105,
+          "support": 17
+        },
+        "Infiltration - NMAP Portscan": {
+          "balanced_accuracy": 0.9619,
+          "precision": 0.1886,
+          "recall": 0.9844,
+          "f1_score": 0.3166,
+          "support": 17875
+        },
+        "SSH-BruteForce": {
+          "balanced_accuracy": 1.0,
+          "precision": 0.998,
+          "recall": 1.0,
+          "f1_score": 0.999,
+          "support": 18839
+        },
+        "Web Attack": {
+          "balanced_accuracy": 0.9825,
+          "precision": 0.8462,
+          "recall": 0.9649,
+          "f1_score": 0.9016,
+          "support": 57
+        }
+      }
+    },
+    "GRU": {
+      "accuracy": 0.9934,
+      "macro_f1": 0.8464,
+      "macro_precision": 0.9082,
+      "macro_recall": 0.8735,
+      "per_class": {
+        "BENIGN": {
+          "balanced_accuracy": 0.9957,
+          "precision": 0.9997,
+          "recall": 0.9936,
+          "f1_score": 0.9967,
+          "support": 1128279
+        },
+        "Botnet": {
+          "balanced_accuracy": 0.9999,
+          "precision": 0.9995,
+          "recall": 0.9999,
+          "f1_score": 0.9997,
+          "support": 28584
+        },
+        "DDoS": {
+          "balanced_accuracy": 0.9969,
+          "precision": 0.9727,
+          "recall": 0.9944,
+          "f1_score": 0.9834,
+          "support": 27938
+        },
+        "DoS": {
+          "balanced_accuracy": 0.991,
+          "precision": 0.993,
+          "recall": 0.9821,
+          "f1_score": 0.9875,
+          "support": 42273
+        },
+        "Infiltration - Communication Victim Attacker": {
+          "balanced_accuracy": 0.9024,
+          "precision": 0.825,
+          "recall": 0.8049,
+          "f1_score": 0.8148,
+          "support": 41
+        },
+        "Infiltration - Dropbox Download": {
+          "balanced_accuracy": 0.5588,
+          "precision": 1.0,
+          "recall": 0.1176,
+          "f1_score": 0.2105,
+          "support": 17
+        },
+        "Infiltration - NMAP Portscan": {
+          "balanced_accuracy": 0.9904,
+          "precision": 0.7171,
+          "recall": 0.9863,
+          "f1_score": 0.8304,
+          "support": 17875
+        },
+        "SSH-BruteForce": {
+          "balanced_accuracy": 1.0,
+          "precision": 0.9999,
+          "recall": 1.0,
+          "f1_score": 1.0,
+          "support": 18839
+        },
+        "Web Attack": {
+          "balanced_accuracy": 0.9912,
+          "precision": 0.6667,
+          "recall": 0.9825,
+          "f1_score": 0.7943,
+          "support": 57
+        }
+      }
+    },
+    "CAE": {
+      "accuracy": 0.774,
+      "macro_f1": 0.5115,
+      "macro_precision": 0.5082,
+      "macro_recall": 0.6049,
+      "per_class": {
+        "BENIGN": {
+          "balanced_accuracy": 0.8738,
+          "precision": 0.9987,
+          "recall": 0.7558,
+          "f1_score": 0.8605,
+          "support": 1128279
+        },
+        "Botnet": {
+          "balanced_accuracy": 0.9956,
+          "precision": 0.9308,
+          "recall": 0.9929,
+          "f1_score": 0.9609,
+          "support": 28584
+        },
+        "DDoS": {
+          "balanced_accuracy": 0.8745,
+          "precision": 0.0909,
+          "recall": 0.9676,
+          "f1_score": 0.1663,
+          "support": 27938
+        },
+        "DoS": {
+          "balanced_accuracy": 0.9142,
+          "precision": 0.92,
+          "recall": 0.831,
+          "f1_score": 0.8732,
+          "support": 42273
+        },
+        "Infiltration - Communication Victim Attacker": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 41
+        },
+        "Infiltration - Dropbox Download": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 17
+        },
+        "Infiltration - NMAP Portscan": {
+          "balanced_accuracy": 0.9452,
+          "precision": 0.6375,
+          "recall": 0.8978,
+          "f1_score": 0.7456,
+          "support": 17875
+        },
+        "SSH-BruteForce": {
+          "balanced_accuracy": 0.9993,
+          "precision": 0.9962,
+          "recall": 0.9987,
+          "f1_score": 0.9975,
+          "support": 18839
+        },
+        "Web Attack": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 57
+        }
+      }
+    },
+    "LSTM": {
+      "accuracy": 0.9777,
+      "macro_f1": 0.7344,
+      "macro_precision": 0.6902,
+      "macro_recall": 0.8686,
+      "per_class": {
+        "BENIGN": {
+          "balanced_accuracy": 0.9727,
+          "precision": 0.9957,
+          "recall": 0.9803,
+          "f1_score": 0.988,
+          "support": 1128279
+        },
+        "Botnet": {
+          "balanced_accuracy": 0.9972,
+          "precision": 0.9865,
+          "recall": 0.9947,
+          "f1_score": 0.9906,
+          "support": 28584
+        },
+        "DDoS": {
+          "balanced_accuracy": 0.9931,
+          "precision": 0.9707,
+          "recall": 0.987,
+          "f1_score": 0.9788,
+          "support": 27938
+        },
+        "DoS": {
+          "balanced_accuracy": 0.9889,
+          "precision": 0.982,
+          "recall": 0.9784,
+          "f1_score": 0.9802,
+          "support": 42273
+        },
+        "Infiltration - Communication Victim Attacker": {
+          "balanced_accuracy": 0.9268,
+          "precision": 0.1724,
+          "recall": 0.8537,
+          "f1_score": 0.2869,
+          "support": 41
+        },
+        "Infiltration - Dropbox Download": {
+          "balanced_accuracy": 0.647,
+          "precision": 0.0442,
+          "recall": 0.2941,
+          "f1_score": 0.0769,
+          "support": 17
+        },
+        "Infiltration - NMAP Portscan": {
+          "balanced_accuracy": 0.8648,
+          "precision": 0.3865,
+          "recall": 0.7465,
+          "f1_score": 0.5093,
+          "support": 17875
+        },
+        "SSH-BruteForce": {
+          "balanced_accuracy": 1.0,
+          "precision": 0.9988,
+          "recall": 0.9999,
+          "f1_score": 0.9994,
+          "support": 18839
+        },
+        "Web Attack": {
+          "balanced_accuracy": 0.9912,
+          "precision": 0.6747,
+          "recall": 0.9825,
+          "f1_score": 0.8,
+          "support": 57
+        }
+      }
+    }
+  }
+}

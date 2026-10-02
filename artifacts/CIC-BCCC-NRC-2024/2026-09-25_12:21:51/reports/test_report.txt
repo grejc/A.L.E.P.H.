@@ -1,0 +1,76 @@
+===========================================================================
+           RELATÓRIO DE AVALIAÇÃO DE TESTE - MODELO ALF-MoE
+===========================================================================
+Data/Hora:                     2026-09-25T12:57:02.674216Z
+Total de Amostras de Teste:    652,845
+Tempo de Inferência:           17.8459 s
+Latência por Amostra:          0.0273 ms/fluxo
+Vazão de Inferência:           36,582.44 fluxos/s
+---------------------------------------------------------------------------
+DESEMPENHO GLOBAL DO MODELO ALF-MoE:
+  Acurácia:                    82.15%
+  Macro F1-Score:              0.4169
+  Macro Precisão:              0.4465
+  Macro Recall:                0.5098
+  Weighted F1-Score:           0.8099
+---------------------------------------------------------------------------
+DESEMPENHO INDIVIDUAL DOS ESPECIALISTAS VS ALF-MoE:
+  DNN      F1: 0.0045 | Acc: 10.74% | Prec: 0.0062 | Rec: 0.0206
+  CNN      F1: 0.2413 | Acc: 41.13% | Prec: 0.3099 | Rec: 0.2724
+  GRU      F1: 0.4127 | Acc: 81.43% | Prec: 0.4220 | Rec: 0.4987
+  CAE      F1: 0.0069 | Acc: 18.15% | Prec: 0.0112 | Rec: 0.0208
+  LSTM     F1: 0.3257 | Acc: 77.02% | Prec: 0.3550 | Rec: 0.3729
+  ALF-MoE  F1: 0.4169 | Acc: 82.15% | Prec: 0.4465 | Rec: 0.5098
+---------------------------------------------------------------------------
+Classe de Ameaça       Acurácia   Precisão   Recall     F1-Score   Suporte   
+---------------------------------------------------------------------------
+ACK Flood              0.9107     0.6171     0.8586     0.7181     86,511    
+Backdoor               0.9884     0.6879     0.6852     0.6866     12,127    
+Benign Traffic         0.9773     0.9651     0.8180     0.8855     70,185    
+DDoS ACK Fragmentation 0.9989     0.9752     0.9659     0.9705     12,083    
+DDoS HTTP Flood        0.9994     0.5763     0.6830     0.6251     470       
+DDoS ICMP Flood        0.9956     0.1187     0.7296     0.2041     503       
+DDoS ICMP Fragmentation 0.9997     0.8968     0.3883     0.5420     291       
+DDoS PSHACK Flood      0.9911     0.9608     0.9625     0.9617     75,840    
+DDoS RSTFIN Flood      0.9943     0.9787     0.9896     0.9841     117,262   
+DDoS TCP SYN Flood     0.9999     0.6875     1.0000     0.8148     121       
+DDoS UDP Flood         0.9988     0.0729     0.0476     0.0576     504       
+Dictionary Brute Force 0.9990     0.3006     0.1870     0.2306     540       
+DoS DNS Flood          0.9994     0.0952     0.0177     0.0299     339       
+DoS ICMP Flood         0.9989     0.0000     0.0000     0.0000     693       
+DoS SYN Flood          0.9956     0.3781     0.4725     0.4201     2,180     
+DoS TCP Flood          0.9916     0.9741     0.9432     0.9584     66,891    
+DoS UDP Flood          0.9974     0.0554     0.0464     0.0505     969       
+MITM                   0.9949     0.4974     0.7529     0.5990     3,278     
+MITM ARP Spoofing      0.9986     0.2062     0.2718     0.2345     515       
+MQTT Brute Force       0.9997     0.9996     0.9946     0.9971     30,249    
+MQTT DDoS Publish Flood 0.9944     0.8666     0.8325     0.8492     12,324    
+MQTT DoS Connect Flood 0.9985     0.9847     0.8731     0.9256     7,087     
+MQTT DoS Publish Flood 0.9996     0.3575     0.6702     0.4663     191       
+MQTT Malformed         0.9991     0.4069     0.8260     0.5452     431       
+Mirai ACK Flood        0.9923     0.0365     0.3734     0.0666     482       
+Mirai HTTP Flood       0.9961     0.0973     0.6010     0.1674     421       
+Mirai Host Brute Force 0.9984     0.3413     0.4288     0.3801     730       
+Mirai UDP Flood        0.9995     0.0943     0.1613     0.1190     124       
+Mirai UDP Plain        0.9990     0.1853     0.3151     0.2333     311       
+OS Fingerprinting      1.0000     0.0000     0.0000     0.0000     13        
+Password Attack        0.9977     0.8730     0.8375     0.8549     5,335     
+Port Scanning          0.9988     0.0331     1.0000     0.0640     26        
+Ransomware             0.9990     0.1877     0.0988     0.1295     496       
+Recon Host Discovery   0.9999     0.0000     0.0000     0.0000     84        
+Recon OS Scan          0.9942     0.8750     0.0092     0.0182     3,796     
+Recon Ping Sweep       0.9978     0.0000     0.0000     0.0000     1,405     
+Recon Port Scan        0.9568     0.4723     0.7896     0.5911     25,795    
+Recon Vulnerability Scan 0.9978     0.1622     0.0042     0.0082     1,423     
+SQL Injection          0.9990     0.2018     0.5211     0.2909     261       
+SYN Flood              0.9219     0.6828     0.0948     0.1665     53,713    
+Scan Aggressive        0.9988     0.1818     0.0026     0.0052     765       
+Scan Host Port         0.9997     0.3810     0.0372     0.0678     215       
+Scan Port OS           0.9995     0.1111     0.0034     0.0066     293       
+Scan UDP Attack        0.9880     0.0568     0.9670     0.1072     485       
+Sparta SSH Brute Force 0.9960     0.9991     0.9225     0.9593     33,430    
+Telnet Brute Force     0.9996     0.3237     0.6522     0.4327     138       
+Uploading Attack       0.9993     0.3226     0.5300     0.4011     283       
+Vulnerability Scanner  0.9999     0.6778     0.7578     0.7155     161       
+XSS                    0.9930     0.9224     0.8552     0.8875     21,076    
+===========================================================================

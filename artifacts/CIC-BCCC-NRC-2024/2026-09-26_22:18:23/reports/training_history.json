@@ -1,0 +1,163 @@
+{
+  "ALF_Accuracy": [
+    0.4297448694705963,
+    0.10750658065080643,
+    0.10750658065080643,
+    0.10750658065080643,
+    0.10750658065080643
+  ],
+  "ALF_F1-Score": [
+    0.461408406496048,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "ALF_Precision": [
+    0.9336800575256348,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "ALF_Recall": [
+    0.34735435247421265,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "ALF_loss": [
+    NaN,
+    NaN,
+    NaN,
+    NaN,
+    NaN
+  ],
+  "CAE_loss": [
+    NaN,
+    NaN,
+    NaN,
+    NaN,
+    NaN
+  ],
+  "CNN_loss": [
+    NaN,
+    NaN,
+    NaN,
+    NaN,
+    NaN
+  ],
+  "DNN_loss": [
+    NaN,
+    NaN,
+    NaN,
+    NaN,
+    NaN
+  ],
+  "GRU_loss": [
+    NaN,
+    NaN,
+    NaN,
+    NaN,
+    NaN
+  ],
+  "LSTM_loss": [
+    NaN,
+    NaN,
+    NaN,
+    NaN,
+    NaN
+  ],
+  "loss": [
+    NaN,
+    NaN,
+    NaN,
+    NaN,
+    NaN
+  ],
+  "val_ALF_Accuracy": [
+    0.10750637948513031,
+    0.10750637948513031,
+    0.10750637948513031,
+    0.10750637948513031,
+    0.10750637948513031
+  ],
+  "val_ALF_F1-Score": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "val_ALF_Precision": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "val_ALF_Recall": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "val_ALF_loss": [
+    NaN,
+    NaN,
+    NaN,
+    NaN,
+    NaN
+  ],
+  "val_CAE_loss": [
+    NaN,
+    NaN,
+    NaN,
+    NaN,
+    NaN
+  ],
+  "val_CNN_loss": [
+    NaN,
+    NaN,
+    NaN,
+    NaN,
+    NaN
+  ],
+  "val_DNN_loss": [
+    NaN,
+    NaN,
+    NaN,
+    NaN,
+    NaN
+  ],
+  "val_GRU_loss": [
+    NaN,
+    NaN,
+    NaN,
+    NaN,
+    NaN
+  ],
+  "val_LSTM_loss": [
+    NaN,
+    NaN,
+    NaN,
+    NaN,
+    NaN
+  ],
+  "val_loss": [
+    NaN,
+    NaN,
+    NaN,
+    NaN,
+    NaN
+  ],
+  "learning_rate": [
+    0.0010000000474974513,
+    0.0010000000474974513,
+    0.0010000000474974513,
+    0.0005000000237487257,
+    0.0005000000237487257
+  ]
+}

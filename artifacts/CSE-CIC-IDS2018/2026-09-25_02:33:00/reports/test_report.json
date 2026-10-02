@@ -1,0 +1,72 @@
+{
+  "timestamp": "2026-09-25T03:16:24.449043Z",
+  "num_test_samples": 522431,
+  "inference_time_sec": 8.0338,
+  "latency_ms_per_sample": 0.0154,
+  "throughput_samples_per_sec": 65029.42,
+  "alf_moe_metrics": {
+    "accuracy": 0.9365,
+    "macro_f1": 0.8616,
+    "macro_precision": 0.9141,
+    "macro_recall": 0.8737,
+    "weighted_f1": 0.9451,
+    "weighted_precision": 0.968,
+    "weighted_recall": 0.9365
+  },
+  "experts_metrics": {
+    "DNN_F1_Macro": 0.7535,
+    "DNN_Accuracy": 0.9171,
+    "CNN_F1_Macro": 0.0139,
+    "CNN_Accuracy": 0.0441,
+    "GRU_F1_Macro": 0.9154,
+    "GRU_Accuracy": 0.9687,
+    "CAE_F1_Macro": 0.389,
+    "CAE_Accuracy": 0.6674,
+    "LSTM_F1_Macro": 0.8913,
+    "LSTM_Accuracy": 0.9581
+  },
+  "per_class_breakdown": {
+    "Benign": {
+      "precision": 0.9877,
+      "recall": 0.997,
+      "f1_score": 0.9923,
+      "support": 257371
+    },
+    "Botnet": {
+      "precision": 0.9987,
+      "recall": 0.9938,
+      "f1_score": 0.9962,
+      "support": 28898
+    },
+    "BruteForce": {
+      "precision": 0.9999,
+      "recall": 0.998,
+      "f1_score": 0.999,
+      "support": 18819
+    },
+    "DDoS": {
+      "precision": 0.9992,
+      "recall": 0.8111,
+      "f1_score": 0.8954,
+      "support": 155121
+    },
+    "DoS": {
+      "precision": 0.9998,
+      "recall": 0.9746,
+      "f1_score": 0.987,
+      "support": 39261
+    },
+    "Infiltration": {
+      "precision": 0.4136,
+      "recall": 0.9226,
+      "f1_score": 0.5712,
+      "support": 22789
+    },
+    "WebAttack": {
+      "precision": 1.0,
+      "recall": 0.4186,
+      "f1_score": 0.5902,
+      "support": 172
+    }
+  }
+}

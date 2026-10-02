@@ -1,0 +1,42 @@
+===========================================================================
+           RELATÓRIO DE AVALIAÇÃO DE TESTE - MODELO ALF-MoE
+===========================================================================
+Data/Hora:                     2026-09-25T10:40:45.959092Z
+Total de Amostras de Teste:    522,431
+Tempo de Inferência:           13.4265 s
+Latência por Amostra:          0.0257 ms/fluxo
+Vazão de Inferência:           38,910.55 fluxos/s
+---------------------------------------------------------------------------
+DESEMPENHO GLOBAL DO MODELO ALF-MoE:
+  Acurácia:                    99.08%
+  Macro F1-Score:              0.8056
+  Macro Precisão:              0.7976
+  Macro Recall:                0.8432
+  Weighted F1-Score:           0.9910
+---------------------------------------------------------------------------
+DESEMPENHO INDIVIDUAL DOS ESPECIALISTAS VS ALF-MoE:
+  DNN      F1: 0.6332 | Acc: 80.15% | Prec: 0.6585 | Rec: 0.6908
+  CNN      F1: 0.6280 | Acc: 79.31% | Prec: 0.7456 | Rec: 0.5939
+  GRU      F1: 0.7581 | Acc: 96.80% | Prec: 0.7721 | Rec: 0.7538
+  CAE      F1: 0.5182 | Acc: 89.93% | Prec: 0.5435 | Rec: 0.5148
+  LSTM     F1: 0.6655 | Acc: 96.58% | Prec: 0.7202 | Rec: 0.6705
+  ALF-MoE  F1: 0.8056 | Acc: 99.08% | Prec: 0.7976 | Rec: 0.8432
+---------------------------------------------------------------------------
+Classe de Ameaça       Acurácia   Precisão   Recall     F1-Score   Suporte   
+---------------------------------------------------------------------------
+Benign                 0.9951     0.9942     0.9960     0.9951     257,371   
+Bot                    0.9998     0.9976     0.9982     0.9979     28,898    
+Brute Force -Web       0.9999     0.9048     0.6847     0.7795     111       
+Brute Force -XSS       0.9999     0.6739     0.6889     0.6813     45        
+DDOS attack-HOIC       0.9999     0.9995     0.9998     0.9996     39,772    
+DDOS attack-LOIC-UDP   0.9998     0.7655     1.0000     0.8672     346       
+DDoS attacks-LOIC-HTTP 0.9963     0.9994     0.9835     0.9914     115,003   
+DoS attacks-GoldenEye  1.0000     0.9998     0.9987     0.9992     8,278     
+DoS attacks-Hulk       1.0000     0.9997     0.9996     0.9996     29,040    
+DoS attacks-SlowHTTPTest 1.0000     0.0000     0.0000     0.0000     1         
+DoS attacks-Slowloris  1.0000     0.9938     0.9928     0.9933     1,942     
+FTP-BruteForce         0.9999     0.1957     0.8182     0.3158     11        
+Infilteration          0.9912     0.8781     0.9262     0.9015     22,789    
+SQL Injection          1.0000     0.5625     0.5625     0.5625     16        
+SSH-Bruteforce         1.0000     0.9999     0.9995     0.9997     18,808    
+===========================================================================

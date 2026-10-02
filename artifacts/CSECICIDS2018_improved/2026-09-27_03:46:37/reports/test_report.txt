@@ -1,0 +1,36 @@
+===========================================================================
+           RELATÓRIO DE AVALIAÇÃO DE TESTE - MODELO ALF-MoE
+===========================================================================
+Data/Hora:                     2026-09-27T05:32:22.862403Z
+Total de Amostras de Teste:    1,263,903
+Tempo de Inferência:           19.2140 s
+Latência por Amostra:          0.0152 ms/fluxo
+Vazão de Inferência:           65,780.31 fluxos/s
+---------------------------------------------------------------------------
+DESEMPENHO GLOBAL DO MODELO ALF-MoE:
+  Acurácia:                    99.93%
+  Macro F1-Score:              0.8446
+  Macro Precisão:              0.8442
+  Macro Recall:                0.8931
+  Weighted F1-Score:           0.9993
+---------------------------------------------------------------------------
+DESEMPENHO INDIVIDUAL DOS ESPECIALISTAS VS ALF-MoE:
+  DNN      F1: 0.7810 | Acc: 99.79% | Prec: 0.7447 | Rec: 0.8753
+  CNN      F1: 0.6894 | Acc: 92.70% | Prec: 0.6494 | Rec: 0.8295
+  GRU      F1: 0.7841 | Acc: 99.06% | Prec: 0.7437 | Rec: 0.8722
+  CAE      F1: 0.5074 | Acc: 78.07% | Prec: 0.5009 | Rec: 0.6028
+  LSTM     F1: 0.6645 | Acc: 97.74% | Prec: 0.6260 | Rec: 0.8444
+  ALF-MoE  F1: 0.8446 | Acc: 99.93% | Prec: 0.8442 | Rec: 0.8931
+-------------------------------------------------------------------------------
+Classe de Ameaça       Acurácia Bal.  Precisão   Recall     F1-Score   Suporte   
+-------------------------------------------------------------------------------
+BENIGN                 0.9984         0.9997     0.9996     0.9996     1,128,279 
+Botnet                 1.0000         0.9999     1.0000     0.9999     28,584    
+DDoS                   0.9999         0.9995     0.9999     0.9997     27,938    
+DoS                    0.9999         0.9967     1.0000     0.9983     42,273    
+Infiltration - Communication Victim Attacker 0.9878         0.3704     0.9756     0.5369     41        
+Infiltration - Dropbox Download 0.5588         0.4000     0.1176     0.1818     17        
+Infiltration - NMAP Portscan 0.9902         0.9855     0.9806     0.9831     17,875    
+SSH-BruteForce         1.0000         0.9999     1.0000     1.0000     18,839    
+Web Attack             0.9825         0.8462     0.9649     0.9016     57        
+===============================================================================

@@ -1,0 +1,6 @@
+epoch,ALF_Accuracy,ALF_F1-Score,ALF_Precision,ALF_Recall,ALF_loss,CAE_loss,CNN_loss,DNN_loss,GRU_loss,LSTM_loss,learning_rate,loss,val_ALF_Accuracy,val_ALF_F1-Score,val_ALF_Precision,val_ALF_Recall,val_ALF_loss,val_CAE_loss,val_CNN_loss,val_DNN_loss,val_GRU_loss,val_LSTM_loss,val_loss
+0,0.4297448694705963,0.461408406496048,0.9336800575256348,0.34735435247421265,nan,nan,nan,nan,nan,nan,0.0010000000474974513,nan,0.10750637948513031,0.0,0.0,0.0,nan,nan,nan,nan,nan,nan,nan
+1,0.10750658065080643,0.0,0.0,0.0,nan,nan,nan,nan,nan,nan,0.0010000000474974513,nan,0.10750637948513031,0.0,0.0,0.0,nan,nan,nan,nan,nan,nan,nan
+2,0.10750658065080643,0.0,0.0,0.0,nan,nan,nan,nan,nan,nan,0.0010000000474974513,nan,0.10750637948513031,0.0,0.0,0.0,nan,nan,nan,nan,nan,nan,nan
+3,0.10750658065080643,0.0,0.0,0.0,nan,nan,nan,nan,nan,nan,0.0005000000237487257,nan,0.10750637948513031,0.0,0.0,0.0,nan,nan,nan,nan,nan,nan,nan
+4,0.10750658065080643,0.0,0.0,0.0,nan,nan,nan,nan,nan,nan,0.0005000000237487257,nan,0.10750637948513031,0.0,0.0,0.0,nan,nan,nan,nan,nan,nan,nan

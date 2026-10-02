@@ -1,0 +1,8 @@
+,Benign,Botnet,BruteForce,DDoS,DoS,Infiltration,WebAttack
+Benign,269465,0,0,12,11,206,0
+Botnet,24,56359,0,0,0,79,0
+BruteForce,0,0,30181,0,1154,0,0
+DDoS,0,1632,0,247434,0,208,0
+DoS,2,0,6010,0,97216,31,0
+Infiltration,2168,208,20,116,16,29851,0
+WebAttack,5,13,0,0,0,97,71

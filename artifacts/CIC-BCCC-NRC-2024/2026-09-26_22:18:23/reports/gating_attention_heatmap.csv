@@ -1,0 +1,10 @@
+,DNN,CNN,GRU,CAE,LSTM
+Benign Traffic,,,,,
+Botnet/Malware,,,,,
+BruteForce,,,,,
+DDoS,,,,,
+DoS,,,,,
+IoT/MQTT,,,,,
+MITM,,,,,
+Reconnaissance,,,,,
+WebAttack,,,,,
