@@ -185,8 +185,6 @@ class ALFMoEModel:
             strides=1,
             lambda_rec=cae_lambda_rec,
             lambda_reg=cae_lambda_reg,
-            dense_units=cae_dense_units,
-            dropout_rate=cae_dropout,
             name="CAE",
         )
 

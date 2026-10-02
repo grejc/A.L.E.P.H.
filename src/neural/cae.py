@@ -21,8 +21,6 @@ def build_cae_expert(
     strides: int = 1,
     lambda_rec: float = 1.0,
     lambda_reg: float = 1e-4,
-    dense_units: int = 128,
-    dropout_rate: float = 0.1,
     name: str = "CAE",
 ) -> keras.Model:
     """
