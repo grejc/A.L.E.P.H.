@@ -13,30 +13,58 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Ataques/HUMAN.md",
+                "file": "EDA CSE-CIC-IDS2018 Corrigido.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "HUMAN"
+              "title": "EDA CSE-CIC-IDS2018 Corrigido"
             }
           },
           {
-            "id": "3fb68ea5f19b2043",
+            "id": "2186edc1921f8327",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Relatórios/OPENCODE.md",
+                "file": "Detalhamento da Estrutura da Tese.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "OPENCODE"
+              "title": "Detalhamento da Estrutura da Tese"
+            }
+          },
+          {
+            "id": "cded47a0bb7d9eba",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Processamento dos Datasets.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Processamento dos Datasets"
+            }
+          },
+          {
+            "id": "9fb1315085701aeb",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "EDA_CIC_UNSW_NB15.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "EDA_CIC_UNSW_NB15"
             }
           }
         ],
-        "currentTab": 1
+        "currentTab": 3
       }
     ],
     "direction": "vertical"
@@ -98,7 +126,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 231.51171875
+    "width": 216.609375
   },
   "right": {
     "id": "57b168fadd8dec99",
@@ -203,38 +231,40 @@
       "bases:Criar nova base": false
     }
   },
-  "active": "3fb68ea5f19b2043",
+  "active": "9fb1315085701aeb",
   "lastOpenFiles": [
-    "Ataques/HUMAN.md",
-    "Relatórios/OPENCODE.md",
-    "Ataques/AGENTS.md",
-    "NOTAS.md",
-    "Atacante e Vítima.md",
+    "Detalhamento da Estrutura da Tese.md",
+    "Bibliografia/BASE_DE_CONHECIMENTO_COMPLETA.md",
+    "Bibliografia/Visao_Geral.md",
+    "Bibliografia/00_Indice_Bibliografico.md",
+    "Bibliografia/Afirmacoes_e_Claims.md",
+    "Bibliografia/Rede_Intelectual.md",
+    "Bibliografia/Contradicoes_e_Divergencias.md",
+    "Bibliografia/Conceitos_Centrais.md",
+    "Bibliografia/Conceitos/NFStream Framework.md",
+    "Bibliografia/Conceitos/UGR_16 Dataset.md",
+    "Bibliografia/Conceitos/CICIoT2023 Dataset.md",
+    "Bibliografia/Conceitos/CIC-IDS-2017 Dataset.md",
+    "Bibliografia/Conceitos/Data Leakage e Split Temporal.md",
+    "Bibliografia/Conceitos/NetFlow e Padronizacao de Atributos.md",
+    "Bibliografia/Conceitos/Criptografia Ponta a Ponta e TLS 1.3.md",
+    "Bibliografia/Conceitos/Inter-Arrival Time (IAT) e Atributos Temporais.md",
+    "Bibliografia/Conceitos/Convolutional Autoencoder (CAE).md",
+    "Bibliografia/Conceitos/Gated Recurrent Unit (GRU).md",
+    "Bibliografia/Conceitos/Calibracao de Confianca.md",
+    "Bibliografia/Conceitos/Mixture of Experts.md",
+    "Bibliografia/Conceitos/Deep Learning em Ciberseguranca.md",
+    "Bibliografia/Conceitos/NIDS.md",
+    "Bibliografia/artigo_048.md",
+    "Bibliografia/artigo_047.md",
+    "Bibliografia/artigo_046.md",
+    "Bibliografia/artigo_045.md",
+    "Bibliografia/Conceitos",
+    "Bibliografia",
     "Modelo/Sem título.canvas",
-    "Modelo/ALF-MoE.md",
     "Modelo/Sem título.base",
-    "Modelo/Gating Network.md",
-    "Modelo/LSTM.md",
-    "Modelo/CAE.md",
-    "Modelo/GRU.md",
-    "Modelo/CNN.md",
-    "Modelo/DNN.md",
     "Modelo",
-    "Relatórios/Reconhecimento.md",
     "Relatórios",
-    "ESTRUTURA DA TESE DE GRADUAÇÃO.md",
-    "EDA CSE-CIC-IDS2018 Corrigido.md",
-    "Detalhamento da Estrutura.md",
-    "CICFlowMeter Features VS NFStream Features.md",
-    "Ataques/DoS - Slowloris.md",
-    "Ataques/DoS - GoldenEye.md",
-    "Ataques/DoS - Hulk.md",
-    "Ataques/DDoS - LOIC UDP.md",
-    "Ataques/DDoS - LOIC HTTP.md",
-    "Ataques/DDoS - HOIC.md",
-    "Ataques/Botnet - Ares.md",
-    "Ataques/00 - Mapeamento de Ataques Kali Linux.md",
-    "Ambientes/Ambiente de Ataques.md",
     "Ambientes/assets/DVWA_4.png",
     "Ambientes/assets/Screenshot From 2026-09-25 03-21-11.png",
     "Ambientes/assets/DVWA_3.png",

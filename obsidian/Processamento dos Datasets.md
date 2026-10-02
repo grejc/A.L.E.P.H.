@@ -59,3 +59,6 @@ Esse dataset foi gerado juntando todos os sub-datasets em um único arquivo, pre
 
 Devido ao tamanho do dataset e as limitações da minha máquina, uma sample de 15% do dataset original foi gerada, com retenção de 100% de todas as 14 classes raras e alocação Hare-Niemeyer nas 35 demais classes.
 
+O link que detalha melhor quais datasets fazem parte deste dataset:
+https://www.unb.ca/cic/datasets/tabular-iot-attack-2024.html
+

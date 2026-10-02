@@ -7,3 +7,5 @@ Para a vítima, alguns serviços estão rodando como os descritos em [[Ambiente 
 
 O catálogo completo de ferramentas e ataques planejados para o atacante Kali está detalhado em [[00 - Mapeamento de Ataques Kali Linux]].
 
+---
+Isso aqui no fim das contas não rolou

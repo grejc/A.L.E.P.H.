@@ -62,4 +62,4 @@ As coisas no código são, refatorar o InferencePipeline para que ele infira dir
 
 ---
 
-Novo dia, desativei 
+Acho que no fim das contas vou tentar subir o ambiente do MITRE Caldeira em um docker e coletar com isso mesmo...
