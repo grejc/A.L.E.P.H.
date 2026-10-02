@@ -355,65 +355,6 @@ class InferenceAuditor:
 # =============================================================================
 # 3. DEFESA ATIVA (NIPS) E ANTI-AUTO-BLOQUEIO
 # =============================================================================
-class _ActiveTCPResponder:
-    """Socket server TCP que responde aos atacantes com a mensagem de alerta configurada."""
-
-    def __init__(self, host: str = "127.0.0.1", port: int = 9999, response_text: str = "I SEE YOU!") -> None:
-        self.host = host
-        self.port = port
-        self.response_text = response_text
-        self.server_socket: Optional[socket.socket] = None
-        self.thread: Optional[threading.Thread] = None
-        self.running: bool = False
-
-    def start(self) -> bool:
-        try:
-            self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            self.server_socket.bind((self.host, self.port))
-            self.server_socket.listen(128)
-            self.server_socket.settimeout(1.0)
-            self.running = True
-            self.thread = threading.Thread(target=self._serve, name="ALF-MoE-TCPResponder", daemon=True)
-            self.thread.start()
-            return True
-        except Exception:
-            self.running = False
-            return False
-
-    def _serve(self) -> None:
-        while self.running and self.server_socket:
-            try:
-                client_sock, _ = self.server_socket.accept()
-                threading.Thread(target=self._handle_client, args=(client_sock,), daemon=True).start()
-            except socket.timeout:
-                continue
-            except Exception:
-                break
-
-    def _handle_client(self, client_sock: socket.socket) -> None:
-        try:
-            client_sock.settimeout(2.0)
-            resp = f"{self.response_text}\n".encode("utf-8")
-            client_sock.sendall(resp)
-        except Exception:
-            pass
-        finally:
-            try:
-                client_sock.close()
-            except Exception:
-                pass
-
-    def stop(self) -> None:
-        self.running = False
-        if self.server_socket:
-            try:
-                self.server_socket.close()
-            except Exception:
-                pass
-            self.server_socket = None
-
-
 def get_host_local_ips() -> Set[str]:
     """Descobre dinamicamente todos os IPs locais do host para proteção anti-auto-bloqueio."""
     ips: Set[str] = {"127.0.0.1", "::1", "localhost", "0.0.0.0", "::"}
@@ -466,16 +407,16 @@ class ActiveDefenseAgent:
         set_name: str = "blocked_ips",
         block_duration_sec: int = 300,
         response_text: str = "I SEE YOU!",
-        responder_port: int = 9999,
+        responder_port: Optional[int] = None,
         auditor: Optional[InferenceAuditor] = None,
         custom_whitelist: Optional[Union[List[str], Set[str], str]] = None,
+        **kwargs: Any,
     ) -> None:
         self.table_name = table_name
         self.set_name = set_name
         self.block_duration_sec = block_duration_sec
         self.response_text = response_text
         self.auditor = auditor
-        self.responder_port = responder_port
 
         self.lock = threading.Lock()
         self.active_blocks: Dict[str, Dict[str, Any]] = {}
@@ -487,11 +428,6 @@ class ActiveDefenseAgent:
                 self.whitelist.update(str(x).strip() for x in custom_whitelist)
             elif isinstance(custom_whitelist, str):
                 self.whitelist.update(x.strip() for x in custom_whitelist.split(","))
-
-        self.tcp_responder = _ActiveTCPResponder(
-            host="127.0.0.1", port=self.responder_port, response_text=self.response_text
-        )
-        self.tcp_responder.start()
 
         self.is_root = (os.geteuid() == 0) if hasattr(os, "geteuid") else False
         self._init_nftables()
@@ -590,14 +526,13 @@ class ActiveDefenseAgent:
                 action="BLOCK_IP",
                 target_ip=ip,
                 duration_sec=self.block_duration_sec,
-                details=f"Ameaça {attack_type} (confiança: {confidence*100:.1f}%) | Resposta: {self.response_text}",
+                details=f"Ameaça {attack_type} (confiança: {confidence*100:.1f}%) | Descarte silencioso (drop)",
             )
-        print(f"\n🚨 [DEFESA ATIVA] IP BLOQUEADO: {ip} | Ameaça: {attack_type} | Duração: {self.block_duration_sec}s | Msg: {self.response_text}")
+        print(f"\n🚨 [DEFESA ATIVA] IP BLOQUEADO: {ip} | Ameaça: {attack_type} | Duração: {self.block_duration_sec}s | Regra: nftables drop")
         return True
 
     def close(self) -> None:
-        """Encerra responder TCP e limpa tabelas do firewall se aplicável."""
-        self.tcp_responder.stop()
+        """Limpa tabelas do firewall se aplicável."""
         if self.is_root:
             try:
                 subprocess.run(["nft", "delete", "table", "inet", self.table_name], capture_output=True)
@@ -1275,7 +1210,6 @@ class InferencePipeline:
             self.active_defense = ActiveDefenseAgent(
                 block_duration_sec=CONFIG.inference.active_defense_duration,
                 response_text=CONFIG.inference.active_response_text,
-                responder_port=CONFIG.inference.active_responder_port,
                 auditor=self.auditor,
                 custom_whitelist=CONFIG.inference.protected_ips,
             )
@@ -1481,7 +1415,7 @@ class InferencePipeline:
             self.batch_pool.flush()
 
     def close(self) -> None:
-        """Encerra responder TCP, pool de inferência e limpa tabelas do firewall se aplicável."""
+        """Encerra pool de inferência e limpa tabelas do firewall se aplicável."""
         if hasattr(self, "batch_pool") and self.batch_pool:
             self.batch_pool.stop()
         if self.active_defense:

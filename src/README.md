@@ -149,5 +149,4 @@ Para inferência em lote a partir de arquivo CSV:
 
 - **Proteção Anti-Auto-Bloqueio**: O agente descobre dinamicamente todos os IPs atribuídos às interfaces do host, loopback (`127.0.0.1`, `::1`) e rota de gateway padrão. Conexões originadas no próprio host que contactam destinos maliciosos bloqueiam estritamente o IP externo remoto.
 - **Firewall Kernel Linux**: Cria conjunto temporizado no `nftables` (`flags timeout; timeout 300s;`), descartando pacotes do agressor por 5 minutos sem degradação de CPU.
-- **Notificação TCP Ativa**: Servidor raw socket escuta requisições de portas hostis e responde com mensagem de advertência (`"I SEE YOU!"`).
 - **Auditoria Forense JSONL**: Cada fluxo processado gera um evento estruturado em `logs/audit_inference_<timestamp>.jsonl` contendo 5-tuple, predição consolidada, confiança, distribuição de pesos da Gating Network e ação de bloqueio adotada.

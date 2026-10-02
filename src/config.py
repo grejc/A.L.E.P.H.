@@ -154,7 +154,6 @@ class InferenceConfig:
     enable_active_defense: bool = True
     active_defense_duration: int = 300  # 5 minutos de bloqueio automático via nftables
     active_response_text: str = "I SEE YOU!"
-    active_responder_port: int = 9999
     enable_audit: bool = True
     audit_jsonl: bool = True
     audit_to_file: bool = True
