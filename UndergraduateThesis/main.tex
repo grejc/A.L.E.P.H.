@@ -16,7 +16,7 @@
 	% Opções da classe 'babel'
 	%----------------------------------------------------------------------------------------%
 	english,	%Idioma adicional para hifenização (Abstract).
-	brazil	    %Idioma principal do documento.
+	brazilian   %Idioma principal do documento.
 	%----------------------------------------------------------------------------------------%
 ]{abntex2}
 
@@ -26,10 +26,12 @@
 \usepackage{style}                  %Pacote Básico de formatação no padrão da UNESP/FEG
 \usepackage{color}		            %Controle das cores.
 \usepackage{graphicx}	            %Inclusão de gráficos.
+\usepackage{subcaption}	            %Suporte a subfiguras emparelhadas.
 \usepackage{lipsum}		            %Para geração de 'Dummy Text'.
 \usepackage{pdfpages}               %Para inclusão de arquivos pdf
 \usepackage[alf]{abntex2cite}       %Para inclusão das referências
 \usepackage[table,xcdraw]{xcolor}
+\hypersetup{plainpages=false,pdfpagelabels=true}
 
 %----------------------------------------------------------------------------------------%
 % I N F O R M A Ç Õ E S   B Á S I C A S   S O B R E   O   T R A B A L H O
@@ -51,7 +53,7 @@
 
 % Subtítulo do presente trabalho, se houver:
 \newcommand{\subtituloDoTrabalho}{Redes Especialistas com Fusão Aprendível Baseada em Atenção
-para Classificação e Mitigação de Ataques Cibernéticos}
+para Classificação de Ataques Cibernéticos}
 
 % Tipo do trabalho (Trabalho de Conclusão de Curso)
 \newcommand{\tipoDeTrabalho}{Trabalho de Conclusão de Curso}
@@ -193,13 +195,10 @@ para Classificação e Mitigação de Ataques Cibernéticos}
 		% da cabeça — e para todos os que, ainda que tenham se perdido no labirinto dos próprios pensamentos,
 		% encontraram forças para continuar vivendo.
 
-		% À todas as curiosas crianças adultas, que (re)encontraram seu propósito mesmo perdidos no labirinto da
-		% própria mente.
+		\textit{À todas as curiosas crianças adultas, que (re)encontraram seu propósito mesmo perdidos no labirinto da
+		própria mente.}
 
 		% À todos que vislumbraram o vazio e escolheram apenas continuar.
-
-		%Dedico este trabalho à todas as crianças com mentes adultas que aprenderam cedo demais que a própria
-		% companhia era a única que realmente dava para contar.
 
 		% Ao pequeno cientista que ousou sonhar com o infinito, e ao adulto que, mesmo atravessando o silêncio do
 		% próprio labirinto, escolheu não desistir de descobri-lo.
@@ -212,8 +211,8 @@ para Classificação e Mitigação de Ataques Cibernéticos}
 
 		% Ao pequeno cientista que viu o infinito em uma tela e ao adulto que sobreviveu ao colapso do próprio
 		% universo: descobrimos, enfim, que existir é a pesquisa mais difícil de todas.
-		\textit{À criança que sonhava ser cientista para entender o mundo e ao homem que precisou reaprender a
-		respirar nele: obrigado por não ter deixado o nosso laboratório ficar às escuras.}
+		% \textit{À criança que sonhava ser cientista para entender o mundo e ao homem que precisou reaprender a
+		% respirar nele: obrigado por não ter deixado o nosso laboratório ficar às escuras.}
 	\end{flushright}
 	\vspace*{1cm}
 \end{dedicatoria}
@@ -269,10 +268,12 @@ para Classificação e Mitigação de Ataques Cibernéticos}
 		aula, tornando-se uma irmandade de apoio mútuo. Obrigado pelas horas intermináveis de algoritmos, pelos
 	debates sobre cálculos e por tornarem o peso da graduação muito mais leve com sua lealdade e amizade.}
 
-	\par{Aos amigos Alexandre Arruda (Alê), Gabriel Fagá (Fagas) e Pedro Henrique Zaccaria (Z), agradeço pelos
-		momentos de descontração e pelas pausas necessárias. Seja nas partidas de \textit{Minecraft} ou nas
-		conversas sem pressa, vocês foram o alívio essencial para que a mente pudesse descansar e o riso pudesse
-	retornar. A jornada foi mais feliz por causa de vocês.}
+	\par{Aos amigos Alexandre Arruda (Alê), Gabriel Fagá (Fagas) e Pedro Henrique Zaccaria (Z), Sizenando França e 
+        Felipe Vilhalva, agradeço pelos momentos de descontração e pelas pausas necessárias. 
+        Seja nas partidas de \textit{Minecraft} ou nas conversas sem pressa, vocês foram o alívio essencial 
+        para que a mente pudesse descansar e o riso pudesse retornar. 
+        A jornada foi mais feliz por causa de vocês.
+    }
 
 	\par{Aos mestres do Curso de Ciência da Computação da UEMS, cujas lições vão além dos livros. Em especial à
 		Profa. Dra. Glaucia Gabriel, pela imensa empatia e humanidade demonstradas em meus momentos mais difíceis;
@@ -303,6 +304,7 @@ para Classificação e Mitigação de Ataques Cibernéticos}
 	\end{flushright}
 \end{epigrafe}
 
+% TODO: Falta adicionar
 %------------------------------------------------------------------------------------%
 % R E S U M O   N O   I D I O M A   D O   T E X T O
 %
@@ -325,6 +327,7 @@ para Classificação e Mitigação de Ataques Cibernéticos}
 	\noindent\textbf{{Palavras-Chave: }} palavra-chave; palavra-chave; palavra-chave.
 \end{resumo}
 
+% TODO: Falta adicionar
 %------------------------------------------------------------------------------------%
 % A B S T R A C T :   R E S U M O   N O   I D I O M A   E S T R A N G E I R O
 %
@@ -355,18 +358,21 @@ para Classificação e Mitigação de Ataques Cibernéticos}
 % lista própria para cada tipo de ilustração ou lista única para variados tipos de ilustrações (figuras,
 % fotografias, organogramas, quadros, etc).(NBR: 14724)
 % Se não for utilizar uma Lista de Ilustrações, basta apagar todo o código dessa seção.
-
 %------------------------------------------------------------------------------------%
+
 \listoffigures*
 \newpage
+
 %------------------------------------------------------------------------------------%
 % L I S T A   D E   T A B E L A S
 %
 % ELEMENTO OPCIONAL. Deve ser elaborada de acordo com a ordem em que se apresenta no texto.
 % Se não for utilizar uma Lista de Tabelas, basta apagar todo o código dessa seção.
 %------------------------------------------------------------------------------------%
+
 \listoftables*
 \newpage
+
 %------------------------------------------------------------------------------------%
 % L I S T A   D E   A B R E V I A T U R A S   E   S I G L A S
 %
@@ -374,6 +380,7 @@ para Classificação e Mitigação de Ataques Cibernéticos}
 % correspondentes por extenso.
 % Se não for utilizar uma Lista de Abreviaturas, basta apagar todo o código dessa seção.
 %------------------------------------------------------------------------------------%
+% TODO: Falta verificar e adicionar
 \begin{siglas}
   \item [DDoS] Ataque Distribuído de Negação de Serviço (\emph{Distribuited Denial of Service})
   \item [DoS] Ataque de Negação de Serviço (\emph{Denial of Service})
@@ -386,6 +393,7 @@ para Classificação e Mitigação de Ataques Cibernéticos}
 % ELEMENTO OPCIONAL. Deve ser elaborada de acordo com a ordem em que se apresenta no texto, acompanhado com
 % seus respectivos significados. Se não for utilizar uma Lista de Símbolos, basta apagar todo o código dessa seção.
 %------------------------------------------------------------------------------------%
+% TODO: Falta verificar e adicionar
 \begin{simbolos}
 \item[$\alpha$] Letra Grega Alfa
 \item[$\beta$] Letra grega Beta
@@ -393,6 +401,7 @@ para Classificação e Mitigação de Ataques Cibernéticos}
 \item[$e$] Número de Euler
 \item[R\$] Unidade monetária Brasileira (Real)
 \end{simbolos}
+
 %------------------------------------------------------------------------------------%
 % S U M Á R I O
 %
@@ -402,6 +411,7 @@ para Classificação e Mitigação de Ataques Cibernéticos}
 %------------------------------------------------------------------------------------%
 \tableofcontents*
 \newpage
+
 %------------------------------------------------------------------------------------%
 %                                                                                    %
 %                           C O R P O   D O   T E X T O                              %
@@ -412,6 +422,7 @@ para Classificação e Mitigação de Ataques Cibernéticos}
 %------------------------------------------------------------------------------------%
 \textual
 \pagestyle{simple}
+
 %------------------------------------------------------------------------------------%
 % Para melhorar a organização do texto, você pode salvar cada capítulo em um arquivo % % separado e
 % incluí-los, na sequência com o comando \input{nomedocapítulo}

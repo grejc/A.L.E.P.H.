@@ -90,12 +90,12 @@ A viabilidade técnica e a escalabilidade dos NIDS são governadas pela camada e
 
 \subsubsection{Mecanismos de Resposta e Mitigação}
 
-O diagnóstico emitido por um sistema de monitoramento só adquire efetividade defensiva prática quando acoplado a mecanismos operacionais de contenção. A atuação divide-se em duas abordagens fundamentais:
+O diagnóstico emitido por um sistema de monitoramento só adquire efetividade defensiva prática quando acoplado a mecanismos operacionais de contenção \cite{advancedids2024, fogids2024}. A atuação divide-se em duas abordagens fundamentais:
 
 \begin{itemize}
-    \item \textbf{Operação Passiva (NIDS):} o dispositivo é acoplado à rede de forma não disruptiva, por meio de portas espelho (\emph{Switched Port Analyzer} -- SPAN) ou acopladores físicos de sinal (\emph{network TAP}). O sistema processa o tráfego de maneira assíncrona, despachando registros de alertas estruturados (em formatos como syslog, JSON ou CEF) para plataformas de Gerenciamento de Informações e Eventos de Segurança (\emph{Security Information and Event Management} -- SIEM) e plataformas de Orquestração, Automação e Resposta de Segurança (\emph{Security Orchestration, Automation, and Response} -- SOAR). Embora não adicione latência ao tráfego legítimo, essa abordagem não bloqueia intrusões em tempo real.
+    \item \textbf{Operação Passiva (NIDS):} o dispositivo é acoplado à rede de forma não disruptiva, por meio de portas espelho (\emph{Switched Port Analyzer} -- SPAN) ou acopladores físicos de sinal (\emph{network TAP}) \cite{advancedids2024}. O sistema processa o tráfego de maneira assíncrona, despachando registros de alertas estruturados (em formatos como syslog, JSON ou CEF) para plataformas de Gerenciamento de Informações e Eventos de Segurança (\emph{Security Information and Event Management} -- SIEM) e plataformas de Orquestração, Automação e Resposta de Segurança (\emph{Security Orchestration, Automation, and Response} -- SOAR). Embora não adicione latência ao tráfego legítimo, essa abordagem não bloqueia intrusões em tempo real.
     
-    \item \textbf{Operação Ativa (NIPS -- \emph{Network Intrusion Prevention System}):} o motor analítico atua diretamente na linha física ou lógica de comunicação (\emph{inline}) ou integrado a elementos programáveis da camada de encaminhamento. Ao diagnosticar uma anomalia, o NIPS dispara medidas ativas de contenção imediata:
+    \item \textbf{Operação Ativa (NIPS -- \emph{Network Intrusion Prevention System}):} o motor analítico atua diretamente na linha física ou lógica de comunicação (\emph{inline}) ou integrado a elementos programáveis da camada de encaminhamento \cite{p4nids2025, fogids2024}. Ao diagnosticar uma anomalia, o NIPS dispara medidas ativas de contenção imediata:
     \begin{itemize}
         \item Descarte determinístico de pacotes associados ao fluxo malicioso (\emph{packet dropping});
         \item Injeção de pacotes com o sinalizador TCP RST ativo direcionados aos extremos da conexão, provocando o término forçado e unilateral da sessão de transporte;
@@ -426,7 +426,7 @@ Paralelamente, o emprego do paradigma de Mistura de Especialistas (MoE) começou
 
 \citeonline{alfmoe2026} propuseram formalmente o ALF-MoE (\emph{Attention-Based Learnable Fusion of Specialized Expert Networks}), aplicando a mistura de redes à classificação de tráfego agregado e túneis cifrados VPN. A contribuição seminal do estudo residiu na organização de cinco especialistas direcionados a quatro perspectivas distintas de atributos (estatística tabular com DNN, espacial com CNN, temporal transitória com GRU, espectral de frequência com CAE e dependência temporal de longo prazo com LSTM), coordenados por uma Gating Network dotada de refinamento de atenção aprendível (ALF) e projeção afim estabilizada. O arranjo alcançou acurácia superior a 97\% em bases consolidadas como ISCX VPN-nonVPN e Unicauca.
 
-A despeito dessa relevância metodológica, a concepção original de \citeonline{alfmoe2026} circunscreveu-se a tarefas balanceadas de identificação de aplicações e operou em modo exclusivamente em lote (\emph{batch}), sem examinar a robustez do modelo em cenários com desbalanceamento severo de ataques cibernéticos, sem validar a resiliência contra ameaças multifásicas guiadas por modelos de linguagem (LLMs) e sem contemplar a integração a motores de telemetria contínua de baixa latência em tempo real.
+A despeito dessa relevância metodológica, a concepção original de \citeonline{alfmoe2026} circunscreveu-se a tarefas balanceadas de identificação de aplicações corporativas e operou em modo exclusivamente em lote (\emph{batch}), sem examinar a eficácia do modelo em tarefas de detecção de intrusão multiclasse com desbalanceamento extremo de classes de ataque e sem contemplar a viabilidade de inferência de baixa latência integrada a motores modernos de telemetria contínua de rede.
 
 \subsection{Síntese Comparativa}
 \label{subsec:sintese_comparativa}
@@ -471,7 +471,7 @@ Para consolidar as distinções metodológicas entre os principais trabalhos da 
 \hline
 \citeonline{sistema2022} & Sistema híbrido e em tempo real para redes & Limiar estatístico + DT/RF \newline (Tráfego real e bases públicas) & Elevada dependência de limiares determinísticos; perda de precisão em ameaças complexas. \\
 \hline
-\citeonline{advancedids2024} & Estudo comparativo exaustivo de NIDS em fluxo & DT, RF, XGBoost, MLP \newline (CSE-CIC-IDS2018, UNSW-NB15) & Arquiteturas homogêneas; degradação acentuada em classes com desbalanceamento extremo. \\
+\citeonline{advancedids2024} & Estudo comparativo exaustivo de NIDS em fluxo & DT, RF, XGBoost, MLP \newline (CSE-CIC-IDS2018, CIC-UNSW-NB15) & Arquiteturas homogêneas; degradação acentuada em classes com desbalanceamento extremo. \\
 \hline
 \citeonline{neuralcyber2025} & Análise comparativa de redes profundas & CNN, RNN, DNN isoladas \newline (Bases públicas de intrusão) & Ausência de fusão estruturada; nenhum modelo homogêneo dominou todas as categorias de ataque. \\
 \hline
@@ -487,9 +487,9 @@ Para consolidar as distinções metodológicas entre os principais trabalhos da 
 \hline
 \citeonline{trafficmoe2026} & MoE para classificação de tráfego cifrado & MoE heterogêneo + Gating \newline (ISCX VPN, Tráfego QUIC) & Foco na identificação de aplicações benignas cifradas; não avaliado sob ataques cibernéticos. \\
 \hline
-\citeonline{alfmoe2026} & MoE com fusão atencional aprendível (ALF) & 5 Especialistas (DNN, CNN, GRU, CAE, LSTM) + ALF \newline (ISCX VPN, Unicauca) & Validado apenas em classificação de tráfego de aplicações em lote; sem validação para NIDS e streaming. \\
+\citeonline{alfmoe2026} & MoE com fusão atencional aprendível (ALF) & 5 Especialistas (DNN, CNN, GRU, CAE, LSTM) + ALF \newline (ISCX VPN, Unicauca) & Validado apenas em classificação de tráfego de aplicações em lote; sem validação para NIDS multiclasse e streaming. \\
 \hline
-\textbf{Esta Tese (ALF-MoE NIDS)} & \textbf{ALF-MoE Multidomínio com Mitigação Ativa} & \textbf{5 Especialistas + ALF + Gating calibrado + NFStream} \newline (CSE-CIC-IDS2018, CIC-BCCC-2024, UNSW-NB15) & \textbf{Supera as limitações anteriores:} opera em streaming de baixa latência, robusto a desbalanceamento extremo e validado contra agentes conduzidos por LLMs. \\
+\textbf{Esta Tese (ALF-MoE NIDS)} & \textbf{ALF-MoE Multidomínio Adaptado para NIDS} & \textbf{5 Especialistas + Gating Atencional + Fusão ALF + NFStream} \newline (CSE-CIC-IDS2018 Canônico e Corrigido, CIC-BCCC-NRC-2024, CIC-UNSW-NB15) & \textbf{Supera as limitações anteriores:} investiga a transposição do MoE para detecção de intrusões multiclasse em tráfego de rede, mitiga desbalanceamento severo via Focal Loss multitarefa e avalia a latência de inferência em tempo real. \\
 \hline
 \end{xltabular}
 \fonte{Elaborado pelo autor (2026).}

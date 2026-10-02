@@ -1,3 +1,4 @@
 \babel@toc {brazil}{}\relax 
-\contentsline {quadro}{\numberline {Quadro~1}{\ignorespaces Síntese comparativa dos conjuntos de dados selecionados para treinamento e avaliação.}}{48}{quadro.caption.19}%
-\contentsline {quadro}{\numberline {Quadro~2}{\ignorespaces Famílias funcionais, classes granulares e suporte amostral no CIC-BCCC-NRC-2024.}}{54}{quadro.caption.21}%
+\contentsline {quadro}{\numberline {Quadro~1}{\ignorespaces Síntese comparativa dos conjuntos de dados selecionados para treinamento e avaliação.}}{49}{quadro.caption.19}%
+\contentsline {figure}{\numberline {Figura~1}{\ignorespaces Painel comparativo de matrizes de confusão normalizadas nos quatro cenários de avaliação.}}{79}{figure.caption.26}%
+\contentsline {figure}{\numberline {Figura~2}{\ignorespaces Gráficos radar comparativos de desempenho por classe: Especialistas individuais vs. ALF-MoE.}}{82}{figure.caption.28}%

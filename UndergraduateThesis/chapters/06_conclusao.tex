@@ -1,11 +1,61 @@
 \section{Síntese do Trabalho}
 \label{sec:sintese_trabalho}
-% [Seção reservada - aguardando conclusão dos testes pelo autor]
+
+Esta dissertação de graduação investigou e endereçou três dos mais prementes desafios contemporâneos na concepção de Sistemas de Detecção e Prevenção de Intrusão em Redes (\emph{Network Intrusion Detection and Prevention Systems} -- NIDS/NIPS) baseados em Aprendizado Profundo (\emph{Deep Learning}): (i) a extrema heterogeneidade estatística e multimodalidade dos fluxos de tráfego de rede; (ii) o severo desbalanceamento de classes e a prevalência de erros crônicos de rotulação nos conjuntos de dados públicos de referência; e (iii) o gargalo de engenharia associado à transição de modelos teóricos treinados em lote (\emph{batch}) para pipelines de mitigação ativa em tempo real operando no espaço de \emph{kernel} do sistema operacional.
+
+Para responder a essas problemáticas, foi concebida, treinada e avaliada a arquitetura **ALF-MoE** (\emph{Attention-Based Learnable Fusion of Specialized Expert Networks}), um modelo híbrido fundamentado no paradigma de Mistura de Especialistas (\emph{Mixture of Experts} -- MoE) combinado a um bloco de fusão aprendível por mecanismos de atenção. A inovação estrutural do modelo consiste na decomposição sistemática do vetor canônico de 73 atributos de fluxo em subespaços de domínio semanticamente coerentes, processados por cinco especialistas neurais dedicados:
+\begin{itemize}
+    \item Um Especialista Denso ($\mathcal{E}_{\mathrm{DNN}}$), responsável pelas métricas globais e contadores agregados de sinalizadores TCP/IP;
+    \item Um Especialista Convolucional 2D ($\mathcal{E}_{\mathrm{CNN}}$), otimizado para padrões espaciais na geometria e distribuição de comprimentos de pacotes;
+    \item Dois Especialistas Recorrentes ($\mathcal{E}_{\mathrm{GRU}}$ e $\mathcal{E}_{\mathrm{LSTM}}$), encarregados de modelar a dinâmica temporal fina dos intervalos entre chegadas (\emph{Inter-Arrival Times} -- IAT) e dos ciclos de atividade/inatividade (\emph{Active/Idle});
+    \item Um Especialista Autoencoder Convolucional 1D ($\mathcal{E}_{\mathrm{CAE}}$), cuja tarefa de reconstrução espectral no domínio da frequência introduz restrições indutivas de regularização contra o colapso latente de representações.
+\end{itemize}
+
+A integração das predições supervisionadas dos especialistas é governada por uma Rede de Roteamento (\emph{Gating Network}) dotada da camada customizada \texttt{AttentionRefinementLayer}, que aplica projeção linear sobre os logits preliminares, compressão simétrica não-linear via $\tanh$ e normalização temperada, emitindo o vetor de pesos de atenção $\mathbf{a} \in \mathbb{R}^5$. A fusão realiza a combinação linear convexa estrita $\mathbf{z} = \sum a_k \hat{\mathbf{y}}^{(k)}$, canalizando todo o gradiente através do produto atencional e alimentando a cabeça profunda de decisão multiclasse. O treinamento conjunto sob a formulação multi-tarefa combinou a função \emph{Focal Loss} com $\gamma = 2{,}0$ e balanceamento de classes atenuado por raiz quadrada ($w_c = \sqrt{N / (C \cdot N_c)}$) à perda de reconstrução espectral $\mathcal{L}_{\mathrm{CAE,rec}}$.
+
+A validação empírica offline realizada sobre quatro conjuntos de dados de referência (CIC-UNSW-NB15, CIC-BCCC-NRC TabularIoTAttack-2024, CSE-CIC-IDS2018 Canônico e CSE-CIC-IDS2018 Corrigido) em sete configurações experimentais comprovou a superioridade absoluta da arquitetura: o ALF-MoE superou o melhor especialista individual isolado em todos os cenários sem exceção. Destaca-se o salto de desempenho observado no CSE-CIC-IDS2018 Corrigido, alcançando $99{,}97\%$ de Acurácia Global e $0{,}8918$ de Macro $F_1$-Score, comprovando tanto a eficácia da sanitização de rótulos proposta por \citeonline{liu2022error} quanto a resiliência do mecanismo de atenção diante de distribuições assimétricas.
+
+No âmbito da engenharia de produção, foi desenvolvido e implantado o pipeline de inferência em tempo real, integrando a biblioteca NFStream, o subsistema de auditoria SIEM em formato JSON Lines (`InferenceAuditor`) e o agente de defesa ativa (`ActiveDefenseAgent`). A arquitetura respeitou o Princípio da Responsabilidade Única (SRP), isolando a extração estatística de baixo nível nos processos de \emph{worker} do NFStream e centralizando o \emph{forward pass} neural no processo principal, superando assim as restrições de concorrência e perdas de contexto de GPU decorrentes do \emph{fork} em ambiente Linux. Os testes em bancada real com hardware dedicado (GPU NVIDIA GeForce RTX 4050 Laptop) comprovaram uma latência média de inferência neural de apenas $54{,}23\,\mathrm{ms}$, viabilizando a inserção atômica de regras de descarte no \emph{firewall} de última geração `nftables` e a neutralização comprovada de fluxos hostis em nível de kernel com 0\% de falsos positivos em tráfego de produção calibrado.
+
 
 \section{Limitações Identificadas}
 \label{sec:limitacoes_identificadas}
-% [Seção reservada - aguardando conclusão dos testes pelo autor]
+
+A despeito dos expressivos resultados teóricos e operacionais obtidos, a análise rigorosa dos experimentos laboratoriais e da bancada em tempo real evidenciou limitações estruturais inerentes à abordagem adotada:
+
+\begin{enumerate}
+    \item \textbf{Latência Estrutural Inerente à Abordagem Baseada em Fluxos:}
+    Embora o tempo de processamento neural puro do ALF-MoE seja extremamente reduzido ($54{,}23\,\mathrm{ms}$ por amostra na GPU), o tempo total ponta a ponta (\emph{end-to-end}) decorrido entre o primeiro pacote malicioso e a inserção da regra de bloqueio no \emph{firewall} é dominado pelos temporizadores de expiração do extrator de fluxo (\texttt{idle\_timeout = 120s} e \texttt{active\_timeout = 240s}). Em vetores de ataque acelerados que completam suas transmissões em poucos segundos, o NIDS baseado em fluxo só toma conhecimento da anomalia após o encerramento por inatividade, criando uma janela temporal de vulnerabilidade em que as sondagens já foram concluídas antes da emissão do alerta;
+    
+    \item \textbf{Cegueira Semântica a Canais Criptografados e Exfiltração Furtiva:}
+    Como a abordagem investigada fundamenta-se estritamente em propriedades estatísticas agregadas de fluxo e cabeçalhos de transporte, sem inspeção profunda de carga útil (\emph{Deep Packet Inspection} -- DPI), o classificador apresenta sensibilidade reduzida a ataques cuja pegada volumétrica mimetiza tráfego corporativo comum. Isso ficou demonstrado na classe \emph{Infiltration - Dropbox Download} ($F_1 = 0{,}1818$), na qual o tráfego malicioso de exfiltração confunde-se com fluxos HTTPS legítimos de armazenamento em nuvem e telemetria de aplicações de streaming;
+    
+    \item \textbf{Dependência de Calibração Perimetral do Limiar de Decisão:}
+    A configuração do limiar de confiança operacional exerce papel determinante na eficácia do sistema em tempo de execução. O valor padrão comumente adotado na literatura ($\tau = 0{,}80$) revelou-se excessivamente conservador para a contenção perimetral imediata de certas classes de varredura furtiva, cujas predições situam-se na faixa de $50\%$ a $75\%$, exigindo calibração empírica para deflagrar bloqueios no kernel sem gerar alarmes falsos em serviços corporativos homologados;
+    
+    \item \textbf{Custo de Processamento Unitário vs. Vazão em Lote:}
+    A transição do regime de inferência em megablocos (onde a GPU atinge vazões superiores a $84.000\,\mathrm{fluxos/s}$ com amortização de overhead) para a inferência em fluxo contínuo unitário ($B=1$) acarreta uma redução na taxa máxima de classificação para cerca de $17{,}6\,\mathrm{fluxos/s}$ por worker de consumo, decorrente dos tempos de transferência host-dispositivo via barramento PCIe e sincronização de tensores.
+\end{enumerate}
+
 
 \section{Trabalhos Futuros}
 \label{sec:trabalhos_futuros}
-% [Seção reservada - aguardando conclusão dos testes pelo autor]
+
+Com base nas limitações diagnosticadas e nas perspectivas abertas por esta pesquisa, delineiam-se as seguintes direções para investigações e desenvolvimentos futuros:
+
+\begin{enumerate}
+    \item \textbf{Classificação Precoce de Fluxos (\emph{Early Flow Classification}):}
+    Adaptar a arquitetura ALF-MoE para operar em regime de classificação prematura, no qual o modelo emite um diagnóstico preliminar a partir da observação dos primeiros $k$ pacotes da conexão ($k \in [3, 10]$), sem aguardar a expiração dos temporizadores de transporte. Essa abordagem eliminaria o atraso de 120 segundos imposto pelo \texttt{idle\_timeout}, permitindo contenção perimetral no milissegundo inicial da intrusão;
+    
+    \item \textbf{Fusão Multimodal com \emph{Fingerprinting} TLS/Criptográfico:}
+    Incorporar ao vetor de entrada atributos derivados de \emph{fingerprints} criptográficos passivos, tais como os padrões JA4, JA4S e telemetria de negociação TLS (cifras oferecidas, extensões e versões do protocolo), sem necessidade de quebra de sigilo ou descriptografia. Essa adição proveria a separabilidade semântica necessária para distinguir exfiltrações encobertas de fluxos HTTPS benignos de serviços corporativos em nuvem;
+    
+    \item \textbf{Sondas de Telemetria e Filtragem com eBPF/XDP:}
+    Integrar sondas eBPF (\emph{Extended Berkeley Packet Filter}) e ganchos XDP (\emph{eXpress Data Path}) diretamente aos drivers de rede do kernel Linux. Essa infraestrutura permitirá pré-filtragem e extração estatística em nível de linha (\emph{line-rate}) sem cópias desnecessárias de pacotes para o espaço de usuário, reduzindo a latência de transferência de dados e aumentando exponencialmente a taxa de descarte sob ataques volumétricos massivos de negação de serviço;
+    
+    \item \textbf{Quantização, Poda e Otimização para Borda (\emph{Edge Deployment}):}
+    Aplicar técnicas de quantização pós-treinamento para formatos de precisão reduzida (FP16 e INT8) via TensorRT e exportação para formatos interoperáveis (ONNX), visando a implantação do modelo ALF-MoE em roteadores de borda, dispositivos de Internet das Coisas (IoT) e \emph{smart NICs} programáveis baseadas na arquitetura P4;
+    
+    \item \textbf{Mecanismo de Gating Esparso (\emph{Top-k Routing}):}
+    Investigar variações de roteamento esparso na Rede de Roteamento, ativando estritamente os $k=2$ especialistas mais relevantes por pacote em vez da soma ponderada contínua dos 5 especialistas. Essa estratégia reduziria ainda mais o custo computacional por amostra em enlaces de altíssima vazão (10 Gbps ou superiores).
+\end{enumerate}

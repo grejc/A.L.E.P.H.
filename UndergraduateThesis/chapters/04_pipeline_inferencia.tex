@@ -1,23 +1,444 @@
 \section{Captura e Processamento de Tráfego}
 \label{sec:captura_processamento}
-% [Seção reservada - aguardando conclusão dos testes pelo autor]
+
+A transição de modelos de Aprendizado Profundo avaliados em conjuntos de dados estáticos (\emph{offline benchmarks}) para sistemas de detecção e prevenção de intrusão operando em redes de produção (\emph{online NIDS/NIPS}) constitui um dos desafios mais complexos na engenharia de segurança contemporânea. Conforme discutido no Capítulo~\ref{cap:fundamentacao}, a literatura acadêmica frequentemente restringe suas avaliações a arquivos de captura pré-gravados (\emph{Packet Capture} -- PCAP), processados em lote por ferramentas analíticas lentas como o \emph{CICFlowMeter}. Esse extrator legado, implementado primariamente em Java, não foi projetado para atuar como componente de baixa latência em linha de produção: sua arquitetura monolítica introduz contenção severa de memória volátil, atrasos imprevisíveis de coleta de lixo (\emph{garbage collection}) e ausência de suporte nativo a pipelines de tensores neurais acelerados por unidades de processamento gráfico (GPU) \cite{AOUINI2022108719}.
+
+Para que a arquitetura \textbf{ALF-MoE} possa exercer defesa perimetral em tempo hábil contra agentes adversariais, faz-se indispensável uma infraestrutura de telemetria capaz de inspecionar pacotes brutos diretamente da interface física de rede, agregá-los dinamicamente em fluxos bidirecionais segundo a tupla quíntupla (\emph{5-tuple}), computar grandezas estatísticas e temporais em escala de microssegundos e despachá-las ao motor neural sem degradar a vazão da rede. 
+
+Neste capítulo, detalha-se a concepção, implementação e validação do pipeline de extração de tráfego em tempo real baseado no \emph{framework} NFStream, o alinhamento semântico de suas características com o padrão canônico dos datasets do Canadian Institute for Cybersecurity (CIC) e o subsistema de defesa ativa com integração ao \emph{firewall} de última geração do Linux (\texttt{nftables}) para contenção de ameaças em nível de kernel.
 
 \subsection{Extração com NFStream}
 \label{subsec:extracao_nfstream}
-% [Seção reservada - aguardando conclusão dos testes pelo autor]
+
+O extrator de tráfego em tempo real do ecossistema ALF-MoE foi desenvolvido sobre o \emph{framework} de análise de dados de rede NFStream \cite{AOUINI2022108719}. O NFStream foi selecionado por operar em linguagem C (estendida com interface Python via Cython), proporcionar suporte nativo a multiprocessamento e permitir a injeção de extensões dinâmicas de telemetria por meio de plugins estruturados (\emph{User-Defined Plugins} -- UDPs).
+
+\subsubsection{Princípio da Responsabilidade Única (SRP) na Classe FeatureExtractor}
+
+A integridade arquitetural do pipeline apoia-se estritamente no Princípio da Responsabilidade Única (\emph{Single Responsibility Principle} -- SRP). No módulo \texttt{src/plugins/extractor.py}, a classe \texttt{FeatureExtractor} (derivada de \texttt{NFPlugin}) atua \textbf{exclusivamente} no cômputo e na agregação das 76 métricas estatísticas canônicas brutas do tráfego de rede no interior dos processos de trabalho (\emph{workers}) do motor NFStream.
+
+Nenhuma operação de pré-processamento estatístico (como transformações logarítmicas $\ln(1+x)$, padronização por mediana e intervalo interquartil via \texttt{RobustScaler} ou codificação de rótulos) e nenhuma operação de inferência tensorial são executadas dentro dos métodos de callback do plugin (\texttt{on\_init}, \texttt{on\_update} e \texttt{on\_expire}). Ao isolar o \texttt{FeatureExtractor} como um sensor estritamente passivo de medição de rede, preserva-se o determinismo estatístico das grandezas físicas e desacopla-se o ciclo de vida dos fluxos da pilha computacional de inteligência artificial.
+
+\subsubsection{Problema de Concorrência, Multiprocessamento Fork e Contexto CUDA}
+
+A separação mandatória imposta pelo SRP decorre de uma limitação estrutural crítica de hardware e concorrência no sistema operacional Linux. O motor NFStream implementa uma arquitetura orientada a multiprocessamento para ingestão massiva de pacotes, delegando a inspeção de portas e a atualização de buffers a múltiplos processos filhos (\emph{meters}) criados mediante a chamada de sistema \texttt{fork()} da API POSIX.
+
+Sob a semântica do \texttt{fork()}, o espaço de endereçamento virtual do processo pai é duplicado para o processo filho por meio do mecanismo de cópia em gravação (\emph{Copy-on-Write} -- CoW). Contudo, os descritores de dispositivos de aceleração de hardware e o estado dos drivers de espaço de usuário da NVIDIA (\texttt{libcuda.so} e o subsistema de gerenciamento unificado do kernel \texttt{nvidia.ko}) \textbf{não são clonáveis nem compartilháveis} entre processos bifurcados. 
+
+Se um modelo de aprendizado profundo baseado em TensorFlow, Keras ou PyTorch for inicializado no processo principal e qualquer tentativa de inferência for invocada no retorno de chamada (\emph{callback}) de encerramento de fluxo (\texttt{on\_expire}) dentro de um processo filho forked, o driver do CUDA intercepta a chamada de API a partir de um identificador de processo (PID) desprovido de contexto GPU válido. O resultado consiste na emissão incontornável do erro fatal de baixo nível:
+\begin{center}
+\texttt{CUDA\_ERROR\_NOT\_INITIALIZED (Driver Error 3 / absl abort)}.
+\end{center}
+Esse erro aborta imediatamente a execução de toda a aplicação (\emph{crash} fatal com sinal \texttt{SIGABRT}), corrompendo a captura de rede e inviabilizando a operação do NIDS.
+
+Para superar essa restrição física de concorrência sem abdicar da aceleração por hardware da GPU dedicada NVIDIA GeForce RTX 4050 Laptop, o projeto ALF-MoE arquitetou um padrão Produtor-Consumidor estritamente desacoplado:
+\begin{enumerate}
+    \item \textbf{Produtor Assíncrono (Workers do NFStream):} os processos de medição do NFStream executam o loop de captura de pacotes via \texttt{libpcap} em modo promíscuo, acionando os métodos de telemetria do \texttt{FeatureExtractor} para agregar as 76 métricas nos objetos de fluxo \texttt{NFlow} e persistir variáveis sintetizadas na estrutura \texttt{flow.udps};
+    \item \textbf{Consumidor Síncrono (Processo Principal com GPU):} o processo mestre da aplicação instancia o iterador gerador \texttt{NFStreamer} em um loop consumidor contínuo (\texttt{for flow in streamer: ...}). Apenas após a expiração formal do fluxo pelo temporizador do NFStream, o objeto é entregue ao processo principal. Este, por sua vez, converte o fluxo em um DataFrame de linha única (\texttt{convert\_into\_features}), normaliza os atributos via \texttt{Preprocessor} na CPU e dispara o \emph{forward pass} neural no grafo ALF-MoE diretamente na memória da GPU, onde o contexto CUDA reside intacto e exclusivo.
+\end{enumerate}
+
+Essa divisão garante estabilidade operacional ininterrupta, eliminando contenções de barramento PCIe e permitindo que a GPU processe a inferência atencional em sua plenitude.
+
+\subsubsection{Escalas Temporais e Fator de Conversão de Unidades}
+
+Uma discrepância crítica entre ferramentas de telemetria reside na unidade adotada para mensurar intervalos temporais. O NFStream calcula nativamente a duração dos fluxos e os tempos de inter-chegada de pacotes (\emph{Inter-Arrival Times} -- IAT), bem como os períodos de atividade e inatividade, na escala de **milissegundos** ($\mathrm{ms}$).
+
+Por outro lado, o extrator clássico \emph{CICFlowMeter}, utilizado na confecção dos conjuntos de dados CSE-CIC-IDS2018, CIC-BCCC-NRC-2024 e CIC-UNSW-NB15, opera estritamente na escala de **microssegundos** ($\mu\text{s}$). Se os atributos temporais gerados pelo NFStream fossem injetados diretamente nas camadas de entrada do ALF-MoE sem ajuste dimensional, ocorreria uma distorção de distribuição de três ordens de magnitude ($10^3$). Variáveis essenciais como \texttt{Flow Duration}, \texttt{Flow IAT Mean} e \texttt{Fwd IAT Total} teriam suas magnitudes comprimidas em um fator de 1.000, fazendo com que as ativações das camadas recorrentes ($\mathcal{E}_{\mathrm{GRU}}$ e $\mathcal{E}_{\mathrm{LSTM}}$) saturassem prematuramente, conduzindo a erros grosseiros de classificação em lote.
+
+Para assegurar conformidade semântica e probabilística rigorosa com as matrizes de treinamento, o método \texttt{flow\_to\_dict} aplica sistematicamente o fator de conversão escalar $\kappa_{\mathrm{tempo}} = 1000{,}0$ sobre todas as grandezas temporais:
+\begin{equation}
+\label{eq:conversao_temporal}
+\Delta t_{\mu\text{s}} = \Delta t_{\mathrm{ms}} \times 1000{,}0.
+\end{equation}
+As grandezas convertidas incluem a duração bidirecional do fluxo (\texttt{Flow Duration}), todos os momentos estatísticos de IAT global, \emph{forward} e \emph{backward} (\texttt{Mean}, \texttt{Std}, \texttt{Max}, \texttt{Min}, \texttt{Total}), e as janelas consolidadas de atividade e inatividade (\texttt{Active/Idle Times}).
+
+\subsubsection{Descarte de Atributos de Variância Nula}
+
+O plugin \texttt{FeatureExtractor} extrai 76 atributos canônicos correspondentes ao catálogo formal do CICFlowMeter. Não obstante, durante a fase de análise exploratória e treinamento dos especialistas nos conjuntos de benchmark, identificou-se que três atributos associados ao sinalizador de urgência do cabeçalho TCP:
+\begin{itemize}
+    \item \texttt{Fwd URG Flags} (\texttt{fwd\_urg\_flags}): contagem de pacotes com flag URG no sentido direto;
+    \item \texttt{Bwd URG Flags} (\texttt{bwd\_urg\_flags}): contagem de pacotes com flag URG no sentido reverso;
+    \item \texttt{URG Flag Count} (\texttt{urg\_flag\_count}): total bidirecional de sinalizadores URG no fluxo;
+\end{itemize}
+apresentam variância estritamente nula ($\sigma^2 = 0$) em todos os conjuntos de dados de treinamento.
+
+O sinalizador TCP URG (\emph{Urgent Pointer}), concebido na RFC 793 para indicar que determinado segmento continha dados prioritários a serem consumidos fora de ordem pela aplicação receptora, caiu em desuso quase absoluto na pilha de protocolos contemporânea da Internet, sendo formalmente desaconselhado pela RFC 6093 devido a inconsistências de implementação entre sistemas operacionais. Consequentemente, em nenhuma amostra dos datasets corporativos ou IoT o bit URG foi observado como ativo.
+
+No módulo de pré-processamento (\texttt{src/preprocessing.py}), a lista constante \texttt{EXPLICIT\_DROP\_COLUMNS} remove explicitamente esses 3 atributos:
+\begin{equation}
+\label{eq:drop_variance}
+\mathcal{X}_{\mathrm{modelo}} = \mathcal{X}_{\mathrm{plugin}} \setminus \{\text{\texttt{Fwd URG Flags}}, \text{\texttt{Bwd URG Flags}}, \text{\texttt{URG Flag Count}}\},
+\end{equation}
+reduzindo o vetor dimensional de 76 para exatamente **73 atributos efetivos**, os quais alimentam as camadas de entrada densas, convolucionais e recorrentes do grafo computacional ALF-MoE.
+
+\subsubsection{Dissecação de Baixo Nível dos Métodos Customizados}
+
+Para além das métricas agregadas nativas, o \texttt{FeatureExtractor} implementa dois algoritmos fundamentais de dissecação direta de pacotes em nível de byte: a codificação binária de sinalizadores TCP e a extração da janela inicial TCP.
+
+\paragraph{Codificação Compacta de Flags TCP (\texttt{encode\_tcp\_flags})}
+
+O extrator implementa a função \texttt{encode\_tcp\_flags(packet)}, encarregada de mapear 8 sinalizadores booleanos presentes no objeto \texttt{NFPacket} em uma máscara binária condensada de 8 bits (um byte sem sinal, com valor inteiro no intervalo $[0, 255]$). A ordenação posicional adota o padrão de bit menos significativo (LSB) para o mais significativo (MSB), formalizada matematicamente por:
+\begin{equation}
+\label{eq:mascara_tcp_flags}
+\beta_{\mathrm{flags}} = \sum_{i=0}^{7} b_i \cdot 2^i,
+\end{equation}
+onde cada coeficiente $b_i \in \{0, 1\}$ é estabelecido pela avaliação condicional do respectivo sinalizador no pacote de dados, conforme estruturado na Tabela~\ref{tab:mascara_bits_tcp}.
+
+\begin{table}[htb]
+\centering
+\caption{Mapeamento posicional da máscara binária de sinalizadores TCP.}
+\label{tab:mascara_bits_tcp}
+\small
+\begin{tabularx}{\textwidth}{c l c X}
+\hline
+\textbf{Posição do Bit ($i$)} & \textbf{Sinalizador TCP} & \textbf{Peso ($2^i$)} & \textbf{Semântica no Protocolo TCP} \\
+\hline
+Bit 0 & SYN (\emph{Synchronize}) & $2^0 = 1$ & Inicialização de conexão e sincronização de números de sequência. \\
+Bit 1 & CWR (\emph{Congestion Window Reduced}) & $2^1 = 2$ & Notificação de redução da janela de congestionamento pelo transmissor. \\
+Bit 2 & ECE (\emph{ECN-Echo}) & $2^2 = 4$ & Indicação de congestionamento iminente na rede (RFC 3168). \\
+Bit 3 & URG (\emph{Urgent}) & $2^3 = 8$ & Campo de ponteiro de urgência ativo e com dados válidos. \\
+Bit 4 & ACK (\emph{Acknowledgment}) & $2^4 = 16$ & Confirmação de recebimento de segmentos anteriores. \\
+Bit 5 & PSH (\emph{Push}) & $2^5 = 32$ & Solicitação de entrega imediata de dados à aplicação receptora. \\
+Bit 6 & RST (\emph{Reset}) & $2^6 = 64$ & Interrupção abrupta e reinicialização forçada da conexão. \\
+Bit 7 & FIN (\emph{Finish}) & $2^7 = 128$ & Encerramento gracioso e bilateral do canal de comunicação. \\
+\hline
+\end{tabularx}
+\fonte{Elaborado pelo autor (2026).}
+\end{table}
+
+A implementação computacional em Python recorre a operadores de deslocamento de bits à esquerda (\texttt{<<}) e disjunção binária (\texttt{|}):
+\begin{verbatim}
+flags = 0
+flags |= (1 if getattr(packet, "syn", False) else 0) << 0
+flags |= (1 if getattr(packet, "cwr", False) else 0) << 1
+flags |= (1 if getattr(packet, "ece", False) else 0) << 2
+flags |= (1 if getattr(packet, "urg", False) else 0) << 3
+flags |= (1 if getattr(packet, "ack", False) else 0) << 4
+flags |= (1 if getattr(packet, "psh", False) else 0) << 5
+flags |= (1 if getattr(packet, "rst", False) else 0) << 6
+flags |= (1 if getattr(packet, "fin", False) else 0) << 7
+\end{verbatim}
+Essa codificação atômica permite avaliar padrões combinatórios complexos (tais como varreduras \emph{TCP SYN}, sondas \emph{TCP NULL} onde $\beta = 0$, ou anomalias \emph{XMAS Scan} onde $\beta = 2^0 + 2^5 + 2^7 = 41$) em tempo linear de máquina.
+
+\paragraph{Extração de Janela TCP em Bytes Brutos (\texttt{extract\_tcp\_window\_size})}
+
+O tamanho da janela de recepção TCP (\emph{Window Size}) anunciado no início de uma sessão é um indicador vital para modelos de aprendizado profundo: conexões legítimas de navegadores modernos utilizam janelas padronizadas de grande porte (e.g., $64.240$ ou $65.535$ bytes), enquanto ferramentas de varredura furtiva (como o \texttt{nmap -sS}) ou scripts de ataque emitem pacotes sintetizados com janelas atipicamente reduzidas (e.g., $1.024$ bytes) ou fixadas em zero.
+
+O NFStream não disponibiliza nativamente o atributo de janela inicial TCP no objeto \texttt{NFPacket}. Para capturar esse dado de forma ultrarrápida sem incorrer no atraso de desempacotadores de alto nível como o Scapy, o método \texttt{extract\_tcp\_window\_size} disseca diretamente o vetor de bytes brutos do cabeçalho de rede (\texttt{packet.ip\_packet}):
+\begin{enumerate}
+    \item \textbf{Verificação de Protocolo de Transporte:} valida se o pacote encapsula o protocolo TCP (\texttt{packet.protocol == 6}). Em caso negativo, retorna $0$;
+    \item \textbf{Tratamento Dinâmico de Pacotes IPv4:} inspeciona o primeiro byte bruto $\mathrm{raw}[0]$. Extrai a versão nos 4 bits superiores $(\mathrm{raw}[0] \gg 4) \ \& \ 0\mathrm{x}0\mathrm{F}$. Se for versão 4, extrai o comprimento do cabeçalho IP (\emph{Internet Header Length} -- IHL) nos 4 bits inferiores $(\mathrm{raw}[0] \ \& \ 0\mathrm{x}0\mathrm{F})$. O deslocamento (\emph{offset}) em que se inicia o cabeçalho TCP é calculado dinamicamente por:
+    \begin{equation}
+    O_{\mathrm{TCP}} = \mathrm{IHL} \times 4;
+    \end{equation}
+    \item \textbf{Tratamento de Pacotes IPv6:} caso a versão seja 6, o cabeçalho IPv6 básico possui tamanho fixo de 40 bytes. O método valida se o campo \emph{Next Header} no deslocamento de byte 6 é igual a 6 (\texttt{raw[6] == 6}), fixando o deslocamento do cabeçalho TCP em:
+    \begin{equation}
+    O_{\mathrm{TCP}} = 40;
+    \end{equation}
+    \item \textbf{Extração da Janela de 16 Bits:} no padrão TCP (RFC 793), o campo de tamanho da janela de recepção (\emph{Window Size}) localiza-se nos bytes 14 e 15 a partir do início do cabeçalho TCP. O método extrai a fatia $\mathrm{raw}[O_{\mathrm{TCP}} + 14 : O_{\mathrm{TCP}} + 16]$ e a converte em um número inteiro de 16 bits sem sinal na ordem de bytes da rede (\emph{Big-Endian}):
+    \begin{equation}
+    \mathcal{W}_{\mathrm{TCP}} = (\mathrm{raw}[O_{\mathrm{TCP}} + 14] \ll 8) \mid \mathrm{raw}[O_{\mathrm{TCP}} + 15].
+    \end{equation}
+\end{enumerate}
+
+No callback \texttt{on\_update}, as variáveis \texttt{fwd\_init\_win\_bytes} e \texttt{bwd\_init\_win\_bytes} são inicializadas com valor sentinel $-1$ e registradas estritamente no primeiro pacote observado de cada sentido do fluxo (\texttt{packet.direction == 0} para o sentido de ida e \texttt{packet.direction == 1} para o sentido de volta), congelando o anúncio inicial de buffer da conexão.
+
+\subsubsection{Ciclo de Vida dos Fluxos e Temporizadores de Rede}
+
+O ciclo de vida de monitoramento do NFStream é governado por três eventos estocásticos de rede gerenciados no plugin:
+\begin{itemize}
+    \item \texttt{on\_init(packet, flow)}: disparado na chegada do primeiro pacote que define a tupla quíntupla. Inicializa todos os acumuladores estatísticos em \texttt{flow.udps}, estabelece os ponteiros de tempo inicial e invoca \texttt{on\_update};
+    \item \texttt{on\_update(packet, flow)}: invocado a cada novo pacote subsequente pertencente ao fluxo. Incrementa comprimentos de cabeçalho, atualiza o menor segmento observado (\texttt{fwd\_seg\_size\_min}), acumula pacotes com dados úteis (\texttt{fwd\_act\_data\_pkts}) e gerencia os intervalos entre rajadas de transmissão;
+    \item \texttt{on\_expire(flow)}: invocado no encerramento formal do fluxo. Consolida taxas de transferência em bytes e pacotes por segundo, calcula médias de tamanho de segmento, extrai a variância do comprimento dos pacotes e estrutura as estatísticas completas de tempo ativo (\emph{Active}) e ocioso (\emph{Idle}).
+\end{itemize}
+
+O streamer de produção é configurado em modo promíscuo (\texttt{promiscuous\_mode=True}) com análise estatística nativa ativada (\texttt{statistical\_analysis=True}), operando sob dois temporizadores fundamentais de rede:
+\begin{enumerate}
+    \item \textbf{Tempo Limite de Inatividade (\texttt{idle\_timeout = 120s}):} define que, se uma conexão permanecer $120$ segundos sem que nenhum pacote transite em ambos os sentidos, o fluxo é considerado encerrado e emitido para classificação;
+    \item \textbf{Tempo Limite Ativo (\texttt{active\_timeout = 240s}):} estabelece que fluxos contínuos e volumosos (tais como transferências massivas de arquivos ou inundações prolongadas de DoS/DDoS) não fiquem retidos indefinidamente na memória do monitor. Ao completar $240$ segundos de existência ativa, o fluxo é segmentado, expirado e imediatamente enviado ao pipeline neural, garantindo que ataques volumétricos persistentes sejam detectados e mitigados em no máximo 4 minutos.
+\end{enumerate}
 
 \subsection{Mapeamento e Alinhamento de Features (NFStream \texorpdfstring{$\to$}{->} CICFlowMeter)}
 \label{subsec:mapeamento_features}
-% [Seção reservada - aguardando conclusão dos testes pelo autor]
+
+Para viabilizar a inferência com modelos treinados em conjuntos como CSE-CIC-IDS2018, CIC-BCCC-NRC-2024 e CIC-UNSW-NB15, estabeleceu-se um mapeamento semântico e estatístico completo entre as propriedades nativas do objeto \texttt{NFlow} do NFStream e as colunas canônicas geradas pelo software \emph{CICFlowMeter}.
+
+\subsubsection{Correspondência Semântica e Estrutural das Variáveis}
+
+As características que compõem o vetor de fluxo dividem-se em duas categorias de origem:
+\begin{enumerate}
+    \item \textbf{Variáveis Nativas do NFStream:} extraídas diretamente pelo núcleo em C da biblioteca. Compreendem contadores agregados de pacotes (\texttt{flow.src2dst\_packets}, \texttt{flow.dst2src\_packets}), contadores de bytes brutos (\texttt{flow.src2dst\_bytes}, \texttt{flow.dst2src\_bytes}), valores extremos e momentos de primeira ordem de comprimentos de pacotes (\texttt{flow.src2dst\_mean\_ps}, \texttt{flow.bidirectional\_stddev\_ps}), estatísticas de intervalos entre chegadas em milissegundos (\texttt{flow.bidirectional\_mean\_piat\_ms}) e contagens direcionadas de flags TCP (\texttt{flow.bidirectional\_syn\_packets}, \texttt{flow.src2dst\_psh\_packets});
+    \item \textbf{Variáveis Sintetizadas via Plugin (\texttt{flow.udps}):} métricas que não existem na implementação base do NFStream e que foram sintetizadas no \texttt{FeatureExtractor} para fechar a paridade exata com o padrão CIC. Abrangem as janelas iniciais de recepção TCP (\texttt{fwd\_init\_win\_bytes}, \texttt{bwd\_init\_win\_bytes}), a variância do comprimento dos pacotes calculada a partir do quadrado do desvio padrão amostral (\texttt{packet\_length\_variance = flow.bidirectional\_stddev\_ps}$^2$), o comprimento agregado de cabeçalhos de camada 3 e 4 (\texttt{fwd\_header\_length}, \texttt{bwd\_header\_length}), a razão de tráfego reverso sobre direto (\texttt{down\_up\_ratio}), a contagem de pacotes portadores de carga útil (\texttt{fwd\_act\_data\_pkts}) e os momentos de tempo ativo e inativo.
+\end{enumerate}
+
+A Tabela~\ref{tab:mapeamento_features_completo} apresenta o catálogo estruturado agrupando os 76 atributos em 7 categorias funcionais, discriminando a correspondência exata entre a nomenclatura CICFlowMeter, o atributo correspondente no NFStream/Plugin, a unidade de mensuração padronizada e a forma de obtenção.
+
+\footnotesize
+\begin{xltabular}{\textwidth}{>{\raggedright\arraybackslash}p{2.2cm} >{\raggedright\arraybackslash}p{3.8cm} >{\raggedright\arraybackslash\sloppy}X c c}
+\caption{Mapeamento estruturado das 76 características do fluxo de rede: padrão CICFlowMeter versus implementação NFStream.} \label{tab:mapeamento_features_completo} \\
+\hline
+\textbf{Categoria} & \textbf{Atributo CICFlowMeter} & \textbf{Atributo NFStream / Plugin UDPS} & \textbf{Unidade} & \textbf{Origem} \\
+\hline
+\endfirsthead
+
+\multicolumn{5}{c}%
+{{\footnotesize\tablename\ \thetable{} -- Continuação da página anterior}} \\
+\hline
+\textbf{Categoria} & \textbf{Atributo CICFlowMeter} & \textbf{Atributo NFStream / Plugin UDPS} & \textbf{Unidade} & \textbf{Origem} \\
+\hline
+\endhead
+
+\hline
+\multicolumn{5}{r}{\footnotesize\textit{Continua na próxima página}} \\
+\endfoot
+
+\hline
+\endlastfoot
+
+\multicolumn{5}{l}{\textbf{1. Identificação, 5-Tuple e Duração}} \\
+& Flow ID & \texttt{id} & --- & Nativo \\
+& Src IP & \texttt{src\_ip} & IPv4/v6 & Nativo \\
+& Src Port & \texttt{src\_port} & Porta L4 & Nativo \\
+& Dst IP & \texttt{dst\_ip} & IPv4/v6 & Nativo \\
+& Dst Port & \texttt{dst\_port} & Porta L4 & Nativo \\
+& Protocol & \texttt{protocol} & IANA & Nativo \\
+& Timestamp & \texttt{bidirectional\_first\_seen\_ms} & Epoch ms & Nativo \\
+& Flow Duration & \texttt{bidirectional\_duration\_ms} $\times 10^3$ & $\mu\text{s}$ & Nativo ($\times 10^3$) \\
+\hline
+\multicolumn{5}{l}{\textbf{2. Estatísticas de Tamanho de Pacote}} \\
+& Total Fwd Packet & \texttt{src2dst\_packets} & Contagem & Nativo \\
+& Total Bwd packets & \texttt{dst2src\_packets} & Contagem & Nativo \\
+& Total Length of Fwd Packet & \texttt{src2dst\_bytes} & Bytes & Nativo \\
+& Total Length of Bwd Packet & \texttt{dst2src\_bytes} & Bytes & Nativo \\
+& Fwd Packet Length Min / Max & \texttt{src2dst\_min\_ps} / \texttt{max\_ps} & Bytes & Nativo \\
+& Fwd Packet Length Mean / Std & \texttt{src2dst\_mean\_ps} / \texttt{stddev\_ps} & Bytes & Nativo \\
+& Bwd Packet Length Min / Max & \texttt{dst2src\_min\_ps} / \texttt{max\_ps} & Bytes & Nativo \\
+& Bwd Packet Length Mean / Std & \texttt{dst2src\_mean\_ps} / \texttt{stddev\_ps} & Bytes & Nativo \\
+& Packet Length Min / Max & \texttt{bidirectional\_min\_ps} / \texttt{max\_ps} & Bytes & Nativo \\
+& Packet Length Mean / Std & \texttt{bidirectional\_mean\_ps} / \texttt{stddev\_ps} & Bytes & Nativo \\
+& Packet Length Variance & \texttt{packet\_length\_variance} & $\text{Bytes}^2$ & Plugin UDPS \\
+\hline
+\multicolumn{5}{l}{\textbf{3. Intervalos entre Chegadas (Inter-Arrival Times -- IAT)}} \\
+& Flow IAT Mean / Std & \texttt{bidirectional\_mean/stddev\_piat\_ms} $\times 10^3$ & $\mu\text{s}$ & Nativo ($\times 10^3$) \\
+& Flow IAT Max / Min & \texttt{bidirectional\_max/min\_piat\_ms} $\times 10^3$ & $\mu\text{s}$ & Nativo ($\times 10^3$) \\
+& Fwd IAT Total & \texttt{src2dst\_duration\_ms} $\times 10^3$ & $\mu\text{s}$ & Nativo ($\times 10^3$) \\
+& Fwd IAT Mean / Std & \texttt{src2dst\_mean/stddev\_piat\_ms} $\times 10^3$ & $\mu\text{s}$ & Nativo ($\times 10^3$) \\
+& Fwd IAT Max / Min & \texttt{src2dst\_max/min\_piat\_ms} $\times 10^3$ & $\mu\text{s}$ & Nativo ($\times 10^3$) \\
+& Bwd IAT Total & \texttt{dst2src\_duration\_ms} $\times 10^3$ & $\mu\text{s}$ & Nativo ($\times 10^3$) \\
+& Bwd IAT Mean / Std & \texttt{dst2src\_mean/stddev\_piat\_ms} $\times 10^3$ & $\mu\text{s}$ & Nativo ($\times 10^3$) \\
+& Bwd IAT Max / Min & \texttt{dst2src\_max/min\_piat\_ms} $\times 10^3$ & $\mu\text{s}$ & Nativo ($\times 10^3$) \\
+\hline
+\multicolumn{5}{l}{\textbf{4. Sinalizadores (Flags) TCP}} \\
+& Fwd PSH Flags / Bwd PSH Flags & \texttt{src2dst/}\allowbreak\texttt{dst2src\_}\allowbreak\texttt{psh\_packets} & Contagem & Nativo \\
+& Fwd URG Flags / Bwd URG Flags$^{\dagger}$ & \texttt{src2dst/}\allowbreak\texttt{dst2src\_}\allowbreak\texttt{urg\_packets} & Contagem & Nativo \\
+& FIN / SYN / RST Flag Count & \texttt{bidirectional\_}\allowbreak\texttt{fin/syn/rst\_packets} & Contagem & Nativo \\
+& PSH / ACK / URG$^{\dagger}$ Flag Count & \texttt{bidirectional\_}\allowbreak\texttt{psh/ack/urg\_packets} & Contagem & Nativo \\
+& CWR / ECE Flag Count & \texttt{bidirectional\_}\allowbreak\texttt{cwr/ece\_packets} & Contagem & Nativo \\
+\hline
+\multicolumn{5}{l}{\textbf{5. Cabeçalhos e Taxas de Transferência}} \\
+& Fwd / Bwd Header Length & \texttt{fwd/}\allowbreak\texttt{bwd\_header\_length} & Bytes & Plugin UDPS \\
+& Flow Bytes/s & \texttt{bytes\_per\_second} & Bytes/s & Plugin UDPS \\
+& Flow Packets/s & \texttt{packets\_per\_second} & Pkts/s & Plugin UDPS \\
+& FWD Packets/s / Bwd Packets/s & \texttt{fwd/}\allowbreak\texttt{bwd\_}\allowbreak\texttt{packets\_per\_second} & Pkts/s & Plugin UDPS \\
+& Down/Up Ratio & \texttt{down\_up\_ratio} & Proporção & Plugin UDPS \\
+& Average Packet Size & \texttt{avg\_bytes\_per\_packet} & Bytes & Plugin UDPS \\
+& Fwd / Bwd Segment Size Avg & \texttt{fwd/}\allowbreak\texttt{bwd\_}\allowbreak\texttt{segment\_size\_avg} & Bytes & Plugin UDPS \\
+\hline
+\multicolumn{5}{l}{\textbf{6. Subfluxos e Transmissão em Lote (Bulk)}} \\
+& Subflow Fwd / Bwd Packets & \texttt{subflow\_}\allowbreak\texttt{fwd/bwd\_packets} & Contagem & Plugin UDPS \\
+& Subflow Fwd / Bwd Bytes & \texttt{subflow\_}\allowbreak\texttt{fwd/bwd\_bytes} & Bytes & Plugin UDPS \\
+& Fwd / Bwd Bytes/Bulk Avg & \texttt{fwd/}\allowbreak\texttt{bwd\_}\allowbreak\texttt{bytes\_bulk\_avg} & Bytes & Plugin UDPS \\
+& Fwd / Bwd Packet/Bulk Avg & \texttt{fwd/}\allowbreak\texttt{bwd\_}\allowbreak\texttt{packet\_bulk\_avg} & Pkts & Plugin UDPS \\
+& Fwd / Bwd Bulk Rate Avg & \texttt{fwd/}\allowbreak\texttt{bwd\_}\allowbreak\texttt{bulk\_rate\_avg} & Taxa & Plugin UDPS \\
+\hline
+\multicolumn{5}{l}{\textbf{7. Janelas TCP e Métricas de Atividade / Inatividade (Active/Idle)}} \\
+& Fwd / Bwd Init Win Bytes & \texttt{fwd/}\allowbreak\texttt{bwd\_}\allowbreak\texttt{init\_win\_bytes} & Bytes (16b) & Plugin UDPS \\
+& Fwd Act Data Pkts & \texttt{fwd\_act\_data\_pkts} & Contagem & Plugin UDPS \\
+& Fwd Seg Size Min & \texttt{fwd\_seg\_size\_min} & Bytes & Plugin UDPS \\
+& Active Mean / Std / Max / Min & \texttt{active\_}\allowbreak\texttt{mean, std, max, min} & $\mu\text{s}$ & Plugin UDPS \\
+& Idle Mean / Std / Max / Min & \texttt{idle\_}\allowbreak\texttt{mean, std, max, min} & $\mu\text{s}$ & Plugin UDPS \\
+\hline
+\end{xltabular}
+\fonte{Elaborado pelo autor (2026). $^{\dagger}$Atributos de variância nula descartados na camada pré-processadora.}
+
+\subsubsection{Aproximações Operacionais e Nuances de Cálculo}
+
+A replicação exata do comportamento do CICFlowMeter em um ambiente de streaming de alto desempenho exige esclarecer três aproximações e nuances metodológicas:
+\begin{enumerate}
+    \item \textbf{Cálculo de Subfluxos (\emph{Subflow Features}):} no CICFlowMeter original, os subfluxos são definidos como rajadas contíguas de pacotes separadas por períodos ociosos superiores a um limiar fixo. Em fluxos contínuos de curta e média duração observados em tráfego interativo ou ataques rápidos, o subfluxo coincide integralmente com a totalidade do fluxo principal. Assim, no término do fluxo, o plugin atribui:
+    \begin{align}
+    \texttt{subflow\_fwd\_packets} &= \texttt{flow.src2dst\_packets}, \\
+    \texttt{subflow\_fwd\_bytes} &= \texttt{flow.src2dst\_bytes}, \\
+    \texttt{subflow\_bwd\_packets} &= \texttt{flow.dst2src\_packets}, \\
+    \texttt{subflow\_bwd\_bytes} &= \texttt{flow.dst2src\_bytes}.
+    \end{align}
+    Essa aproximação preserva a consistência estatística, uma vez que a grande maioria das instâncias nos datasets CSE-CIC-IDS2018 e CIC-UNSW-NB15 é composta por conexões com apenas 1 subfluxo representativo;
+    
+    \item \textbf{Métricas de Transmissão em Lote (\emph{Bulk Rates}):} o CICFlowMeter contém uma máquina de estados heurística para quantificar transferências volumétricas contínuas (\emph{bulk}), exigindo um mínimo de 3 pacotes consecutivos com carga útil transmitidos com espaçamento inferior a 1 segundo. Na prática empírica da literatura de NIDS, tais atributos apresentam valor $0{,}0$ em mais de $99{,}8\%$ das amostras dos datasets públicos, não agregando separabilidade analítica aos classificadores. No \texttt{FeatureExtractor}, as 6 métricas de bulk são inicializadas e mantidas em $0{,}0$, eliminando sobrecarga computacional de rastreamento de estados sem perda de acurácia;
+    
+    \item \textbf{Janelas de Atividade e Inatividade (\emph{Active/Idle Dynamics}):} para a caracterização temporal fina exigida pelos especialistas recorrentes ($\mathcal{E}_{\mathrm{GRU}}$ e $\mathcal{E}_{\mathrm{LSTM}}$), o plugin rastreia a evolução dos pacotes utilizando o limiar clássico de ociosidade de 5 segundos ($5.000\,\mathrm{ms} = 5.000.000\,\mu\text{s}$). Durante o método \texttt{on\_update}, se o intervalo entre chegadas do pacote atual exceder o limiar (\texttt{packet.delta\_time > 5000}), o período ativo acumulado até o instante anterior é consolidado e registrado na lista \texttt{active\_times}, enquanto o tempo de espera decorrido é adicionado à lista \texttt{idle\_times}. Ao término do fluxo (\texttt{on\_expire}), calculam-se a média aritmética, o valor mínimo, o valor máximo e o desvio padrão amostral dessas séries em microssegundos. Caso o fluxo termine sem jamais ter atingido o limiar de 5 segundos de silêncio, o período ativo é consolidado como a própria duração integral do fluxo e os atributos ociosos mantêm-se em zero.
+\end{enumerate}
 
 \section{Setup de Inferência em Tempo Real}
 \label{sec:setup_inferencia}
-% [Seção reservada - aguardando conclusão dos testes pelo autor]
+
+Uma das premissas centrais desta pesquisa é transcender a avaliação puramente teórica em arquivos CSV desacoplados e comprovar a aplicabilidade do modelo ALF-MoE em um arranjo experimental de inferência em tempo real (\emph{testbed}), mensurando a latência computacional de ponta a ponta e a eficácia das rotinas de mitigação ativa em nível de sistema operacional.
 
 \subsection{Arquitetura do Ambiente de Execução}
 \label{subsec:arquitetura_execucao}
-% [Seção reservada - aguardando conclusão dos testes pelo autor]
 
-\subsection{Cenários de Teste de Estresse (Benigno, Ataques Humanos e Agentes via LLM)}
-\label{subsec:cenarios_estresse}
-% [Seção reservada - aguardando conclusão dos testes pelo autor]
+O arranjo experimental de bancada foi projetado para simular a topologia típica de uma estação de trabalho corporativa ou servidor perimetral protegido por um NIDS/NIPS inteligente, sob ataque a partir de uma máquina adversária na mesma infraestrutura de rede local.
+
+\subsubsection{Especificações do Hardware e Ambiente Operacional}
+
+O ambiente físico compõe-se de dois nós computacionais heterogêneos conectados por meio de uma rede local sem fio (WLAN):
+\begin{itemize}
+    \item \textbf{Máquina Vítima (Hospedeiro do NIDS e Serviços Protegidos):}
+    \begin{itemize}
+        \item \emph{Equipamento:} Notebook Acer Nitro V15 (modelo ANV15-51);
+        \item \emph{Processador:} Intel Core i7-13620H de 13ª geração (arquitetura híbrida Raptor Lake, dotado de 10 núcleos físicos [6 \emph{Performance-cores} operando até 4,9 GHz e 4 \emph{Efficient-cores} até 3,6 GHz], 16 threads lógicas e 24 MB de Intel Smart Cache);
+        \item \emph{Memória Volátil:} 16 GB de memória RAM DDR5 operando em canal duplo com frequência de transferência de 5200 MT/s;
+        \item \emph{Acelerador Gráfico Dedicado:} GPU NVIDIA GeForce RTX 4050 Laptop (arquitetura Ada Lovelace, 6 GB de memória de vídeo dedicada GDDR6, interface de 96 bits, 2560 núcleos CUDA e \emph{Tensor Cores} de 4ª geração);
+        \item \emph{Sistema Operacional e Kernel:} Ubuntu 26.04.1 LTS de 64 bits, executando o kernel Linux versão \texttt{7.0.0-31-generic};
+        \item \emph{Pilha de Inteligência Artificial:} Python 3.11/3.14 com bibliotecas TensorFlow 2.18 e Keras 3, compiladas com aceleração CUDA 12.4 e cuDNN 9.1;
+        \item \emph{Serviços Alvo Vulneráveis:} aplicação web deliberadamente vulnerável \emph{Damn Vulnerable Web Application} (DVWA), executada em contêiner Docker isolado (\texttt{vulnerables/}\allowbreak\texttt{web-dvwa}) mapeado na porta TCP 8080 do host, e servidor OpenSSH (\texttt{sshd}) ativo na porta TCP 22;
+        \item \emph{Endereço IP na Rede Local:} configurado estaticamente em \texttt{192.168.3.16/24}.
+    \end{itemize}
+
+    \item \textbf{Máquina Atacante (Gerador de Tráfego Adversarial):}
+    \begin{itemize}
+        \item \emph{Equipamento:} Notebook Dell Inspiron 3576;
+        \item \emph{Processador:} Intel Core i5-8250U (arquitetura Kaby Lake R, 4 núcleos físicos / 8 threads lógicas, frequência base de 1,6 GHz e \emph{Turbo Boost} de até 3,4 GHz, 6 MB de cache);
+        \item \emph{Memória Volátil:} 8 GB de memória RAM DDR4 operando a 2400 MT/s;
+        \item \emph{Sistema Operacional:} distribuição especializada Kali Linux Live (versão de kernel \texttt{7.1.5+}\allowbreak\texttt{kali-amd64}), inicializada em modo volátil a partir de uma unidade USB 3.0 para assegurar repetibilidade experimental limpa e ausência de contaminação cruzada entre baterias de testes;
+        \item \emph{Endereço IP na Rede Local:} atribuído dinamicamente via DHCP em \texttt{192.168.3.3/24}.
+    \end{itemize}
+
+    \item \textbf{Topologia da Rede Local:} ambos os nós conectam-se ponto a ponto por meio de uma rede sem fio sob o padrão IEEE 802.11ac (Wi-Fi 5), operando na faixa de 5 GHz com largura de canal de 80 MHz, intermediados por um roteador residencial avançado cujo endereço de gateway padrão e servidor DNS reside em \texttt{192.168.3.1}.
+\end{itemize}
+
+A interface de rede sem fio da máquina vítima (\texttt{wlp63s0}) opera com a flag promíscua ativada pelo NFStream, assegurando que todo o tráfego que transita pelo canal rádio direcionado ou originado pelo host seja capturado e espelhado para a pilha de inspeção.
+
+\subsubsection{Mecanismo de Defesa Ativa (ActiveDefenseAgent)}
+
+A grande maioria dos sistemas NIDS acadêmicos atua meramente como classificadores passivos em pós-processamento, gerando relatórios de alerta após a conclusão e o eventual sucesso de uma intrusão. O ecossistema ALF-MoE supera essa passividade ao integrar o agente de mitigação ativa em tempo real \texttt{ActiveDefenseAgent} (implementado em \texttt{src/inference.py}).
+
+\paragraph{Integração de Baixo Nível com o Firewall nftables}
+
+O subsistema de contenção utiliza a infraestrutura moderna do projeto Netfilter no kernel Linux: o \emph{firewall} de última geração \texttt{nftables} \cite{nftables2024}, sucessor arquitetural do legado \texttt{iptables}. O \texttt{nftables} oferece execução atômica baseada em bytecode em uma máquina virtual no espaço de kernel (\texttt{nft\_expr}), permitindo que conjuntos de endereços IP (\emph{sets}) sejam consultados em complexidade temporal de busca constante $\mathcal{O}(1)$ via árvores balanceadas ou tabelas hash, sem a degradação de desempenho linear $\mathcal{O}(N)$ típica das longas cadeias encadeadas de regras do \texttt{iptables}.
+
+Ao ser inicializado com privilégios de superusuário (\emph{root}), o \texttt{ActiveDefenseAgent} instancia programaticamente as seguintes estruturas no kernel via utilitário \texttt{nft}:
+\begin{enumerate}
+    \item \textbf{Tabela Dedicada:} cria a tabela de filtragem \texttt{inet alf\_defense}:
+    \begin{verbatim}
+    nft add table inet alf_defense
+    \end{verbatim}
+    \item \textbf{Conjunto Dinâmico com Expiração Nativa:} cria o conjunto de endereços IP \texttt{blocked\_ips} com a flag de temporizador ativada (\texttt{flags timeout}) e tempo de retenção de $300$ segundos ($5$ minutos):
+    \begin{verbatim}
+    nft add set inet alf_defense blocked_ips { 
+        type ipv4_addr; flags timeout; timeout 300s; 
+    }
+    \end{verbatim}
+    A ativação nativa de \texttt{timeout} no kernel constitui um avanço crítico de engenharia: elimina a necessidade de processos de segundo plano (\emph{daemons}) em Python realizando varreduras periódicas em espaço de usuário para desbloquear endereços após 5 minutos. O próprio escalonador de temporizadores do kernel Linux expira e expurga os endereços IP da tabela hash no instante exato em que os 300 segundos se esgotam;
+    \item \textbf{Cadeia de Entrada com Prioridade de Interceptação:} cria a cadeia \texttt{input} associada ao gancho \texttt{hook input} com prioridade estrita $-10$:
+    \begin{verbatim}
+    nft add chain inet alf_defense input { 
+        type filter hook input priority -10; policy accept; 
+    }
+    \end{verbatim}
+    A prioridade $-10$ posiciona o filtro de mitigação antes de qualquer cadeia padrão de filtragem (que normalmente operam com prioridade $0$), assegurando que pacotes hostis sejam interceptados e descartados logo após a etapa de desfragmentação e pré-roteamento IP do kernel, antes que possam consumir recursos do soquete TCP, alocar memória no subsistema de rede ou alcançar servidores de aplicação como o Apache ou o SSH;
+    \item \textbf{Regra de Descarte Sumário:} injeta a regra de bloqueio com comentário forense:
+    \begin{verbatim}
+    nft add rule inet alf_defense input \
+        ip saddr @blocked_ips drop comment "I SEE YOU!"
+    \end{verbatim}
+    Ao receber qualquer pacote com endereço de origem (\texttt{ip}\allowbreak\texttt{ saddr}) pertencente ao conjunto \texttt{blocked\_ips}, o kernel executa a ação de descarte silencioso (\texttt{drop}), sem emitir pacotes de encerramento TCP RST ou mensagens ICMP de porta inacessível (\emph{port unreachable}), impedindo que o atacante meça o estado interno das portas da vítima.
+\end{enumerate}
+
+\paragraph{Algoritmo de Resolução Direcional de Alvo (\texttt{select\_target})}
+
+Como os fluxos de rede capturados pelo NFStream são agregados de forma estritamente bidirecional, um fluxo contém sempre dois interlocutores: \texttt{src\_ip} e \texttt{dst\_ip}. Caso uma ameaça seja classificada pelo ALF-MoE (por exemplo, uma conexão de canal reverso originada a partir da própria vítima em direção à porta do atacante, ou respostas de varreduras), o IP do atacante pode ocupar a posição de origem ou de destino.
+
+Se o agente bloqueasse ingenuamente o campo \texttt{src\_ip}, a própria máquina vítima seria inserida no conjunto \texttt{blocked\_ips} durante a detecção de um shell reverso ou de conexões iniciadas localmente, resultando na perda catastrófica de conectividade do próprio sistema de defesa.
+
+Para eliminar esse risco, o método \texttt{select\_target(src\_ip, dst\_ip)} avalia as pontas da conexão perante as salvaguardas de proteção (\texttt{is\_protected}):
+\begin{verbatim}
+def select_target(self, src_ip: Optional[str],
+                  dst_ip: Optional[str]) -> Optional[str]:
+    clean_src = str(src_ip).strip() if src_ip else ""
+    clean_dst = str(dst_ip).strip() if dst_ip else ""
+
+    src_prot = self.is_protected(clean_src)
+    dst_prot = self.is_protected(clean_dst)
+
+    if src_prot and not dst_prot:
+        return clean_dst
+    if dst_prot and not src_prot:
+        return clean_src
+    if not src_prot and clean_src:
+        return clean_src
+    if not dst_prot and clean_dst:
+        return clean_dst
+    return None
+\end{verbatim}
+O algoritmo isola univocamente a contraparte remota maliciosa para bloqueio, garantindo que o host local protegido permaneça imune à ação de descarte.
+
+\paragraph{Salvaguarda Anti-Auto-Bloqueio e Lista Branca (Whitelist)}
+
+A blindagem do host vítima apoia-se em um mecanismo dinâmico de lista branca (\emph{whitelist}). Durante a inicialização do agente, a função \texttt{get\_host\_local\_ips()} executa o comando de sistema \texttt{ip -j addr}, inspeciona os objetos JSON retornados pelo subsistema de rede do Linux e descobre dinamicamente todos os endereços IPv4 e IPv6 atribuídos a todas as interfaces físicas e virtuais do host (incluindo adaptadores Wi-Fi, Ethernet e pontes do Docker como \texttt{docker0}).
+
+Adicionalmente, a lista branca estática \texttt{BASE\_WHITELIST} incorpora:
+\begin{itemize}
+    \item Endereços de loopback: \texttt{127.0.0.1} e \texttt{::1};
+    \item Endereços nulos e coringas: \texttt{0.0.0.0} e \texttt{::};
+    \item Endereços de difusão (\emph{broadcast}): \texttt{255.255.255.255};
+    \item Tráfego de descoberta local SSDP e UPnP: \texttt{239.255.255.250};
+    \item Endereços de multicast IPv6: \texttt{ff02::c} e \texttt{ff02::fb};
+    \item O endereço do gateway padrão da rede local: \texttt{192.168.3.1}.
+\end{itemize}
+
+A inclusão explícita do gateway padrão decorre de uma lição empírica essencial colhida durante as rodadas de calibração preliminares: quando o atacante executa inundações volumétricas ou varreduras que atingem serviços de roteamento, o fluxo capturado pode referenciar temporariamente a porta do roteador. Caso o IP do gateway fosse bloqueado, o hospedeiro vítima perderia instantaneamente todo o acesso à rede local e à Internet. As salvaguardas implementadas eliminam essa vulnerabilidade estrutural.
+
+\paragraph{Responder TCP Ativo (\texttt{\_ActiveTCPResponder})}
+
+Como recurso complementar de contenção e sinalização adversarial, o agente instancia a classe de segundo plano \texttt{\_ActiveTCPResponder}. Este módulo executa uma \emph{thread daemon} em Python que abre um soquete TCP escutando na porta $9999$ (\texttt{ALF-MoE-TCPResponder}).
+
+Ao receber tentativas de conexão exploratória ou conexões de teste geradas a partir do perímetro, o responder aceita o canal e transmite ativamente a mensagem de alerta configurada:
+\begin{center}
+\texttt{"I SEE YOU!\textbackslash{}n"}
+\end{center}
+encerrando graciosamente o soquete logo em seguida. Esse mecanismo permite que equipes de resposta a incidentes (\emph{Red/Blue Teams}) e ferramentas de auditoria recebam um sinal positivo de detecção antes que a regra de bloqueio total de kernel seja ativada.
+
+\paragraph{Subsistema de Auditoria Forense e SIEM (\texttt{InferenceAuditor})}
+
+O rastreamento de eventos em ambientes operacionais de segurança é coordenado pelo módulo \texttt{InferenceAuditor}. Desenvolvido para conformidade com plataformas de gerenciamento de eventos de segurança (\emph{Security Information and Event Management} -- SIEM) e centros de operações de segurança (SOC), o auditor opera com sincronização de threads (\texttt{threading.Lock}) e gera dois fluxos paralelos de dados:
+\begin{enumerate}
+    \item \textbf{Log Operacional Legível Rotativo (\texttt{.log}):} gerenciado pela classe \texttt{RotatingFileHandler}, com limite de $10\,\mathrm{MB}$ por arquivo e retenção de até 5 arquivos históricos de \emph{backup}, registrando mensagens formatadas legíveis por humanos com carimbo de data/hora, nível de severidade e PID;
+    \item \textbf{Trilha Forense Estruturada (\texttt{.jsonl}):} registro atômico em formato JSON Lines, onde cada linha representa um documento JSON independente e autocontido com especificação temporal em formato ISO 8601 UTC (\texttt{timestamp\_utc}).
+\end{enumerate}
+
+O evento principal (\texttt{FLOW\_PREDICTION}) grava a totalidade das variáveis que ditaram o julgamento analítico do modelo para cada fluxo inspecionado:
+\begin{itemize}
+    \item Metadados da 5-tuple (\texttt{src\_ip}, \texttt{src\_port}, \texttt{dst\_ip}, \texttt{dst\_port}, \texttt{protocol});
+    \item Julgamento final do ALF-MoE: classe predita (\texttt{class}), probabilidade de confiança (\texttt{confidence}) e flag booleana de ameaça (\texttt{is\_threat});
+    \item Vetor pentadimensional de pesos da \emph{Gating Network}:
+    \begin{equation}
+    \boldsymbol{\alpha}_{\mathrm{GN}} = [\alpha_{\mathrm{DNN}}, \, \alpha_{\mathrm{CNN}}, \, \alpha_{\mathrm{GRU}}, \, \alpha_{\mathrm{CAE}}, \, \alpha_{\mathrm{LSTM}}];
+    \end{equation}
+    \item Julgamentos individuais de cada um dos cinco especialistas neurais (\texttt{experts\_predictions});
+    \item Métrica de latência computacional estrita do \emph{forward pass} neural em milissegundos (\texttt{latency\_ms});
+    \item Ação de contenção executada pelo agente: \texttt{LOG} (tráfego permitido), \texttt{BLOCKED:<IP>} (bloqueio ativado no \texttt{nftables}), \texttt{ALREADY\_BLOCKED} (IP já retido no conjunto) ou \texttt{HOST\_PROTECTED} (alvo na lista branca).
+\end{itemize}
+
+\subsection{Síntese Operacional do Pipeline de Inferência e Contenção Ativa}
+\label{subsec:sintese_pipeline_operacional}
+
+A integração dos componentes detalhados neste capítulo consolida um ciclo operacional contínuo e determinístico para inspeção de fluxos de rede e defesa ativa em tempo real:
+\begin{enumerate}
+    \item \textbf{Ingestão e Agregação de Tráfego:} os processos filhos do NFStream operam em modo promíscuo na interface física de rede, capturando pacotes brutos e agregando as 76 métricas canônicas do padrão CIC através do plugin customizado \texttt{FeatureExtractor};
+    \item \textbf{Desacoplamento e Expiração de Fluxos:} ao atingir o limiar de inatividade ($\tau_{\mathrm{idle}} = 120\,\mathrm{s}$) ou o tempo máximo ativo ($\tau_{\mathrm{active}} = 240\,\mathrm{s}$), o fluxo é encerrado nos workers em C/Cython e emitido de forma síncrona para o processo consumidor principal em Python, contornando a restrição de bifurcação de contexto CUDA (\texttt{CUDA\_ERROR\_NOT\_INITIALIZED});
+    \item \textbf{Conversão e Padronização:} o processo principal executa o alinhamento de unidades temporais ($\times 1000{,}0$ para compatibilidade com a escala em microssegundos do CICFlowMeter), expurga as 3 colunas de sinalizador URG de variância nula (reduzindo a entrada para 73 atributos ativos) e aplica o pré-processamento treinado (\texttt{RobustScaler} e transformações logarítmicas $\ln(1+x)$);
+    \item \textbf{Inferência Neural Acelerada:} o tensor resultante alimenta a arquitetura ALF-MoE na GPU, na qual a \emph{Gating Network} pondera os cinco especialistas neurais heterogêneos ($\mathcal{E}_{\mathrm{DNN}}$, $\mathcal{E}_{\mathrm{CNN}}$, $\mathcal{E}_{\mathrm{GRU}}$, $\mathcal{E}_{\mathrm{CAE}}$ e $\mathcal{E}_{\mathrm{LSTM}}$), consolidando a predição através da soma ponderada estrita e da cabeça classificadora profunda;
+    \item \textbf{Mitigação Ativa e Auditoria Forense:} caso a classe predita indique uma ameaça com probabilidade superior ao limiar configurado ($\tau_{\mathrm{threshold}} = 0{,}70$) e o endereço não conste nas listas brancas de salvaguarda, o \texttt{ActiveDefenseAgent} adiciona o IP ofensor diretamente ao conjunto dinâmico \texttt{blocked\_ips} da tabela \texttt{nftables} do kernel Linux (com expiração automática de $300\,\mathrm{s}$), enquanto o \texttt{InferenceAuditor} persiste o registro estruturado em JSONL com sincronização atômica.
+\end{enumerate}
+
+O desempenho empírico desse arranjo experimental, abrangendo a acurácia de detecção nos benchmarks consolidados, a latência de inferência por amostra e o comportamento dos especialistas frente aos diferentes vetores de ataque, é apresentado e analisado exaustivamente no Capítulo~\ref{cap:resultados}.
