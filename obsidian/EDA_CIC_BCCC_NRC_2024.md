@@ -66,7 +66,8 @@ A análise matemática das taxas de amostragem por classe revelou um protocolo d
    - No original: **843.527 fluxos** (3,69% de todo o tráfego).
    - Na amostra: **apenas 605 fluxos** (0,018% da amostra).
    - Taxa de retenção: **0,0717%** (redução de 99,93%).
-   - Outra anomalia: `Port Scanning` reteve apenas **1,30%** (9.987 no original $ightarrow$ 130 na amostra).
+   - Outra anomalia: `Port Scanning` reteve apenas **1,30%** (9.987 no original $
+ightarrow$ 130 na amostra).
 
 ```
 +-------------------------------------------------------------------------------+
