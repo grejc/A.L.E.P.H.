@@ -40,7 +40,7 @@ from pathlib import Path
 from datetime import datetime
 from typing import Dict, Any, List
 
-# Silenciar logs excessivos do TensorFlow para treinamento limpo
+# Configuração de variáveis de ambiente do TensorFlow
 os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "0")
 os.environ.setdefault("TF_ENABLE_ONEDNN_OPTS", "0")
 
@@ -162,7 +162,7 @@ def run_training(
         alf_dropout=CONFIG.model.alf_dropout,
     )
 
-    # Class weights aplicados exclusivamente na Focal Loss (sem dupla ponderação!)
+    # Configuração de pesos de classes para a Focal Loss
     model_wrapper.compile(
         learning_rate=learning_rate,
         beta_1=CONFIG.training.beta_1,
@@ -220,7 +220,7 @@ def run_training(
     print("\n[Etapa 5/5] Gerando heatmaps analíticos, boxplot, radar chart e relatórios de desempenho...")
     history_dict = history.history
 
-    # Curvas de treino 2x2
+    # Curvas de treinamento
     plot_training_curves(
         history_dict=history_dict,
         output_path=reports_dir / "training_curves.png",

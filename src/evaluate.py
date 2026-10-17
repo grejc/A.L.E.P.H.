@@ -41,7 +41,7 @@ def find_latest_experiment_dir(base_artifacts: Path, dataset_name: str) -> Path:
     """Localiza o subdiretório de experimento mais recente."""
     target_dir = base_artifacts / dataset_name
     if not target_dir.exists():
-        # Fallback para busca recursiva
+        # Busca recursiva por diretórios compatíveis
         candidates = list(base_artifacts.glob(f"**/*{dataset_name}*"))
         if not candidates:
             raise FileNotFoundError(f"Nenhum diretório de artefatos encontrado em: {base_artifacts}")

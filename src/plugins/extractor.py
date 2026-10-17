@@ -2,11 +2,7 @@
 Extrator de features de fluxo de rede baseado em NFStream.
 Alinhado rigorosamente aos padrões de dados CICFlowMeter / CIC-UNSW-NB15 / CIC-BCCC-NRC-2024.
 
-Princípio da Responsabilidade Única (SRP):
-    Este módulo é responsável ESTRITAMENTE pela captura e extração das 76 features
-    estatísticas canônicas brutas da rede. Nenhuma transformação de modelo de Machine Learning
-    (como log1p, RobustScaler, codificação de labels ou particionamento em especialistas)
-    é realizada neste arquivo.
+Módulo responsável pela captura e extração das 76 features estatísticas canônicas brutas da rede.
 """
 
 import time
@@ -333,13 +329,6 @@ class FeatureExtractor(NFPlugin):
             flow.udps.idle_mean = float(np.mean(idl))
             flow.udps.idle_max = float(np.max(idl))
             flow.udps.idle_std = float(np.std(idl))
-
-        # NOTA ARQUITETURAL (SRP e CUDA Context):
-        # A inferência de modelos neurais (TensorFlow/Keras/PyTorch) NÃO deve ser executada
-        # dentro de plugins do NFStream (on_expire/on_update). O NFStream utiliza multiprocessing
-        # via fork no Linux; qualquer chamada ao driver CUDA em processo filho forked resulta em:
-        # CUDA_ERROR_NOT_INITIALIZED (absl crash fatal). Além disso, violaria o SRP do extrator.
-        # A inferência de produção deve ser sempre realizada no loop consumidor do processo principal.
 
     def _infer_flow(self, flow: Any) -> None:
         """
@@ -675,8 +664,8 @@ def convert_into_features(flow: Any, pattern: Literal[1, 2] = 1) -> pd.DataFrame
     """
     Converte um objeto NFlow do NFStream em um DataFrame com as 76 features canônicas do CICFlowMeter.
 
-    Mantém o Princípio da Responsabilidade Única (SRP): não aplica transformações numéricas
-    de machine learning (log1p, scalers, encoders) ou reshaping de especialistas.
+    Retorna os dados brutos sem transformações numéricas de machine learning
+    (como log1p, scalers, encoders) ou particionamento de especialistas.
 
     Args:
         flow: Objeto NFlow processado pelo NFStream com o plugin FeatureExtractor.

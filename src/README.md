@@ -52,14 +52,14 @@ O **ALF-MoE** é uma arquitetura de aprendizado profundo de ponta para Sistemas 
 
 ### 2. Gating Network e Refinamento Atencional
 - Avalia o vetor tabular completo (76 features) para computar a distribuição adaptativa $\alpha$.
-- A camada corrigida `AttentionRefinementLayer` implementa a calibração atencional:
+- A camada `AttentionRefinementLayer` implementa a calibração atencional:
   $$a = \text{softmax}\left(\frac{W_g \cdot \log(\alpha + \epsilon) + b_g}{\tau}\right)$$
-- **Correção Técnica Crucial**: Elimina a saturação rígida de `tanh` (que travava a atenção em $[0.056, 0.41]$), adotando escalonamento com temperatura aprendível $\tau$, permitindo que a atenção convirja com nitidez ($> 0.90$) para o especialista mais apto.
+- Utiliza escalonamento com parâmetro de temperatura aprendível $\tau$, prevenindo saturação precoce da distribuição de atenção e assegurando convergência seletiva ($> 0.90$) para o especialista mais representativo do padrão detectado.
 
 ### 3. Módulo ALF (Attention-based Learnable Fusion)
 - Agrega as predições probabilísticas estritamente via soma ponderada:
   $$Z = \sum_{k=1}^5 a_k \cdot y^{(k)}$$
-- **Correção Técnica Crucial**: Não possui skip-connection residual que concatena os especialistas diretamente na saída final. Todo o fluxo de gradiente passa por $Z$, forçando o aprendizado cooperativo e especializado.
+- Todo o fluxo de gradiente é propagado através do vetor fundido $Z$, sem skip-connections residuais concorrentes na saída final, assegurando aprendizado cooperativo e especialização efetiva de cada sub-rede.
 - **Compilação Multi-Task Balanceada**:
   $$\mathcal{L}_{\text{total}} = 1.0 \cdot \mathcal{L}_{\text{ALF}} + 0.2 \sum_{k=1}^5 \mathcal{L}_{\text{expert}}^{(k)}$$
   com `FocalLoss(gamma=2.0, alpha=class_weights)` sem dupla ponderação.
@@ -71,7 +71,7 @@ O **ALF-MoE** é uma arquitetura de aprendizado profundo de ponta para Sistemas 
 ```
 ALF-MoE/
 ├── config.py                 # Configurações globais centralizadas e hiperparâmetros ótimos
-├── domain_features.py        # Mapeamento canônico das 76 features e subespaços (100% idêntico)
+├── domain_features.py        # Mapeamento canônico das 76 features e subespaços
 ├── preprocessing.py          # Preprocessor robusto (RobustScaler, log1p em skew>3, split sem leakage)
 ├── neural/
 │   ├── __init__.py           # Exportação limpa das camadas e modelos

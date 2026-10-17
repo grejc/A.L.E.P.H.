@@ -384,7 +384,7 @@ def get_host_local_ips() -> Set[str]:
     except Exception:
         pass
 
-    # IP da máquina atacante em ambientes de teste
+    # Exclusão de IP de teste
     if "192.168.3.3" in ips:
         ips.remove("192.168.3.3")
 
@@ -571,7 +571,7 @@ class ModelInferenceEngine:
         # 3. Carregar artefatos de pré-processamento
         self._load_artifacts()
 
-        # 4. Carregar modelo Keras (com compile=False para economizar VRAM)
+        # 4. Carregar modelo Keras (com compile=False para controle de VRAM)
         self._load_model()
 
     def _find_default_base_dir(self) -> Path:
@@ -621,7 +621,7 @@ class ModelInferenceEngine:
             if cand_m.exists():
                 return cand_m
 
-        # Prioridade para pesos (.weights.h5) para reconstrução funcional estável no Keras 3
+        # Resolução de arquivos de pesos (.weights.h5)
         model_dir = self.base_dir / "model"
         weights_cands = (
             list(model_dir.glob("*.weights.h5"))
@@ -724,11 +724,11 @@ class ModelInferenceEngine:
             self.model = self.model_wrapper.model
         else:
             try:
-                # compile=False evita alocar memória para os pesos de otimizador (Adam)
+                # compile=False para carregar sem buffers de otimizador
                 self.model = keras.models.load_model(str(self.model_path), compile=False)
                 self.model_wrapper = None
             except Exception:
-                # Fallback de reconstrução caso load_model falhe por subcamadas não construídas
+                # Reconstrução da arquitetura se o carregamento direto falhar
                 domain_idx = self.domain_indices or Preprocessor(auto_load=False).get_domain_indices()
                 self.model_wrapper = ALFMoEModel(
                     feature_names=self.feature_names,
@@ -1027,7 +1027,7 @@ class InferenceBatchPool:
         try:
             self._queue.put_nowait(req)
         except queue.Full:
-            # Em caso de saturação extrema da fila, descarta o fluxo mais antigo ou força inserção
+            # Inserção com espera se a fila estiver temporariamente cheia
             self._queue.put(req, block=True, timeout=0.05)
 
         return fut
@@ -1048,7 +1048,7 @@ class InferenceBatchPool:
             t_batch_start = time.perf_counter()
             deadline = t_batch_start + (self.max_wait_ms / 1000.0)
 
-            # Acumula até atingir max_batch_size (128) ou timeout de 10ms
+            # Acumula requisições até atingir max_batch_size ou término do timeout
             while len(batch) < self.max_batch_size:
                 remaining_time = deadline - time.perf_counter()
                 if remaining_time <= 0:
@@ -1396,7 +1396,7 @@ class InferencePipeline:
                 # Extrai as 76 features canônicas no padrão CIC
                 flow_df = convert_into_features(flow, pattern=self.pattern)
 
-                # Despacha para a pool de inferência de forma NÃO-BLOQUEANTE
+                # Despacho assíncrono para a pool de inferência
                 self.batch_pool.submit(
                     features=flow_df,
                     metadata=meta,
@@ -1437,7 +1437,7 @@ def run_demo(pipeline: InferencePipeline) -> None:
     res_b = pipeline.predict_flow(benign_flow, override_metadata=meta_benign)
     print(f"Fluxo Benigno:    Predição={res_b['predicted_class']} | Confiança={res_b['confidence']*100:.1f}% | Ação={res_b['action_taken']}")
 
-    # 2. Fluxo Malicioso Hostil (Simulado)
+    # 2. Fluxo Malicioso Simulado
     attack_flow = {f: 100000.0 if "IAT" in f or "Packet" in f else 500.0 for f in pipeline.feature_names}
     meta_attack = {"src_ip": "203.0.113.199", "src_port": 6666, "dst_ip": "192.168.1.50", "dst_port": 80}
     res_a = pipeline.predict_flow(attack_flow, override_metadata=meta_attack)

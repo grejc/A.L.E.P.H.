@@ -132,7 +132,7 @@ class TrainingConfig:
     alf_weight: float = 1.0
     auxiliary_weight: float = 0.2
 
-    # Focal Loss (sem dupla ponderação!)
+    # Hiperparâmetros da Focal Loss
     focal_gamma: float = 2.0
     class_weight_strategy: Literal["none", "sqrt", "balanced"] = "sqrt"
 

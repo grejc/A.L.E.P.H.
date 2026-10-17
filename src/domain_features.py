@@ -295,7 +295,7 @@ class CICDomainFeatures:
         if len(matched) == len(wanted):
             return matched
 
-        # Fallback for common alias/abbreviation and case differences
+        # Resolution of common aliases, abbreviations, and case differences
         alias_map = {
             'flow duration': 'Flow duration',
             'fwd iat tot': 'Fwd IAT Total',

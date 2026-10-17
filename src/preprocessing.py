@@ -136,7 +136,7 @@ class Preprocessor:
             self.artifacts_dir.mkdir(parents=True, exist_ok=True)
 
         self.domain_utility = CICDomainFeatures()
-        # Features canônicas sem as colunas sem variância removidas explicitamente
+        # Features canônicas excluindo colunas sem variância
         self.canonical_features: List[str] = [
             f for f in self.domain_utility.raw if f not in self.EXPLICIT_DROP_COLUMNS
         ]
@@ -255,7 +255,7 @@ class Preprocessor:
                     'Brute Force -Web':                             'Web Attack',
                     'Brute Force -XSS':                             'Web Attack',
                     'SQL Injection':                                'Web Attack',
-                    # 7, 8, 9... (mantendo as variações de Infiltração individualizadas conforme o dataset)
+                    # 7. Variações de Infiltração individualizadas
                     'Infiltration - NMAP Portscan':                 'Infiltration - NMAP Portscan',
                     'Infiltration - Communication Victim Attacker': 'Infiltration - Communication Victim Attacker',
                     'Infiltration - Dropbox Download':              'Infiltration - Dropbox Download',
@@ -826,7 +826,7 @@ class Preprocessor:
             stratify=strat_tv,
         )
 
-        # 5. Fit exclusivamente no treino (prevenção absoluta de data leakage)
+        # 5. Ajuste dos transformadores no conjunto de treino
         if not self._is_fitted or refit:
             self.fit(train_df)
         else:
@@ -954,7 +954,7 @@ class Preprocessor:
         self.target_column = artifacts.get("target_column", self.target_column)
         self._threat_level_used = artifacts.get("threat_level_used")
 
-        # Fallback de inferência de threat_level_used caso venha nulo de artefatos legados
+        # Inferência de threat_level_used quando não definido nos artefatos
         if self._threat_level_used is None and self.label_encoder is not None:
             n_cls = len(self.label_encoder.classes_)
             if self.dataset_name == "CIC-BCCC-NRC-2024":
