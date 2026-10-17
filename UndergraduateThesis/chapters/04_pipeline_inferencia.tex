@@ -1,11 +1,11 @@
 \section{Captura e Processamento de Tráfego}
 \label{sec:captura_processamento}
 
-A transição de modelos de Aprendizado Profundo avaliados em conjuntos de dados estáticos (\emph{offline benchmarks}) para sistemas de detecção e prevenção de intrusão operando em redes de produção (\emph{online NIDS/NIPS}) constitui um dos desafios mais complexos na engenharia de segurança contemporânea. Conforme discutido no Capítulo~\ref{cap:fundamentacao}, a literatura acadêmica frequentemente restringe suas avaliações a arquivos de captura pré-gravados (\emph{Packet Capture} -- PCAP), processados em lote por ferramentas analíticas lentas como o \emph{CICFlowMeter}. Esse extrator legado, implementado primariamente em Java, não foi projetado para atuar como componente de baixa latência em linha de produção: sua arquitetura monolítica introduz contenção severa de memória volátil, atrasos imprevisíveis de coleta de lixo (\emph{garbage collection}) e ausência de suporte nativo a pipelines de tensores neurais acelerados por unidades de processamento gráfico (GPU) \cite{AOUINI2022108719}.
+A transição de modelos de Aprendizado Profundo avaliados em conjuntos de dados estáticos (\emph{offline benchmarks}) para sistemas de detecção de intrusão operando em redes de produção (\emph{online NIDS}) constitui um dos desafios mais complexos na engenharia de segurança contemporânea. Conforme discutido no Capítulo~\ref{cap:fundamentacao}, a literatura acadêmica frequentemente restringe suas avaliações a arquivos de captura pré-gravados (\emph{Packet Capture} -- PCAP), processados em lote por ferramentas analíticas lentas como o \emph{CICFlowMeter}. Esse extrator legado, implementado primariamente em Java, não foi projetado para atuar como componente de baixa latência em linha de produção: sua arquitetura monolítica introduz contenção severa de memória volátil, atrasos imprevisíveis de coleta de lixo (\emph{garbage collection}) e ausência de suporte nativo a pipelines de tensores neurais acelerados por unidades de processamento gráfico (GPU) \cite{AOUINI2022108719}.
 
-Para que a arquitetura \textbf{ALF-MoE} possa exercer defesa perimetral em tempo hábil contra agentes adversariais, faz-se indispensável uma infraestrutura de telemetria capaz de inspecionar pacotes brutos diretamente da interface física de rede, agregá-los dinamicamente em fluxos bidirecionais segundo a tupla quíntupla (\emph{5-tuple}), computar grandezas estatísticas e temporais em escala de microssegundos e despachá-las ao motor neural sem degradar a vazão da rede. 
+Para que a arquitetura \textbf{ALF-MoE} possa exercer monitoramento e detecção perimetral em tempo hábil contra agentes adversariais, faz-se indispensável uma infraestrutura de telemetria capaz de inspecionar pacotes brutos diretamente da interface física de rede, agregá-los dinamicamente em fluxos bidirecionais segundo a tupla quíntupla (\emph{5-tuple}), computar grandezas estatísticas e temporais em escala de microssegundos e despachá-las ao motor neural sem degradar a vazão da rede. 
 
-Neste capítulo, detalha-se a concepção, implementação e validação do pipeline de extração de tráfego baseado no \emph{framework} NFStream, o alinhamento semântico de suas características com o padrão canônico dos datasets do Canadian Institute for Cybersecurity (CIC) e o subsistema de defesa ativa com integração ao \emph{firewall} de última geração do Linux (\texttt{nftables}) para contenção de ameaças em nível de kernel.
+Neste capítulo, detalha-se a concepção, implementação e validação do pipeline de extração de tráfego baseado no \emph{framework} NFStream, o alinhamento semântico de suas características com o padrão canônico dos datasets do Canadian Institute for Cybersecurity (CIC) e o ambiente de execução em GPU para inferência contínua com auditoria forense.
 
 \subsection{Extração com NFStream}
 \label{subsec:extracao_nfstream}
@@ -100,24 +100,11 @@ Bit 3 & URG (\emph{Urgent}) & $2^3 = 8$ & Campo de ponteiro de urgência ativo e
 Bit 4 & ACK (\emph{Acknowledgment}) & $2^4 = 16$ & Confirmação de recebimento de segmentos anteriores. \\
 Bit 5 & PSH (\emph{Push}) & $2^5 = 32$ & Solicitação de entrega imediata de dados à aplicação receptora. \\
 Bit 6 & RST (\emph{Reset}) & $2^6 = 64$ & Interrupção abrupta e reinicialização forçada da conexão. \\
-Bit 7 & FIN (\emph{Finish}) & $2^7 = 128$ & Encerramento gracioso e bilateral do canal de comunicação. \\
+Bit 7 & FIN (\emph{Finish}) & $2^7 = 128$ & Encerramento controlado e bilateral do canal de comunicação. \\
 \hline
 \end{tabularx}
 \fonte{Elaborado pelo autor (2026).}
 \end{table}
-
-A implementação computacional em Python recorre a operadores de deslocamento de bits à esquerda (\texttt{<<}) e disjunção binária (\texttt{|}):
-\begin{verbatim}
-flags = 0
-flags |= (1 if getattr(packet, "syn", False) else 0) << 0
-flags |= (1 if getattr(packet, "cwr", False) else 0) << 1
-flags |= (1 if getattr(packet, "ece", False) else 0) << 2
-flags |= (1 if getattr(packet, "urg", False) else 0) << 3
-flags |= (1 if getattr(packet, "ack", False) else 0) << 4
-flags |= (1 if getattr(packet, "psh", False) else 0) << 5
-flags |= (1 if getattr(packet, "rst", False) else 0) << 6
-flags |= (1 if getattr(packet, "fin", False) else 0) << 7
-\end{verbatim}
 Essa codificação atômica permite avaliar padrões combinatórios complexos (tais como varreduras \emph{TCP SYN}, sondas \emph{TCP NULL} onde $\beta = 0$, ou anomalias \emph{XMAS Scan} onde $\beta = 2^0 + 2^5 + 2^7 = 41$) em tempo linear de máquina.
 
 \paragraph{Extração de Janela TCP em Bytes Brutos (\texttt{extract\_tcp\_window\_size})}
@@ -155,7 +142,7 @@ O ciclo de vida de monitoramento do NFStream é governado por três eventos esto
 O streamer de produção é configurado em modo promíscuo com análise estatística nativa ativada, operando sob dois temporizadores fundamentais de rede:
 \begin{enumerate}
     \item \textbf{Tempo Limite de Inatividade (\texttt{idle\_timeout = 120s}):} define que, se uma conexão permanecer $120$ segundos sem que nenhum pacote transite em ambos os sentidos, o fluxo é considerado encerrado e emitido para classificação;
-    \item \textbf{Tempo Limite Ativo (\texttt{active\_timeout = 240s}):} estabelece que fluxos contínuos e volumosos (tais como transferências massivas de arquivos ou inundações prolongadas de DoS/DDoS) não fiquem retidos indefinidamente na memória do monitor. Ao completar $240$ segundos de existência ativa, o fluxo é segmentado, expirado e imediatamente enviado ao pipeline neural, garantindo que ataques volumétricos persistentes sejam detectados e mitigados em no máximo 4 minutos.
+    \item \textbf{Tempo Limite Ativo (\texttt{active\_timeout = 240s}):} estabelece que fluxos contínuos e volumosos (tais como transferências massivas de arquivos ou inundações prolongadas de DoS/DDoS) não fiquem retidos indefinidamente na memória do monitor. Ao completar $240$ segundos de existência ativa, o fluxo é segmentado, expirado e imediatamente enviado ao pipeline neural, garantindo que ataques volumétricos persistentes sejam detectados e reportados para auditoria em no máximo 4 minutos.
 \end{enumerate}
 
 \subsection{Mapeamento e Alinhamento de Features (NFStream \texorpdfstring{$\to$}{->} CICFlowMeter)}
@@ -302,142 +289,60 @@ A replicação exata do comportamento do CICFlowMeter em um ambiente de streamin
 \section{Setup de Inferência}
 \label{sec:setup_inferencia}
 
-Uma das premissas centrais desta pesquisa é transcender a avaliação puramente teórica em arquivos CSV desacoplados e comprovar a aplicabilidade do modelo ALF-MoE em um arranjo experimental de inferência (\emph{testbed}), mensurando a latência computacional de ponta a ponta e a eficácia das rotinas de mitigação ativa em nível de sistema operacional.
+Uma das premissas centrais desta pesquisa é transcender a avaliação puramente teórica em arquivos estáticos desacoplados e comprovar a viabilidade operacional do modelo ALF-MoE em um arranjo experimental de inferência (\emph{testbed}), mensurando a latência computacional de ponta a ponta e a robustez da auditoria forense em nível de sistema operacional.
 
 \subsection{Arquitetura do Ambiente de Execução}
 \label{subsec:arquitetura_execucao}
 
-O arranjo experimental de bancada foi projetado para simular a topologia típica de uma estação de trabalho corporativa ou servidor perimetral protegido por um NIDS/NIPS inteligente, sob ataque a partir de uma máquina adversária na mesma infraestrutura de rede local.
+O arranjo experimental de bancada foi projetado para avaliar o comportamento operacional de uma estação de trabalho corporativa ou servidor perimetral monitorado pelo NIDS inteligente ALF-MoE em ambiente de rede local.
 
 \subsubsection{Especificações do Hardware e Ambiente Operacional}
 
-O ambiente físico compõe-se de dois nós computacionais heterogêneos conectados por meio de uma rede local sem fio (WLAN):
+O arranjo experimental de bancada foi estruturado sobre uma estação de trabalho dedicada, operando como nó de monitoramento perimetral equipado com acelerador gráfico dedicado para inferência neural em tempo hábil:
 
 \begin{itemize}
     \item \emph{Equipamento:} Notebook Acer Nitro V15 (modelo ANV15-51);
     \item \emph{Processador:} Intel Core i7-13620H de 13ª geração (arquitetura híbrida Raptor Lake, dotado de 10 núcleos físicos [6 \emph{Performance-cores} operando até 4,9 GHz e 4 \emph{Efficient-cores} até 3,6 GHz], 16 threads lógicas e 24 MB de Intel Smart Cache);
     \item \emph{Memória Volátil:} 16 GB de memória RAM DDR5 operando em canal duplo com frequência de transferência de 5200 MT/s;
     \item \emph{Acelerador Gráfico Dedicado:} GPU NVIDIA GeForce RTX 4050 Laptop (arquitetura Ada Lovelace, 6 GB de memória de vídeo dedicada GDDR6, interface de 96 bits, 2560 núcleos CUDA e \emph{Tensor Cores} de 4ª geração);
-    \item \emph{Sistema Operacional e Kernel:} Ubuntu 26.04.1 LTS de 64 bits, executando o kernel Linux versão 7.0.0-31-generic;
-    \item \emph{Pilha de Inteligência Artificial:} Python 3.11/3.14 com bibliotecas TensorFlow 2.18 e Keras 3, compiladas com aceleração CUDA 12.4 e cuDNN 9.1;
-    \item \emph{Endereço IP na Rede Local:} configurado estaticamente em \texttt{192.168.3.16/24}.
+    \item \emph{Sistema Operacional e Kernel:} Ubuntu 26.04.1 LTS de 64 bits, executando o kernel Linux versão 7.0.0-38-generic;
+    \item \emph{Pilha de Inteligência Artificial:} Python 3.11/3.14 com bibliotecas TensorFlow 2.21 e Keras 3, operando com aceleração CUDA 12.5;
+    \item \emph{Interface de Rede Local:} interface sem fio \texttt{wlp63s0} conectada à sub-rede local \texttt{192.168.3.0/24} com endereço IPv4 \texttt{192.168.3.16}.
 \end{itemize}
-
-% ! NÃO HAVERÁ DESCRITIVOS DE ATAQUE 
 
 A interface de rede sem fio da máquina (\texttt{wlp63s0}) opera com a flag promíscua ativada pelo NFStream, assegurando que todo o tráfego que transita pelo canal rádio direcionado ou originado pelo host seja capturado e espelhado para a pilha de inspeção.
 
-\subsubsection{Mecanismo de Defesa Ativa}
+\subsubsection{Subsistema de Auditoria Forense e Registro SIEM (\texttt{InferenceAuditor})}
 
-A grande maioria dos sistemas NIDS acadêmicos atua meramente como classificadores passivos em pós-processamento, gerando relatórios de alerta após a conclusão e o eventual sucesso de uma intrusão. O ecossistema ALF-MoE supera essa passividade ao integrar o agente de mitigação ativa \texttt{ActiveDefenseAgent} (implementado em \texttt{src/inference.py}).
-
-\paragraph{Integração de Baixo Nível com o Firewall nftables}
-
-O subsistema de contenção utiliza a infraestrutura moderna do projeto Netfilter no kernel Linux: o \emph{firewall} de última geração \texttt{nftables} \cite{nftables2024}, sucessor arquitetural do legado \texttt{iptables}. O \texttt{nftables} oferece execução atômica baseada em bytecode em uma máquina virtual no espaço de kernel (\texttt{nft\_expr}), permitindo que conjuntos de endereços IP (\emph{sets}) sejam consultados em complexidade temporal de busca constante $\mathcal{O}(1)$ via árvores balanceadas ou tabelas hash, sem a degradação de desempenho linear $\mathcal{O}(N)$ típica das longas cadeias encadeadas de regras do \texttt{iptables}.
-
-Ao ser inicializado com privilégios de superusuário (\emph{root}), o \texttt{ActiveDefenseAgent} instancia programaticamente as seguintes estruturas no kernel via utilitário \texttt{nft}:
+O rastreamento e a persistência de eventos perimetrais são coordenados pelo módulo \texttt{InferenceAuditor} (implementado em \texttt{src/inference.py}). Projetado para interoperabilidade com plataformas de gerenciamento de informações e eventos de segurança (\emph{Security Information and Event Management} -- SIEM) e centros de operações de segurança (SOC), o auditor opera com controle estrito de concorrência em ambiente \emph{multithreading} (\texttt{threading.Lock}) e gera dois fluxos paralelos de telemetria:
 \begin{enumerate}
-    \item \textbf{Tabela Dedicada:} cria a tabela de filtragem \texttt{inet alf\_defense}:
-    \begin{verbatim}
-    nft add table inet alf_defense
-    \end{verbatim}
-    \item \textbf{Conjunto Dinâmico com Expiração Nativa:} cria o conjunto de endereços IP \texttt{blocked\_ips} com a flag de temporizador ativada (\texttt{flags timeout}) e tempo de retenção de $300$ segundos ($5$ minutos):
-    \begin{verbatim}
-    nft add set inet alf_defense blocked_ips { 
-        type ipv4_addr; flags timeout; timeout 300s; 
-    }
-    \end{verbatim}
-    A ativação nativa de \texttt{timeout} no kernel constitui um avanço crítico de engenharia: elimina a necessidade de processos de segundo plano (\emph{daemons}) em Python realizando varreduras periódicas em espaço de usuário para desbloquear endereços após 5 minutos. O próprio escalonador de temporizadores do kernel Linux expira e expurga os endereços IP da tabela hash no instante exato em que os 300 segundos se esgotam;
-    \item \textbf{Cadeia de Entrada com Prioridade de Interceptação:} cria a cadeia \texttt{input} associada ao gancho \texttt{hook input} com prioridade estrita $-10$:
-    \begin{verbatim}
-    nft add chain inet alf_defense input { 
-        type filter hook input priority -10; policy accept; 
-    }
-    \end{verbatim}
-    A prioridade $-10$ posiciona o filtro de mitigação antes de qualquer cadeia padrão de filtragem (que normalmente operam com prioridade $0$), assegurando que pacotes hostis sejam interceptados e descartados logo após a etapa de desfragmentação e pré-roteamento IP do kernel, antes que possam consumir recursos do soquete TCP, alocar memória no subsistema de rede ou alcançar servidores de aplicação como o Apache ou o SSH;
-    \item \textbf{Regra de Descarte Sumário:} injeta a regra de bloqueio com comentário forense:
-    \begin{verbatim}
-    nft add rule inet alf_defense input \
-        ip saddr @blocked_ips drop comment "I SEE YOU!"
-    \end{verbatim}
-    Ao receber qualquer pacote com endereço de origem (\texttt{ip}\allowbreak\texttt{ saddr}) pertencente ao conjunto \texttt{blocked\_ips}, o kernel executa a ação de descarte silencioso (\texttt{drop}), sem emitir pacotes de encerramento TCP RST ou mensagens ICMP de porta inacessível (\emph{port unreachable}), impedindo que o atacante meça o estado interno das portas da vítima.
-\end{enumerate}
-
-\paragraph{Algoritmo de Resolução Direcional de Alvo (\texttt{select\_target})}
-
-Como os fluxos de rede capturados pelo NFStream são agregados de forma estritamente bidirecional, um fluxo contém sempre dois interlocutores: \texttt{src\_ip} e \texttt{dst\_ip}. Caso uma ameaça seja classificada pelo ALF-MoE (por exemplo, uma conexão de canal reverso originada a partir da própria vítima em direção à porta do atacante, ou respostas de varreduras), o IP do atacante pode ocupar a posição de origem ou de destino.
-
-Se o agente bloqueasse ingenuamente o campo \texttt{src\_ip}, a própria máquina vítima seria inserida no conjunto \texttt{blocked\_ips} durante a detecção de um shell reverso ou de conexões iniciadas localmente, resultando na perda catastrófica de conectividade do próprio sistema de defesa.
-
-Para eliminar esse risco, o método \texttt{select\_target(src\_ip, dst\_ip)} avalia as pontas da conexão perante as salvaguardas de proteção (\texttt{is\_protected}):
-\begin{verbatim}
-def select_target(self, src_ip: Optional[str],
-                  dst_ip: Optional[str]) -> Optional[str]:
-    clean_src = str(src_ip).strip() if src_ip else ""
-    clean_dst = str(dst_ip).strip() if dst_ip else ""
-
-    src_prot = self.is_protected(clean_src)
-    dst_prot = self.is_protected(clean_dst)
-
-    if src_prot and not dst_prot:
-        return clean_dst
-    if dst_prot and not src_prot:
-        return clean_src
-    if not src_prot and clean_src:
-        return clean_src
-    if not dst_prot and clean_dst:
-        return clean_dst
-    return None
-\end{verbatim}
-O algoritmo isola univocamente a contraparte remota maliciosa para bloqueio, garantindo que o host local protegido permaneça imune à ação de descarte.
-
-\paragraph{Salvaguarda Anti-Auto-Bloqueio e Whitelist}
-
-A blindagem do host vítima apoia-se em um mecanismo dinâmico de whitelist (\emph{whitelist}). Durante a inicialização do agente, a função \texttt{get\_host\_local\_ips()} executa o comando de sistema \texttt{ip -j addr}, inspeciona os objetos JSON retornados pelo subsistema de rede do Linux e descobre dinamicamente todos os endereços IPv4 e IPv6 atribuídos a todas as interfaces físicas e virtuais do host (incluindo adaptadores Wi-Fi, Ethernet e pontes do Docker como \texttt{docker0}).
-
-Adicionalmente, a whitelist estática \texttt{BASE\_WHITELIST} incorpora:
-\begin{itemize}
-    \item Endereços de loopback: \texttt{127.0.0.1} e \texttt{::1};
-    \item Endereços nulos e coringas: \texttt{0.0.0.0} e \texttt{::};
-    \item Endereços de difusão (\emph{broadcast}): \texttt{255.255.255.255};
-    \item Tráfego de descoberta local SSDP e UPnP: \texttt{239.255.255.250};
-    \item Endereços de multicast IPv6: \texttt{ff02::c} e \texttt{ff02::fb};
-    \item O endereço do gateway padrão da rede local: \texttt{192.168.3.1}.
-\end{itemize}
-
-A inclusão explícita do gateway padrão decorre de uma lição empírica essencial colhida durante as rodadas de calibração preliminares: quando o atacante executa inundações volumétricas ou varreduras que atingem serviços de roteamento, o fluxo capturado pode referenciar temporariamente a porta do roteador. Caso o IP do gateway fosse bloqueado, o hospedeiro vítima perderia instantaneamente todo o acesso à rede local e à Internet. As salvaguardas implementadas eliminam essa vulnerabilidade estrutural.
-
-\paragraph{Subsistema de Auditoria Forense e SIEM (\texttt{InferenceAuditor})}
-
-O rastreamento de eventos é coordenado pelo módulo \texttt{InferenceAuditor}. Desenvolvido para conformidade com plataformas de gerenciamento de eventos de segurança (\emph{Security Information and Event Management} -- SIEM) e centros de operações de segurança (SOC), o auditor opera com sincronização de threads (\texttt{threading.Lock}) e gera dois fluxos paralelos de dados:
-\begin{enumerate}
-    \item \textbf{Log Operacional Legível Rotativo (\texttt{.log}):} gerenciado pela classe \texttt{RotatingFileHandler}, com limite de $10\,\mathrm{MB}$ por arquivo e retenção de até 5 arquivos históricos de \emph{backup}, registrando mensagens formatadas legíveis por humanos com carimbo de data/hora, nível de severidade e PID;
+    \item \textbf{Log Operacional Legível Rotativo (\texttt{.log}):} gerenciado pela classe \texttt{RotatingFileHandler}, com limite de $10\,\mathrm{MB}$ por arquivo e retenção de até 5 arquivos históricos de \emph{backup}, registrando mensagens operacionais formatadas para inspeção humana direta (com carimbo de data/hora, nível de severidade e PID do processo);
     \item \textbf{Trilha Forense Estruturada (\texttt{.jsonl}):} registro atômico em formato JSON Lines, onde cada linha representa um documento JSON independente e autocontido com especificação temporal em formato ISO 8601 UTC (\texttt{timestamp\_utc}).
 \end{enumerate}
 
-O evento principal (\texttt{FLOW\_PREDICTION}) grava a totalidade das variáveis que ditaram o julgamento analítico do modelo para cada fluxo inspecionado:
+O evento principal (\texttt{FLOW\_PREDICTION}) grava a totalidade das variáveis que ditaram o julgamento analítico do modelo para cada fluxo de rede inspecionado:
 \begin{itemize}
     \item Metadados da 5-tuple (\texttt{src\_ip}, \texttt{src\_port}, \texttt{dst\_ip}, \texttt{dst\_port}, \texttt{protocol});
-    \item Julgamento final do ALF-MoE: classe predita (\texttt{class}), probabilidade de confiança (\texttt{confidence}) e flag booleana de ameaça (\texttt{is\_threat});
+    \item Julgamento final do modelo ALF-MoE: classe predita (\texttt{class}), probabilidade de confiança (\texttt{confidence}) e sinalizador booleano de anomalia (\texttt{is\_threat});
     \item Vetor pentadimensional de pesos da \emph{Gating Network}:
     \begin{equation}
     \boldsymbol{\alpha}_{\mathrm{GN}} = [\alpha_{\mathrm{DNN}}, \, \alpha_{\mathrm{CNN}}, \, \alpha_{\mathrm{GRU}}, \, \alpha_{\mathrm{CAE}}, \, \alpha_{\mathrm{LSTM}}];
     \end{equation}
-    \item Julgamentos individuais de cada um dos cinco especialistas neurais (\texttt{experts\_predictions});
-    \item Métrica de latência computacional estrita do \emph{forward pass} neural em milissegundos (\texttt{latency\_ms});
-    \item Ação de contenção executada pelo agente: \texttt{LOG} (tráfego permitido), \texttt{BLOCKED:<IP>} (bloqueio ativado no \texttt{nftables}), \texttt{ALREADY\_BLOCKED} (IP já retido no conjunto) ou \texttt{HOST\_PROTECTED} (alvo na whitelist).
+    \item Julgamentos e probabilidades individuais emitidos por cada um dos cinco especialistas neurais (\texttt{experts\_}\allowbreak\texttt{predictions});
+    \item Métrica de latência computacional estrita do \emph{forward pass} neural na GPU em milissegundos (\texttt{latency\_ms});
+    \item Ação de auditoria associada: indicação do registro analítico perimetral (\texttt{LOG}) e estado operacional do evento.
 \end{itemize}
 
-\subsection{Síntese Operacional do Pipeline de Inferência e Contenção Ativa}
+\subsection{Síntese Operacional do Pipeline de Inferência}
 \label{subsec:sintese_pipeline_operacional}
 
-A integração dos componentes detalhados neste capítulo consolida um ciclo operacional contínuo e determinístico para inspeção de fluxos de rede e defesa ativa em tempo real:
+A integração dos componentes detalhados neste capítulo consolida um ciclo operacional contínuo e determinístico para inspeção de fluxos de rede e auditoria forense em tempo real:
 \begin{enumerate}
     \item \textbf{Ingestão e Agregação de Tráfego:} os processos filhos do NFStream operam em modo promíscuo na interface física de rede, capturando pacotes brutos e agregando as 76 métricas canônicas do padrão CIC através do plugin customizado \texttt{FeatureExtractor};
     \item \textbf{Desacoplamento e Expiração de Fluxos:} ao atingir o limiar de inatividade ($\tau_{\mathrm{idle}} = 120\,\mathrm{s}$) ou o tempo máximo ativo ($\tau_{\mathrm{active}} = 240\,\mathrm{s}$), o fluxo é encerrado nos workers em C/Cython e emitido de forma síncrona para o processo consumidor principal em Python, contornando a restrição de bifurcação de contexto CUDA (\texttt{CUDA\_ERROR\_NOT\_INITIALIZED});
     \item \textbf{Conversão e Padronização:} o processo principal executa o alinhamento de unidades temporais ($\times 1000{,}0$ para compatibilidade com a escala em microssegundos do CICFlowMeter), expurga as 3 colunas de sinalizador URG de variância nula (reduzindo a entrada para 73 atributos ativos) e aplica o pré-processamento treinado (\texttt{RobustScaler} e transformações logarítmicas $\ln(1+x)$);
     \item \textbf{Inferência Neural Acelerada:} o tensor resultante alimenta a arquitetura ALF-MoE na GPU, na qual a \emph{Gating Network} pondera os cinco especialistas neurais heterogêneos ($\mathcal{E}_{\mathrm{DNN}}$, $\mathcal{E}_{\mathrm{CNN}}$, $\mathcal{E}_{\mathrm{GRU}}$, $\mathcal{E}_{\mathrm{CAE}}$ e $\mathcal{E}_{\mathrm{LSTM}}$), consolidando a predição através da soma ponderada estrita e da cabeça classificadora profunda;
-    \item \textbf{Mitigação Ativa e Auditoria Forense:} caso a classe predita indique uma ameaça com probabilidade superior ao limiar configurado ($\tau_{\mathrm{threshold}} = 0{,}70$) e o endereço não conste nas listas brancas de salvaguarda, o \texttt{ActiveDefenseAgent} adiciona o IP ofensor diretamente ao conjunto dinâmico \texttt{blocked\_ips} da tabela \texttt{nftables} do kernel Linux (com expiração automática de $300\,\mathrm{s}$), enquanto o \texttt{InferenceAuditor} persiste o registro estruturado em JSONL com sincronização atômica.
+    \item \textbf{Auditoria Forense e Telemetria SIEM:} o \texttt{InferenceAuditor} persiste o registro estruturado em JSONL com sincronização atômica (\texttt{FLOW\_PREDICTION}), documentando a tupla quíntupla, a classe de ameaça identificada, a distribuição de confiança, os pesos atribuídos pela \emph{Gating Network} ($\boldsymbol{\alpha}_{\mathrm{GN}}$) e o tempo exato de latência computacional do modelo na GPU.
 \end{enumerate}
 
 O desempenho empírico desse arranjo experimental, abrangendo a acurácia de detecção nos benchmarks consolidados, a latência de inferência por amostra e o comportamento dos especialistas frente aos diferentes vetores de ataque, é apresentado e analisado exaustivamente no Capítulo~\ref{cap:resultados}.
