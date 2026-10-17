@@ -120,175 +120,57 @@ A modelagem estocástica do tráfego de rede abrange grandezas que variam tanto 
 
 \subsubsection{Redes Neurais Convolucionais (CNN)}
 
-Desenvolvidas originariamente para o processamento de arranjos bidimensionais, as Redes Neurais Convolucionais (\emph{Convolutional Neural Networks} -- CNN) baseiam-se em três princípios estruturais: campos receptivos locais (\emph{local receptive fields}), compartilhamento de parâmetros sinápticos (\emph{weight sharing}) e invariância a pequenas translações espaciais \cite{survey2025dl}. Na análise de segurança de rede, essas propriedades são exploradas mediante a aplicação de operações de convolução unidimensional (1D-CNN) ou bidimensional (2D-CNN) sobre matrizes estruturadas de pacotes ou vetores tabulares de atributos de fluxo \cite{netflow2020}.
+Desenvolvidas originariamente para o processamento de arranjos multidimensionais, as Redes Neurais Convolucionais (\emph{Convolutional Neural Networks} -- CNN) baseiam-se em três princípios estruturais fundamentais: campos receptivos locais (\emph{local receptive fields}), compartilhamento de parâmetros sinápticos (\emph{weight sharing}) e invariância a pequenas translações espaciais \cite{survey2025dl}. Na análise de segurança de rede, essas propriedades são exploradas mediante a aplicação de operações de convolução discreta (unidimensional ou bidimensional) sobre matrizes estruturadas de pacotes ou vetores de atributos de fluxo \cite{netflow2020}. Os filtros convolucionais deslizam sobre a entrada projetando mapas de características que capturam correlações morfológicas locais entre atributos contíguos de cabeçalho e estatísticas de pacotes.
 
-Formalmente, considere um vetor de entrada $\mathbf{x} \in \mathbb{R}^{L \times C_{\mathrm{in}}}$, em que $L$ denota o comprimento dimensional e $C_{\mathrm{in}}$ representa o número de canais. A operação de convolução discreta unidimensional com passo unitário, governada por um filtro de pesos $\mathbf{W}^{(l)} \in \mathbb{R}^{M \times C_{\mathrm{in}}}$ e viés $b^{(l)} \in \mathbb{R}$, para a geração do mapa de ativação na camada $l$, é dada por:
-\begin{equation}
-\label{eq:convolucao_1d}
-y_i^{(l)} = \sigma \left( \sum_{c=1}^{C_{\mathrm{in}}} \sum_{m=0}^{M-1} W_{m,c}^{(l)} \, x_{i+m, c} + b^{(l)} \right),
-\end{equation}
-em que $M$ denota a largura da janela do filtro convolucional (\emph{kernel size}) e $\sigma(\cdot)$ representa a função de ativação não linear. De forma análoga, em projeções matriciais espaciais em que as características do fluxo são organizadas sob a forma de uma matriz $\mathbf{X} \in \mathbb{R}^{H \times W \times C_{\mathrm{in}}}$, a convolução bidimensional com filtro $\mathbf{W}^{(l)} \in \mathbb{R}^{M_h \times M_w \times C_{\mathrm{in}}}$ assume a formulação:
-\begin{equation}
-\label{eq:convolucao_2d}
-Y_{i, j}^{(l)} = \sigma \left( \sum_{c=1}^{C_{\mathrm{in}}} \sum_{m=0}^{M_h-1} \sum_{n=0}^{M_w-1} W_{m, n, c}^{(l)} \, X_{i+m, \, j+n, \, c} + b^{(l)} \right).
-\end{equation}
-
-Entre as funções de ativação comumente empregadas, destacam-se a Unidade Linear Retificada (\emph{Rectified Linear Unit} -- ReLU), expressa por $\mathrm{ReLU}(z) = \max(0, z)$, e sua extensão com gradiente residual (\emph{Leaky ReLU}):
-\begin{equation}
-\label{eq:leaky_relu}
-\mathrm{LeakyReLU}(z) = \begin{cases} 
-z, & \text{se } z > 0, \\ 
-\alpha_L z, & \text{se } z \le 0, \quad \text{com } 0 < \alpha_L \ll 1,
-\end{cases}
-\end{equation}
-a qual mitiga a inativação permanente de neurônios (\emph{dying ReLU problem}) durante a retropropagação do gradiente.
-
-Para acelerar a convergência e assegurar estabilidade numérica entre camadas convolucionais sucessivas, adota-se a técnica de Normalização em Lote (\emph{Batch Normalization}) \cite{survey2025dl}. Para um conjunto de ativações intermediárias $\mathcal{B} = \{x_1, \dots, x_B\}$, calcula-se a média amostral $\mu_{\mathcal{B}}$ e a variância $\sigma_{\mathcal{B}}^2$, escalonando e transladando os dados por meio dos parâmetros aprendíveis $\gamma$ e $\beta$:
-\begin{equation}
-\label{eq:batch_norm}
-\hat{x}_i = \frac{x_i - \mu_{\mathcal{B}}}{\sqrt{\sigma_{\mathcal{B}}^2 + \epsilon_B}}, \quad y_i = \gamma \hat{x}_i + \beta,
-\end{equation}
-sendo $\epsilon_B > 0$ uma constante de estabilização. Subsequentemente, operações de agrupamento (\emph{Pooling}), tais como o agrupamento máximo (\emph{Max Pooling}), extraem o valor dominante em janelas de dimensão $P$, comprimindo o mapa de características:
-\begin{equation}
-\label{eq:max_pooling}
-p_j = \max_{k \in \{0, \dots, P-1\}} \left( y_{j \cdot P + k} \right).
-\end{equation}
-
-Em sistemas NIDS, os módulos convolucionais operam como detectores eficientes de padrões morfológicos locais, identificando dependências espaciais entre campos de cabeçalhos e métricas de transporte sem impor premissas estritas de linearidade global \cite{survey2025dl}.
+Para conferir capacidade de representação não linear sem incorrer na saturação prematura de gradientes (\emph{dying ReLU problem}), o processamento é comumente intercalado por funções de ativação como a Unidade Linear Retificada com Gradiente Residual (\emph{Leaky ReLU}) \cite{survey2025dl}. Ademais, a estabilidade numérica e a aceleração da convergência entre camadas sucessivas são promovidas por técnicas de Normalização em Lote (\emph{Batch Normalization}) \cite{survey2025dl}, seguidas por operações de agrupamento (\emph{Max Pooling}), que comprimem a dimensionalidade espacial preservando apenas as ativações dominantes em cada janela de observação. Dessa forma, em sistemas NIDS, os módulos convolucionais operam como detectores eficientes de padrões morfológicos locais, identificando dependências espaciais entre campos de transporte sem impor premissas estritas de linearidade global \cite{survey2025dl, neuralcyber2025}.
 
 \subsubsection{Redes Neurais Recorrentes e a Modelagem Temporal (LSTM e GRU)}
 
 Diversas manifestações de ataques -- tais como canais de comando e controle com transmissão periódica, varreduras esparsas de portas e etapas graduais de infiltração -- apresentam assinaturas distribuídas sequencialmente ao longo do tempo \cite{temporal2025, timematters2025}. Redes Neurais Recorrentes (\emph{Recurrent Neural Networks} -- RNN) mantêm um estado oculto recorrente $\mathbf{h}_t$, processando sequências temporais de forma cronológica recursiva.
 
-Contudo, as variantes elementares de RNN enfrentam a limitação do desvanecimento ou explosão do gradiente (\emph{vanishing and exploding gradients}) durante o processo de retropropagação através do tempo (\emph{Backpropagation Through Time} -- BPTT) \cite{survey2025dl}. Quando o horizonte temporal abrange múltiplos passos $T$, o encadeamento sucessivo de derivadas $\prod_{k=t+1}^T \frac{\partial \mathbf{h}_k}{\partial \mathbf{h}_{k-1}}$ induz o decaimento exponencial a zero ou a divergência dos valores dos gradientes, impedindo o aprendizado de dependências remotas na sequência de pacotes.
+Contudo, as variantes elementares de RNN enfrentam a limitação do desvanecimento ou explosão do gradiente (\emph{vanishing and exploding gradients}) durante o processo de retropropagação através do tempo (\emph{Backpropagation Through Time} -- BPTT) \cite{survey2025dl}. Quando o horizonte temporal abrange múltiplos passos $T$, o encadeamento sucessivo de derivadas no cálculo dos gradientes induz o decaimento exponencial a zero ou sua divergência numérica, impedindo o aprendizado de dependências remotas na sequência de tráfego.
 
 Para contornar essa restrição, foram desenvolvidas arquiteturas fundamentadas em estruturas lógicas de controle denominadas portas (\emph{gates}): a rede de Memória de Curto e Longo Prazo (\emph{Long Short-Term Memory} -- LSTM) e a Unidade Recorrente com Portas (\emph{Gated Recurrent Unit} -- GRU).
 
 \paragraph{Long Short-Term Memory (LSTM):}
-A LSTM desacopla a preservação de contexto por intermédio de um vetor de estado celular $\mathbf{C}_t \in \mathbb{R}^d$, que viabiliza a propagação de gradientes aditivos sem degradação exponencial \cite{survey2025dl, temporal2025}. O trânsito de informações entre passos adjacentes é modulado por três portas logísticas que operam sobre o vetor de entrada no instante atual $\mathbf{x}_t \in \mathbb{R}^m$ e o estado oculto precedente $\mathbf{h}_{t-1} \in \mathbb{R}^d$:
-
-\begin{enumerate}
-    \item \emph{Porta de Esquecimento (\emph{Forget Gate}):} estabelece a proporção do histórico celular a ser retida ou descartada:
-    \begin{equation}
-    \label{eq:lstm_forget}
-    \mathbf{f}_t = \sigma \left( \mathbf{W}_f \cdot [\mathbf{h}_{t-1}, \, \mathbf{x}_t] + \mathbf{b}_f \right);
-    \end{equation}
-    \item \emph{Porta de Entrada (\emph{Input Gate}):} quantifica a magnitude com que as novas informações devem atualizar o estado celular:
-    \begin{equation}
-    \label{eq:lstm_input}
-    \mathbf{i}_t = \sigma \left( \mathbf{W}_i \cdot [\mathbf{h}_{t-1}, \, \mathbf{x}_t] + \mathbf{b}_i \right);
-    \end{equation}
-    \item \emph{Candidato ao Estado Celular (\emph{Candidate Cell State}):} calcula um novo vetor candidato de contexto com ativação em tangente hiperbólica:
-    \begin{equation}
-    \label{eq:lstm_candidate}
-    \tilde{\mathbf{C}}_t = \tanh \left( \mathbf{W}_c \cdot [\mathbf{h}_{t-1}, \, \mathbf{x}_t] + \mathbf{b}_c \right);
-    \end{equation}
-    \item \emph{Atualização do Estado Celular:} combina a memória pregressa com os novos candidatos calculados:
-    \begin{equation}
-    \label{eq:lstm_update}
-    \mathbf{C}_t = \mathbf{f}_t \odot \mathbf{C}_{t-1} + \mathbf{i}_t \odot \tilde{\mathbf{C}}_t;
-    \end{equation}
-    \item \emph{Porta de Saída (\emph{Output Gate}) e Estado Oculto:} regula a exteriorização das ativações no estado oculto visível $\mathbf{h}_t$:
-    \begin{equation}
-    \label{eq:lstm_output}
-    \mathbf{o}_t = \sigma \left( \mathbf{W}_o \cdot [\mathbf{h}_{t-1}, \, \mathbf{x}_t] + \mathbf{b}_o \right),
-    \end{equation}
-    \begin{equation}
-    \label{eq:lstm_hidden}
-    \mathbf{h}_t = \mathbf{o}_t \odot \tanh(\mathbf{C}_t),
-    \end{equation}
-\end{enumerate}
-em que $\sigma(z) = \frac{1}{1 + e^{-z}}$ denota a função sigmoide logística, $\odot$ representa o produto de Hadamard (multiplicação elemento a elemento) e os colchetes $[\mathbf{h}_{t-1}, \, \mathbf{x}_t]$ denotam a concatenação vetorial. Essa modelagem permite que o classificador retenha correlações temporais em horizontes cronológicos estendidos do fluxo \cite{temporal2025}.
+A LSTM desacopla a preservação de contexto por intermédio de um vetor de estado celular $\mathbf{C}_t$, que viabiliza a propagação de gradientes aditivos ao longo de um canal linear de transporte (\emph{error carousel}), evitando a atenuação exponencial observada em RNNs padrão \cite{survey2025dl, temporal2025}. O trânsito de informações entre passos temporais sucessivos é modulado por três portas logísticas que operam sobre o vetor de entrada no instante atual e o estado oculto precedente: a \emph{porta de esquecimento} (que estabelece a fração do histórico celular a ser descartada), a \emph{porta de entrada} (que arbitra a magnitude com que as novas informações atualizam o estado celular) e a \emph{porta de saída} (que regula a exteriorização das ativações no estado oculto visível $\mathbf{h}_t$). Essa estrutura confere robustez para que o classificador retenha dependências temporais em horizontes cronológicos estendidos, tornando-se adequada para caracterizar padrões prolongados de atividade e inatividade do tráfego \cite{temporal2025}.
 
 \paragraph{Gated Recurrent Unit (GRU):}
-Proposta como uma reformulação simplificada e computacionalmente mais econômica da LSTM, a rede GRU consolida o estado celular diretamente no estado oculto $\mathbf{h}_t$, eliminando a porta de saída independente \cite{survey2025dl, timematters2025}. A arquitetura opera sobre duas portas de modulação:
-
-\begin{enumerate}
-    \item \emph{Porta de Atualização (\emph{Update Gate}):} pondera a proporção entre a manutenção do estado anterior e a incorporação de novos estados:
-    \begin{equation}
-    \label{eq:gru_update}
-    \mathbf{z}_t = \sigma \left( \mathbf{W}_z \cdot [\mathbf{h}_{t-1}, \, \mathbf{x}_t] + \mathbf{b}_z \right);
-    \end{equation}
-    \item \emph{Porta de Redefinição (\emph{Reset Gate}):} determina o grau de desconsideração da memória anterior no cômputo da ativação candidata:
-    \begin{equation}
-    \label{eq:gru_reset}
-    \mathbf{r}_t = \sigma \left( \mathbf{W}_r \cdot [\mathbf{h}_{t-1}, \, \mathbf{x}_t] + \mathbf{b}_r \right);
-    \end{equation}
-    \item \emph{Estado Oculto Candidato:} processa a entrada atual em conjunção com a memória pregressa atenuada pela porta de redefinição:
-    \begin{equation}
-    \label{eq:gru_candidate}
-    \tilde{\mathbf{h}}_t = \tanh \left( \mathbf{W}_h \cdot [\mathbf{r}_t \odot \mathbf{h}_{t-1}, \, \mathbf{x}_t] + \mathbf{b}_h \right);
-    \end{equation}
-    \item \emph{Estado Oculto Definitivo:} realiza a interpolação linear entre o estado passado e o estado candidato:
-    \begin{equation}
-    \label{eq:gru_hidden}
-    \mathbf{h}_t = (1 - \mathbf{z}_t) \odot \mathbf{h}_{t-1} + \mathbf{z}_t \odot \tilde{\mathbf{h}}_t.
-    \end{equation}
-\end{enumerate}
-
-Por demandar menor quantidade de matrizes de parâmetros, a GRU exibe tempo de convergência reduzido e menor pegada computacional, apresentando excelente adequação à modelagem de dinâmicas transitórias e variações em intervalos entre pacotes (\emph{Inter-Arrival Times} -- IAT) \cite{timematters2025}.
+Proposta como uma reformulação simplificada e computacionalmente mais econômica da LSTM, a rede GRU consolida o estado celular diretamente no estado oculto $\mathbf{h}_t$, eliminando a porta de saída independente \cite{survey2025dl, timematters2025}. A arquitetura opera sobre duas portas de modulação: a \emph{porta de atualização} (que pondera a conservação da memória anterior em relação à incorporação de novas ativações) e a \emph{porta de redefinição} (que modula o grau de desconsideração do histórico anterior no cálculo do estado candidato). Por demandar menor quantidade de matrizes de parâmetros, a GRU exibe tempo de convergência reduzido e menor pegada computacional, apresentando excelente adequação à modelagem de dinâmicas transitórias e variações em intervalos entre chegadas consecutivas de pacotes (\emph{Inter-Arrival Times} -- IAT) \cite{timematters2025}.
 
 \subsection{Redes Densas, Autoencoders e Análise Espectral}
 \label{subsec:cae_dnns}
 
-A natureza heterogênea do tráfego de rede requer que atributos estáticos globais e manifestações harmônicas periódicas disponham de tratamentos algorítmicos especializados: transformações totalmente conectadas para sumários agregados e autoencoders acoplados ao processamento espectral para detecção por reconstrução de anomalias.
+A natureza heterogênea do tráfego de rede requer que atributos estáticos globais e manifestações harmônicas periódicas disponham de tratamentos algorítmicos especializados: transformações totalmente conectadas para sumários agregados e autoencoders acoplados ao processamento espectral para detecção de anomalias por erro de reconstrução.
 
 \subsubsection{Redes Neurais Totalmente Conectadas (DNN)}
 
-As Redes Neurais Profundas Totalmente Conectadas (\emph{Dense Neural Networks} -- DNN ou \emph{Multilayer Perceptrons} -- MLP) fundamentam-se no encadeamento de transformações lineares seguidas por não linearidades elementares. Cada neurônio da camada $l$ recebe todas as saídas da camada anterior $l-1$:
-\begin{equation}
-\label{eq:dnn_dense}
-\mathbf{h}^{(l)} = \sigma \left( \mathbf{W}^{(l)} \mathbf{h}^{(l-1)} + \mathbf{b}^{(l)} \right),
-\end{equation}
-em que $\mathbf{W}^{(l)} \in \mathbb{R}^{d_l \times d_{l-1}}$ representa a matriz de pesos e $\mathbf{b}^{(l)} \in \mathbb{R}^{d_l}$ denota o vetor de viés. Em arquiteturas NIDS, as DNNs são indicadas para o processamento de variáveis tabulares globais computadas ao longo da sessão (duração, contagem acumulada de pacotes e bytes por sentido e contadores de sinalizadores TCP), nas quais a contiguidade física espacial não é necessariamente mandatória \cite{advancedids2024}.
+As Redes Neurais Profundas Totalmente Conectadas (\emph{Dense Neural Networks} -- DNN ou \emph{Multilayer Perceptrons} -- MLP) operam pelo encadeamento de transformações afins intercaladas por funções de ativação não lineares. Em sistemas NIDS, as camadas densas são primordiais para processar variáveis tabulares globais computadas ao longo de toda a sessão de transporte (tais como duração total do fluxo, contagem acumulada de pacotes e bytes por sentido e sinalizadores TCP acumulados), nas quais a contiguidade física ou temporal entre variáveis adjacentes não é mandatória \cite{advancedids2024}.
 
 \subsubsection{Autoencoders Convolucionais 1D (1D-CAE) e Processamento Espectral Integrado}
 
-O paradigma do Autoencoder (\emph{Autoencoder} -- AE) assenta-se no aprendizado não supervisionado ou semi-supervisionado de representações latentes comprimidas \cite{hsae2025}. Uma rede AE típica é composta por duas estruturas acopladas: um codificador (\emph{encoder}) $\mathcal{E}_{\phi}(\cdot)$, que mapeia o vetor de entrada $\mathbf{x} \in \mathbb{R}^D$ para um espaço latente de baixa dimensionalidade $\mathbf{z} \in \mathbb{R}^d$ ($d \ll D$), e um decodificador (\emph{decoder}) $\mathcal{D}_{\psi}(\cdot)$, encarregado de reconstruir a entrada original gerando $\tilde{\mathbf{x}} = \mathcal{D}_{\psi}(\mathbf{z}) \in \mathbb{R}^D$. Em tarefas de segurança, treina-se a rede primariamente com tráfego legítimo; fluxos intrusivos com propriedades anômalas não encontram projeção adequada na variedade aprendida, provocando erros de reconstrução $\|\mathbf{x} - \tilde{\mathbf{x}}\|^2$ expressivos \cite{hsae2025, borgioli2024cae}.
+O paradigma do Autoencoder (\emph{Autoencoder} -- AE) baseia-se no aprendizado não supervisionado ou semi-supervisionado de representações latentes comprimidas \cite{hsae2025}. A arquitetura típica é composta por duas estruturas acopladas: um codificador (\emph{encoder}) $\mathcal{E}(\cdot)$, que mapeia o vetor de entrada para um espaço latente de baixa dimensionalidade $\mathbf{z}$, e um decodificador (\emph{decoder}) $\mathcal{D}(\cdot)$, encarregado de reconstruir a entrada original gerando $\tilde{\mathbf{x}}$. Treinado predominantemente com amostras de tráfego benigno, o modelo aprende a variedade geométrica subjacente à operação regular; fluxos intrusivos com propriedades anômalas não encontram suporte adequado nessa representação compacta, resultando em elevados erros de reconstrução $\|\mathbf{x} - \tilde{\mathbf{x}}\|^2$ \cite{hsae2025, borgioli2024cae}.
 
-Determinadas categorias de agressão (como inundações pulsáteis periódicas, varreduras sincronizadas por temporizadores internos e canais C2 estruturados) manifestam comportamentos que se destacam como frequências harmônicas bem delineadas no domínio da frequência \cite{ugr162021}. Para capturar essas características, a formulação analítica do Autoencoder Convolucional 1D (1D-CAE) integra o pré-processamento espectral à arquitetura neural:
+Determinadas categorias de agressão cibernética -- a exemplo de inundações pulsáteis periódicas (DDoS), varreduras programadas por temporizadores e canais de comando e controle (C2) com sinalização periódica (\emph{beaconing}) -- manifestam comportamentos que se destacam como frequências harmônicas bem delineadas no domínio da frequência \cite{ugr162021}. Para capturar essas características, o especialista Autoencoder Convolucional 1D (1D-CAE) integra o pré-processamento espectral à arquitetura neural em três etapas analíticas:
 
-\paragraph{1. Seleção de Subdomínio e Janelamento de Hann:}
-A partir do vetor tabular de características $\mathbf{x} \in \mathbb{R}^F$, particiona-se um subconjunto de comprimento $L_f$ correspondente ao domínio temporal e dinâmico $\mathbf{u} = \mathbf{x}_{1:L_f} \in \mathbb{R}^{L_f}$. Com a finalidade de atenuar o espalhamento espectral (\emph{spectral leakage}) decorrente da truncagem finita do sinal, aplica-se uma Janela Periódica de Hann $\mathbf{w} \in \mathbb{R}^{L_f}$, formulada analiticamente por:
-\begin{equation}
-\label{eq:hann_window}
-w(n) = 0{,}5 - 0{,}5 \cos \left( \frac{2\pi n}{L_f} \right), \quad \forall n \in \{0, 1, \dots, L_f - 1\}.
-\end{equation}
-O sinal ponderado $\mathbf{u}_w \in \mathbb{R}^{L_f}$ resulta da multiplicação de Hadamard:
-\begin{equation}
-\label{eq:hann_application}
-\mathbf{u}_w = \mathbf{u} \odot \mathbf{w}.
-\end{equation}
+\begin{enumerate}
+    \item \textbf{Janelamento de Hann e RFFT:} a partir do subconjunto de atributos temporais e dinâmicos $\mathbf{u} \in \mathbb{R}^{L_f}$, aplica-se uma Janela Periódica de Hann $\mathbf{w}$ para atenuar o espalhamento espectral (\emph{spectral leakage}), seguida pela Transformada Rápida de Fourier Discreta para entradas puramente reais (RFFT), obtendo a densidade de magnitude espectral:
+    \begin{equation}
+    \label{eq:espectro_rfft}
+    \mathbf{x}_f = \left| \mathrm{RFFT}(\mathbf{u} \odot \mathbf{w}) \right| \in \mathbb{R}^{K_{\mathrm{fft}}},
+    \end{equation}
+    em que $K_{\mathrm{fft}} = \lfloor L_f / 2 \rfloor + 1$ representa a quantidade de coeficientes discretos unilaterais e $\odot$ denota o produto elemento a elemento (Hadamard);
+    
+    \item \textbf{Codificação e Decodificação Convolucional 1D:} o espectro $\mathbf{x}_f$ é processado por camadas de convolução unidimensional com filtros locais e funções de ativação LeakyReLU, compactando as componentes de frequência em uma representação latente $\mathbf{z}$. Subsequentemente, camadas de convolução transposta 1D (\emph{Conv1DTranspose}) reconstroem a estimativa do espectro de magnitude $\tilde{\mathbf{x}}_f$;
+    
+    \item \textbf{Supervisão e Reconstrução Espectral:} além da perda supervisionada de classificação do fluxo malicioso, o módulo avalia a regularidade harmônica do tráfego através do Erro Quadrático Médio (\emph{Mean Squared Error} -- MSE) entre o espectro original e o reconstruído:
+    \begin{equation}
+    \label{eq:cae_rec_loss_simple}
+    \mathcal{L}_{\mathrm{rec}} = \frac{1}{K_{\mathrm{fft}}} \sum_{k=0}^{K_{\mathrm{fft}}-1} \left( x_f[k] - \tilde{x}_f[k] \right)^2.
+    \end{equation}
+\end{enumerate}
 
-\paragraph{2. Transformada Rápida de Fourier Discreta para Sinais Reais (RFFT):}
-Sobre o sinal janelado $\mathbf{u}_w$, aplica-se a Transformada Discreta de Fourier para entradas puramente reais (\emph{Real Fast Fourier Transform} -- RFFT). Explorando a simetria hermitiana dos coeficientes de Fourier para sequências reais, obtém-se o espectro unilateral com $K_{\mathrm{fft}} = \lfloor L_f / 2 \rfloor + 1$ coeficientes discretos. A densidade de magnitude espectral $\mathbf{x}_f \in \mathbb{R}^{K_{\mathrm{fft}}}$ é obtida pelo módulo dos números complexos:
-\begin{equation}
-\label{eq:rfft_magnitude}
-x_f[k] = \left| \sum_{n=0}^{L_f - 1} u_w[n] \cdot e^{-j \frac{2\pi k n}{L_f}} \right|, \quad \forall k \in \{0, 1, \dots, K_{\mathrm{fft}} - 1\}.
-\end{equation}
-
-\paragraph{3. Codificação Convolucional 1D:}
-O vetor $\mathbf{x}_f$ é expandido para canal unitário e processado por $S$ camadas de convolução unidimensional com filtros de dimensão $K_{\mathrm{size}}$ e passo $s$:
-\begin{equation}
-\label{eq:cae_enc_step}
-\mathbf{z}^{(s)} = \mathrm{ReLU} \left( \mathbf{W}_e^{(s)} * \mathbf{z}^{(s-1)} + \mathbf{b}_e^{(s)} \right), \quad s \in \{1, \dots, S\},
-\end{equation}
-com $\mathbf{z}^{(0)} = \mathbf{x}_f$, resultando na representação latente compactada $\mathbf{z} = \mathbf{z}^{(S)}$.
-
-\paragraph{4. Decodificação por Convolução Transposta 1D:}
-A estimativa do espectro de magnitude $\tilde{\mathbf{x}}_f \in \mathbb{R}^{K_{\mathrm{fft}}}$ é sintetizada por camadas de Convolução Transposta 1D (\emph{Conv1DTranspose}), invertendo o processo de redução dimensional com ajuste de comprimento espectral:
-\begin{equation}
-\label{eq:cae_dec_step}
-\tilde{\mathbf{x}}_f = \mathrm{ReLU} \left( \mathbf{W}_d *^{\top} \mathbf{z} + \mathbf{b}_d \right).
-\end{equation}
-
-\paragraph{5. Função de Perda Composta do CAE com Supervisão Profunda:}
-Conforme modelado no sistema ALF-MoE, o treinamento do especialista CAE é orientado por uma função de perda conjunta que sintetiza a supervisão de classificação $\mathcal{L}_{\mathrm{cls}}$, o Erro Quadrático Médio de reconstrução espectral (\emph{Mean Squared Error} -- MSE) e a regularização $L_2$ sobre os pesos:
-\begin{equation}
-\label{eq:cae_loss_total}
-\mathcal{L}_{\mathrm{CAE}} = \lambda_{\mathrm{cls}} \mathcal{L}_{\mathrm{cls}} + \frac{\lambda_{\mathrm{rec}}}{N} \sum_{i=1}^N \sum_{k=0}^{K_{\mathrm{fft}}-1} \left( x_{f, i}[k] - \tilde{x}_{f, i}[k] \right)^2 + \lambda_4 \sum_{w \in \mathcal{W}_{\mathrm{CAE}}} \|w\|_2^2,
-\end{equation}
-em que $N$ indica a quantidade de amostras do lote, $\lambda_{\mathrm{rec}}$ representa o peso da perda de reconstrução, $\lambda_4$ denota a penalização $L_2$ e $\lambda_{\mathrm{cls}}$ governa o gradiente supervisionado da predição auxiliar de classe. Essa formulação assegura que a representação latente $\mathbf{z}$ capture tanto propriedades discriminatórias de classes quanto a regularidade espectral do tráfego legítimo \cite{borgioli2024cae}.
+Essa modelagem assegura que a representação latente capture tanto propriedades discriminatórias de classes quanto a regularidade espectral do tráfego legítimo \cite{borgioli2024cae}.
 
 \subsection{Tratamento de Desbalanceamento Extremo via Focal Loss}
 \label{subsec:focal_loss}
@@ -318,15 +200,9 @@ O paradigma de Mistura de Especialistas (\emph{Mixture of Experts} -- MoE), form
 
 \subsubsection{Rede de Roteamento Dinâmico (Gating Network)}
 
-A Gating Network atua como o módulo decisório da arquitetura MoE. Sua responsabilidade analítica consiste em examinar o contexto de cada amostra de tráfego e computar uma distribuição de probabilidade sobre os $K$ especialistas, quantificando a pertinência diagnóstica de cada modelo para o fluxo em julgamento \cite{trafficmoe2026}.
+A Gating Network atua como o módulo decisório da arquitetura MoE. Sua responsabilidade analítica consiste em examinar o contexto global de cada amostra de tráfego e computar dinamicamente uma distribuição de pesos sobre os $K$ especialistas, quantificando a pertinência diagnóstica de cada perspectiva analítica para o fluxo sob análise \cite{trafficmoe2026}.
 
-Com a finalidade de dotar a rede de roteamento de capacidade discriminatória enriquecida, sua entrada recebe conjuntamente o vetor tabular bruto do fluxo $\mathbf{x} \in \mathbb{R}^F$ e a concatenação das probabilidades de classe preliminares emitidas por todos os $K$ especialistas $\mathbf{e} = [(\hat{\mathbf{y}}^{(1)})^\top, (\hat{\mathbf{y}}^{(2)})^\top, \dots, (\hat{\mathbf{y}}^{(K)})^\top]^\top \in \mathbb{R}^{K \cdot C}$:
-\begin{equation}
-\label{eq:gating_hidden}
-\mathbf{h}_{\mathrm{gate}} = \mathrm{ReLU} \left( \mathbf{W}_{gx} \mathbf{x} + \mathbf{b}_{gx} \right) + \mathrm{ReLU} \left( \mathbf{W}_{ge} \mathbf{e} + \mathbf{b}_{ge} \right).
-\end{equation}
-
-Após sucessivas camadas densas com regularização por Dropout, a rede infere um vetor de escores brutos de roteamento $\mathbf{g} = [g_1, g_2, \dots, g_K]^\top \in \mathbb{R}^K$, normalizado pela função softmax para assegurar que os pesos componham uma partição probabilística unitária:
+Para garantir que a arbitragem dependa exclusivamente das características intrínsecas da conexão e viabilizar a inferência concorrente dos especialistas sem latência sequencial adicional, a entrada da rede de roteamento recebe diretamente o vetor tabular completo do fluxo $\mathbf{x} \in \mathbb{R}^F$. Após sucessivas camadas densas intermediárias com normalização em lote (\emph{Batch Normalization}), ativações LeakyReLU e regularização por Dropout, a rede infere um vetor de escores brutos de roteamento $\mathbf{g} = [g_1, g_2, \dots, g_K]^\top \in \mathbb{R}^K$, normalizado pela função softmax para assegurar que os pesos componham uma partição probabilística unitária:
 \begin{equation}
 \label{eq:gating_softmax}
 \alpha_k = \frac{\exp(g_k)}{\sum_{j=1}^K \exp(g_j)}, \quad \forall k \in \{1, \dots, K\}, \quad \text{satisfazendo} \quad \sum_{k=1}^K \alpha_k = 1 \quad \text{e} \quad \alpha_k \ge 0.
@@ -489,7 +365,7 @@ Para consolidar as distinções metodológicas entre os principais trabalhos da 
 \hline
 \citeonline{alfmoe2026} & MoE com fusão atencional aprendível (ALF) & 5 Especialistas (DNN, CNN, GRU, CAE, LSTM) + ALF \newline (ISCX VPN, Unicauca) & Validado apenas em classificação de tráfego de aplicações em lote; sem validação para NIDS multiclasse e streaming. \\
 \hline
-\textbf{Esta Tese (ALF-MoE NIDS)} & \textbf{ALF-MoE Multidomínio Adaptado para NIDS} & \textbf{5 Especialistas + Gating Atencional + Fusão ALF + NFStream} \newline (CSE-CIC-IDS2018 Canônico e Corrigido, CIC-BCCC-NRC-2024, CIC-UNSW-NB15) & \textbf{Supera as limitações anteriores:} investiga a transposição do MoE para detecção de intrusões multiclasse em tráfego de rede, mitiga desbalanceamento severo via Focal Loss multitarefa e avalia a latência de inferência em tempo real. \\
+\textbf{Este Trabalho (ALF-MoE NIDS)} & \textbf{ALF-MoE Multidomínio Adaptado para NIDS} & \textbf{5 Especialistas + Gating Atencional + Fusão ALF + NFStream} \newline (CSE-CIC-IDS2018 Canônico e Corrigido, CIC-BCCC-NRC-2024, CIC-UNSW-NB15) & \textbf{Supera as limitações anteriores:} investiga a transposição do MoE para detecção de intrusões multiclasse em tráfego de rede, mitiga desbalanceamento severo via Focal Loss multitarefa e avalia a latência de inferência em tempo real. \\ % TODO: Multitarefa ou multiclasse?
 \hline
 \end{xltabular}
 \fonte{Elaborado pelo autor (2026).}
