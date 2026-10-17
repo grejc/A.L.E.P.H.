@@ -79,11 +79,7 @@ A viabilidade técnica e a escalabilidade dos NIDS são governadas pela camada e
     A metodologia DPI reconstrói integralmente as sessões de transporte e decodifica a carga útil (\emph{payload}) dos pacotes nas camadas superiores (como HTTP, DNS e SMTP). Não obstante o nível elevado de contextualização semântica, sua aplicabilidade prática foi drasticamente comprometida pela consolidação ubíqua de protocolos com cifragem ponta a ponta obrigatória -- com destaque para o TLS~1.3, HTTPS, DNS sobre HTTPS (\emph{DNS over HTTPS} -- DoH) e redes privadas virtuais (\emph{Virtual Private Networks} -- VPN) \cite{standard2021, trafficmoe2026}. Sob cifragem contínua, o conteúdo das mensagens torna-se opaco aos nós intermediários de rede. Ademais, o custo computacional exigido para remontar fluxos e processar expressões regulares sobre a carga útil inviabiliza sua aplicação em enlaces modernos operando em taxas de 10, 40 ou 100~Gbps \cite{p4nids2025}.
 
     \item \textbf{Análise Baseada em Fluxos de Rede (\emph{Flow-Based Analysis}):}
-    Como resposta às limitações da análise de carga útil sob tráfego cifrado, consolidou-se o monitoramento baseado em fluxos estatísticos de tráfego (\emph{network flows}) \cite{netflow2020, AOUINI2022108719}. Formalmente, um fluxo IP $\mathcal{F}$ é conceituado como uma sequência ordenada de pacotes observada em um dado intervalo temporal que compartilha uma tupla canônica de identificação, tradicionalmente expressa pela tupla de cinco campos (\emph{5-tuple}):
-    \begin{equation}
-    \label{eq:5tuple}
-    \mathcal{F}_{\mathrm{id}} = \langle \mathrm{IP}_{\mathrm{src}}, \, \mathrm{IP}_{\mathrm{dst}}, \, \mathrm{Port}_{\mathrm{src}}, \, \mathrm{Port}_{\mathrm{dst}}, \, \mathrm{Protocolo} \rangle.
-    \end{equation}
+    Como resposta às limitações da análise de carga útil sob tráfego cifrado, consolidou-se o monitoramento baseado em fluxos estatísticos de tráfego (\emph{network flows}) \cite{netflow2020, AOUINI2022108719}. Formalmente, um fluxo IP $\mathcal{F}$ é conceituado como uma sequência ordenada de pacotes observada em um dado intervalo temporal que compartilha uma tupla canônica de identificação, tradicionalmente expressa pela tupla de cinco campos (\emph{5-tuple}) $\mathcal{F}_{\mathrm{id}} = \langle \mathrm{IP}_{\mathrm{src}}, \, \mathrm{IP}_{\mathrm{dst}}, \, \mathrm{Port}_{\mathrm{src}}, \, \mathrm{Port}_{\mathrm{dst}}, \, \mathrm{Protocolo} \rangle$.
     
     A partir desse agrupamento, extratores de telemetria (tais como NetFlow, IPFIX, CICFlowMeter e NFStream) derivam vetores estatísticos multidimensionais que descrevem a conexão \cite{standard2021, AOUINI2022108719}: contagens totais de pacotes e bytes por sentido, tempos entre chegadas consecutivas de pacotes (\emph{Inter-Arrival Times} -- IAT), parâmetros de dispersão do comprimento dos pacotes (médias, desvios padrão, variâncias), tempos de atividade (\emph{active}) e inatividade (\emph{idle}), e sinalizadores TCP acumulados. Esse paradigma preserva a privacidade dos dados transmitidos, opera de maneira independente da presença de criptografia no payload e viabiliza o processamento analítico escalável tanto em redes corporativas de grande escala quanto em topologias de computação em névoa (\emph{fog computing}) e Internet das Coisas (\emph{Internet of Things} -- IoT) \cite{ciciot2023, emuiot2025, fogids2024}.
 \end{itemize}
@@ -184,12 +180,7 @@ Para mitigar essa assimetria, incorpora-se a função de Perda Focal (\emph{Foca
 \end{equation}
 em que $p_t \in (0, 1]$ denota a probabilidade estimada pelo classificador para a classe verdadeira do fluxo, $\gamma \ge 0$ representa o parâmetro de foco e $\alpha_t \in (0, 1]$ atua como o coeficiente ponderador de balanceamento de classe.
 
-O fator modulador $(1 - p_t)^\gamma$ reduz a contribuição relativa de exemplos fáceis e bem calibrados ($p_t \to 1$), concentrando o esforço de otimização nos padrões raros ou fronteiriços de ataque ($p_t \to 0$). Para um minilote com $N$ observações e $C$ categorias de tráfego, a formulação numérica com proteção contra indefinição logarítmica via limitação infinitesimal $\epsilon = 10^{-8}$ é dada por:
-\begin{equation}
-\label{eq:focal_loss_batch}
-\mathcal{L}_{\mathrm{FL}} = -\frac{1}{N} \sum_{i=1}^N \sum_{c=1}^C y_{i, c} \, \alpha_c \, \left(1 - \hat{y}_{i, c}\right)^\gamma \, \log\left(\mathrm{clip}(\hat{y}_{i, c}, \, \epsilon, \, 1{,}0 - \epsilon)\right),
-\end{equation}
-assegurando estabilidade numérica na convergência dos especialistas mesmo sob desproporções amostrais extremas.
+O fator modulador $(1 - p_t)^\gamma$ reduz dinamicamente a contribuição de exemplos fáceis e bem calibrados ($p_t \to 1$), concentrando o esforço de otimização nos padrões raros ou fronteiriços de ataque ($p_t \to 0$). Dessa forma, a perda focal assegura sensibilidade discriminatória às classes de ataque minoritárias sem incorrer em instabilidade perante o volume massivo de tráfego ordinário.
 
 \subsection{Mixture of Experts (MoE) e Mecanismos de Fusão Atencional}
 \label{subsec:moe_e_atencao}
@@ -202,62 +193,39 @@ O paradigma de Mistura de Especialistas (\emph{Mixture of Experts} -- MoE), form
 
 A Gating Network atua como o módulo decisório da arquitetura MoE. Sua responsabilidade analítica consiste em examinar o contexto global de cada amostra de tráfego e computar dinamicamente uma distribuição de pesos sobre os $K$ especialistas, quantificando a pertinência diagnóstica de cada perspectiva analítica para o fluxo sob análise \cite{trafficmoe2026}.
 
-Para garantir que a arbitragem dependa exclusivamente das características intrínsecas da conexão e viabilizar a inferência concorrente dos especialistas sem latência sequencial adicional, a entrada da rede de roteamento recebe diretamente o vetor tabular completo do fluxo $\mathbf{x} \in \mathbb{R}^F$. Após sucessivas camadas densas intermediárias com normalização em lote (\emph{Batch Normalization}), ativações LeakyReLU e regularização por Dropout, a rede infere um vetor de escores brutos de roteamento $\mathbf{g} = [g_1, g_2, \dots, g_K]^\top \in \mathbb{R}^K$, normalizado pela função softmax para assegurar que os pesos componham uma partição probabilística unitária:
+Para garantir que a arbitragem dependa exclusivamente das características intrínsecas da conexão e viabilizar a inferência concorrente dos especialistas sem latência sequencial adicional, a entrada da rede de roteamento recebe diretamente o vetor tabular completo do fluxo $\mathbf{x} \in \mathbb{R}^F$. Após camadas densas intermediárias com normalização em lote (\emph{Batch Normalization}), ativações LeakyReLU e regularização por Dropout, a rede infere uma distribuição preliminar de confiança $\boldsymbol{\alpha} = [\alpha_1, \dots, \alpha_K]^\top \in \mathbb{R}^K$.
+
+Com o propósito de capturar correlações cruzadas entre especialistas e permitir que a relevância de cada modelo dependa do contexto do comitê como um todo, aplica-se uma camada de refinamento atencional no domínio logarítmico:
 \begin{equation}
-\label{eq:gating_softmax}
-\alpha_k = \frac{\exp(g_k)}{\sum_{j=1}^K \exp(g_j)}, \quad \forall k \in \{1, \dots, K\}, \quad \text{satisfazendo} \quad \sum_{k=1}^K \alpha_k = 1 \quad \text{e} \quad \alpha_k \ge 0.
+\label{eq:attention_refinement}
+\mathbf{z}_{\mathrm{refined}} = \mathbf{W}_g \log(\boldsymbol{\alpha}) + \mathbf{b}_g,
 \end{equation}
+em que $\mathbf{W}_g \in \mathbb{R}^{K \times K}$ e $\mathbf{b}_g \in \mathbb{R}^K$ são parâmetros aprendíveis. A representação no domínio logarítmico converte relações multiplicativas em variações aditivas, facilitando o aprendizado de sinergias através de transformações lineares.
+
+Para restaurar a calibração de confiança e mitigar a descalibração probabilística (\emph{miscalibration}) em que saídas superconfiantes distorcem a ponderação, incorpora-se o escalonamento por temperatura baseado nos princípios teóricos de \citeonline{guo2017calibration}, produzindo os pesos atencionais finais dos especialistas:
+\begin{equation}
+\label{eq:gating_weights}
+a_k = \frac{\exp(z_{\mathrm{refined}, k} / T)}{\sum_{j=1}^K \exp(z_{\mathrm{refined}, j} / T)}, \quad \forall k \in \{1, \dots, K\}, \quad \text{satisfazendo} \quad \sum_{k=1}^K a_k = 1 \quad \text{e} \quad a_k \ge 0,
+\end{equation}
+em que $T > 0$ representa o parâmetro de temperatura aprendível que calibra a dispersão da distribuição de probabilidade, prevenindo a extinção prematura de especialistas voltados a ameaças com menor densidade amostral.
 
 \subsubsection{Mecanismo de Refinamento Atencional Aprendível (ALF)}
 
-Em arranjos clássicos de MoE, a inferência final limita-se à média ponderada direta pelos pesos $\alpha_k$ do softmax. Todavia, sob tráfego de rede marcado por classes com padrões concorrentes e ruídos de medição, a ativação softmax tende a exibir descalibração probabilística (\emph{miscalibration}), atribuindo pesos desproporcionais a modelos com saídas superconfiantes \cite{alfmoe2026}.
+Diferentemente de abordagens ensemble convencionais fundamentadas em médias estáticas ou votação majoritária, o mecanismo ALF (\emph{Attention-Based Learnable Fusion}) realiza a fusão adaptativa das decisões intermediárias mediada estritamente pela atenção contextual \cite{alfmoe2026}.
 
-Para contornar essa restrição, adota-se o mecanismo de Fusão Aprendível Baseada em Atenção (\emph{Attention-Based Learnable Fusion} -- ALF), fundamentado no refinamento atencional afim e na calibração de escores \cite{alfmoe2026}:
-
-\paragraph{1. Transformação Logarítmica Estabilizada:}
-Os coeficientes probabilísticos $\boldsymbol{\alpha} = [\alpha_1, \dots, \alpha_K]^\top$ são submetidos a uma operação de limitação inferior com valor infinitesimal $\epsilon = 10^{-7}$, seguida pelo cômputo logarítmico:
-\begin{equation}
-\label{eq:log_alpha}
-\log \boldsymbol{\alpha}_{\mathrm{clip}} = \log \left( \mathrm{clip}(\boldsymbol{\alpha}, \, \epsilon, \, 1{,}0) \right).
-\end{equation}
-A representação no domínio logarítmico converte correlações multiplicativas de certeza em grandezas aditivas, facilitando o aprendizado de sinergias através de transformações lineares.
-
-\paragraph{2. Camada de Refinamento de Atenção com Pesos Afins:}
-O vetor $\log \boldsymbol{\alpha}_{\mathrm{clip}}$ é submetido a uma camada de projeção parametrizada por uma matriz de refinamento atencional $\mathbf{W}_g \in \mathbb{R}^{K \times K}$ e um vetor de viés $\mathbf{b}_g \in \mathbb{R}^K$, modulada pela tangente hiperbólica e normalizada por softmax:
-\begin{equation}
-\label{eq:attention_refinement_formula}
-\mathbf{a} = \mathrm{softmax} \left( \tanh \left( \mathbf{W}_g \log \boldsymbol{\alpha}_{\mathrm{clip}} + \mathbf{b}_g \right) \right).
-\end{equation}
-Essa transformação viabiliza que o modelo aprenda correlações cruzadas entre especialistas: a relevância final de um especialista $\mathcal{E}_k$ passa a depender da confiança manifestada pelo comitê como um todo.
-
-\paragraph{3. Calibração de Confiança via Escalonamento Paramétrico (\emph{Vector Scaling}):}
-Em conformidade com os princípios teóricos de calibração em modelos profundos estabelecidos por \citeonline{guo2017calibration}, probabilidades preditas frequentemente distanciam-se das frequências observadas de acerto. Para restaurar a calibração de confiança dos escores intermediários, incorpora-se o módulo de escalonamento paramétrico (\emph{Vector Scaling}):
-\begin{equation}
-\label{eq:vector_scaling}
-\hat{\mathbf{s}} = \mathrm{softmax} \left( \mathbf{W}_s \odot \mathbf{s} + \mathbf{b}_s \right),
-\end{equation}
-em que $\mathbf{W}_s, \mathbf{b}_s \in \mathbb{R}^K$ são parâmetros aprendíveis inicializados respectivamente com valores unitários e nulos, modulando a entropia das decisões preliminares.
-
-\paragraph{4. Fusão por Soma Ponderada (\emph{Weighted Sum Fusion}):}
-Apoiando-se nos coeficientes atencionais refinados $\mathbf{a}$, as previsões individuais dos $K$ especialistas $\hat{\mathbf{y}}^{(k)} \in \mathbb{R}^C$ são sintetizadas por soma ponderada em um vetor latente $\mathbf{Z} \in \mathbb{R}^C$:
+Apoiando-se nos pesos normalizados $\mathbf{a} = [a_1, \dots, a_K]^\top$ fornecidos pela Gating Network, as distribuições probabilísticas preditas individualmente pelos $K$ especialistas $\hat{\mathbf{y}}^{(k)} \in \mathbb{R}^C$ são consolidadas por meio de uma soma ponderada estrita:
 \begin{equation}
 \label{eq:weighted_sum_fusion}
-\mathbf{Z} = \sum_{k=1}^K a_k \cdot \hat{\mathbf{y}}^{(k)}.
+\mathbf{Z} = \sum_{k=1}^K a_k \cdot \hat{\mathbf{y}}^{(k)},
 \end{equation}
+gerando o vetor latente fundido $\mathbf{Z} \in \mathbb{R}^C$. A ausência de conexões residuais diretas forçando a passagem de gradiente exclusivamente por $\mathbf{Z}$ assegura a coadaptação dinâmica da rede de roteamento e incentiva a genuína especialização funcional de cada especialista.
 
-\paragraph{5. Projeção Classificatória Final Consolidada:}
-Com o objetivo de preservar a sensibilidade de subdomínios singulares diante de ataques altamente focados, o vetor sintetizado $\mathbf{Z}$ é concatenado com as previsões de todos os especialistas individuais:
-\begin{equation}
-\label{eq:alf_concat}
-\mathbf{h}_{\mathrm{ens}} = \left[ \mathbf{Z}^\top, \, (\hat{\mathbf{y}}^{(1)})^\top, \, (\hat{\mathbf{y}}^{(2)})^\top, \, \dots, \, (\hat{\mathbf{y}}^{(K)})^\top \right]^\top \in \mathbb{R}^{(K+1) \cdot C}.
-\end{equation}
-O vetor concatenado $\mathbf{h}_{\mathrm{ens}}$ é processado por camadas densas intermediárias com normalização em lote, ativações LeakyReLU e descarte aleatório (\emph{Dropout}), sendo projetado na camada de decisão global $\hat{\mathbf{y}}_{\mathrm{ALF}} \in \mathbb{R}^C$:
+Subsequentemente, o vetor consensual $\mathbf{Z}$ é processado por camadas densas intermediárias de projeção com normalização em lote, ativações LeakyReLU e descarte aleatório (\emph{Dropout}), sendo mapeado na camada de classificação global via função softmax:
 \begin{equation}
 \label{eq:alf_final_softmax}
-\hat{\mathbf{y}}_{\mathrm{ALF}} = \mathrm{softmax} \left( \mathbf{W}_{\mathrm{out}} \mathbf{h}_{\mathrm{ALF}} + \mathbf{b}_{\mathrm{out}} \right).
+\hat{\mathbf{y}}_{\mathrm{ALF}} = \mathrm{softmax} \left( \mathbf{W}_{\mathrm{out}} \mathbf{h}_{\mathrm{ALF}} + \mathbf{b}_{\mathrm{out}} \right),
 \end{equation}
-
-Essa hierarquia analítica concede à arquitetura ALF-MoE a propriedade singular de alternar dinamicamente entre o consenso coletivo ponderado ($\mathbf{Z}$) e a especialização unívoca de um único domínio na presença de anomalias com assinaturas mono-domínio pronunciadas \cite{alfmoe2026}.
+em que $\mathbf{h}_{\mathrm{ALF}}$ representa a ativação latente expandida a partir de $\mathbf{Z}$, dotando a arquitetura da flexibilidade necessária para discernir anomalias sutis sem perder a capacidade de generalização sobre o tráfego regular \cite{alfmoe2026}.
 
 % ===========================================================================
 \section{Trabalhos Correlatos}
