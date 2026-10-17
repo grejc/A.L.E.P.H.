@@ -2,9 +2,7 @@
 Especialista CNN 2D (Convolutional Neural Network) para o Domínio Espacial.
 
 Modela geometria canônica de pacotes e correlações espaciais locais (matriz 4x4).
-Seleciona com segurança as 16 features canônicas de geometria de pacote
-(excluindo Flow Packets/s e features de taxa não escalonadas),
-reformatando para (4, 4, 1), seguida de convoluções 2D (kernel 2x2, filtros 64 e 128),
+Formata as 16 features de geometria de pacote para (4, 4, 1), seguida de convoluções 2D (kernel 2x2, filtros 64 e 128),
 Batch Normalization, LeakyReLU(0.2), Dropout(0.2) e projeção densa (128).
 """
 
@@ -46,10 +44,7 @@ def build_cnn_expert(
     dim = input_shape[0] if len(input_shape) == 1 else int(np.prod(input_shape))
     target_dim = grid_shape[0] * grid_shape[1]  # 4 * 4 = 16
 
-    # Seleção segura das 16 features canônicas de geometria de pacote:
-    # Em CICDomainFeatures.x_s(), os primeiros 16 índices correspondem estritamente
-    # às estatísticas de comprimento de pacotes (Min, Max, Mean, Std, etc.),
-    # excluindo propositalmente o índice 19 ('Flow Packets/s') que possui escala desregulada.
+    # Seleção das 16 features de geometria de pacote (Min, Max, Mean, Std, etc.)
     if dim == target_dim:
         x = inputs
     elif dim > target_dim:

@@ -5,8 +5,7 @@ Avalia o vetor tabular global completo (76 features canônicas) e determina a
 distribuição adaptativa de pesos de atenção para os 5 especialistas neurais:
 a = [a_1, a_2, a_3, a_4, a_5], onde sum(a_k) = 1.
 
-Inclui a camada corrigida AttentionRefinementLayer com temperatura aprendível
-e sem saturação rígida de tanh, viabilizando especialização real.
+Utiliza a camada AttentionRefinementLayer para refinamento da distribuição de atenção a.
 """
 
 import keras
@@ -25,7 +24,7 @@ def build_gating_network(
     name: str = "GN",
 ) -> keras.Model:
     """
-    Constrói a Gating Network dinâmica com refinamento atencional afiado.
+    Constrói a Gating Network dinâmica com refinamento atencional.
 
     Args:
         input_shape: Formato do vetor global de entrada (ex: (76,)).
@@ -53,7 +52,7 @@ def build_gating_network(
     raw_logits = layers.Dense(num_experts, activation=None, name=f"{name.lower()}_raw_logits")(x)
     alpha_softmax = layers.Activation("softmax", name=f"{name.lower()}_alpha_softmax")(raw_logits)
 
-    # Refinamento atencional calibrado (sem compressão tanh limitante)
+    # Refinamento atencional calibrado
     attention_weights = AttentionRefinementLayer(
         num_experts=num_experts,
         temperature_init=temperature_init,

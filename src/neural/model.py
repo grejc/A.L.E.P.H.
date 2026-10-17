@@ -2,15 +2,13 @@
 Modelo Completo ALF-MoE (Attention-based Learnable Fusion of Experts).
 
 Integra os 5 especialistas heterogêneos, a Gating Network com refinamento atencional
-e o módulo ALF sob uma única entrada tabular canônica (D=76).
+e o módulo de fusão adaptativa ALF sob uma única entrada tabular canônica (D=76).
 
-Correções Essenciais Incorporadas:
-1. Entrada tabular única com fatiamento funcional via SliceLayer (sem descontinuidades).
-2. Fusão ALF mediada ESTRITAMENTE pela soma ponderada Z (sem bypass residual ou
-   concatenação espúria direta de especialistas na cabeça final).
-3. Compilação multi-task balanceada (ALF=1.0, Especialistas=0.2, Gating=0.0).
-4. Focal Loss sem dupla ponderação de classes (utiliza alpha apenas na perda,
-   eliminando pesos ao quadrado ~325.000).
+Arquitetura:
+1. Entrada tabular única com fatiamento de features via SliceLayer para cada especialista.
+2. Roteamento dinâmico via Gating Network com distribuição de pesos de atenção.
+3. Fusão ALF via soma ponderada Z das predições dos especialistas, seguida por projeção densa.
+4. Compilação multi-task com supervisão profunda (perda principal ALF e perdas auxiliares nos especialistas).
 """
 
 import keras
@@ -218,12 +216,12 @@ class ALFMoEModel:
         pred_lstm = lstm_expert(slice_lstm)
         attention_weights = gating_network(tabular_input)
 
-        # 5. Módulo ALF (Fusão por Soma Ponderada Z estrita)
+        # 5. Módulo ALF (Fusão por Soma Ponderada Z)
         fused_vector = WeightedSumFusion(name="alf_weighted_fusion")(
             [[pred_dnn, pred_cnn, pred_gru, pred_cae, pred_lstm], attention_weights]
         )
 
-        # Cabeça densa do ALF: opera ESTRITAMENTE sobre o vetor fundido Z
+        # Cabeça densa do ALF sobre o vetor fundido Z
         x = layers.Dense(alf_units, activation=None, name="alf_dense_1")(fused_vector)
         x = layers.BatchNormalization(name="alf_bn_1")(x)
         x = layers.LeakyReLU(negative_slope=0.2, name="alf_lrelu_1")(x)
@@ -258,7 +256,7 @@ class ALFMoEModel:
     ) -> None:
         """
         Compila o modelo com supervisão profunda multi-task e Focal Loss.
-        Garante que class_weights seja aplicado exclusivamente na perda (sem dupla ponderação).
+        Aplica pesos de classe (class_weights) na função de perda focal.
         """
         opt = optimizer or keras.optimizers.Adam(
             learning_rate=learning_rate,
@@ -267,7 +265,7 @@ class ALFMoEModel:
             epsilon=epsilon,
         )
 
-        # Instancia FocalLoss garantindo proteção e serialização Keras 3
+        # Instancia a função de perda FocalLoss
         criterion = FocalLoss(gamma=focal_gamma, alpha=class_weights)
 
         losses = {

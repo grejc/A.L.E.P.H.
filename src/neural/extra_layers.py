@@ -7,9 +7,9 @@ serialização completa (@keras.saving.register_keras_serializable):
 - HannFFTLayer: Janelamento temporal de Hann e magnitude espectral via RFFT
 - ConvolutionalAutoencoder: Autoencoder convolucional 1D com perda composta MSE
 - CAELoss: Camada auxiliar de perda de reconstrução do especialista de frequência
-- WeightedSumFusion: Fusão estrita por soma ponderada dos 5 especialistas (Eq. 27)
-- AttentionRefinementLayer: Refinamento atencional calibrado sem saturação rígida de tanh
-- SliceLayer: Fatiamento funcional serializável para particionamento de domínios
+- WeightedSumFusion: Fusão por soma ponderada das predições dos 5 especialistas (Eq. 27)
+- AttentionRefinementLayer: Camada de refinamento atencional da Gating Network (Eq. 26)
+- SliceLayer: Fatiamento funcional para particionamento de domínios tabulares
 """
 
 from __future__ import annotations
@@ -26,10 +26,8 @@ from typing import Dict, Optional, Union, List, Any, Tuple, Sequence
 @keras.saving.register_keras_serializable(package="alf_moe")
 class FocalLoss(keras.losses.Loss):
     """
-    Focal Loss multiclasse para desbalanceamento de classes em tráfego de rede:
+    Focal Loss multiclasse para tratamento de desbalanceamento de classes:
     FL(p_t) = -α_t * (1 - p_t)^γ * log(p_t)
-
-    Evita dupla ponderação (utiliza alpha apenas aqui ou via sample_weight, nunca ambos).
     """
 
     def __init__(
@@ -158,7 +156,7 @@ class HannFFTLayer(keras.layers.Layer):
 
 
 # =============================================================================
-# AUTOENCODER CONVOLUCIONAL 1D (CAE) COM PERDA COMPOSTA MSE (RESTAURADO)
+# AUTOENCODER CONVOLUCIONAL 1D (CAE) COM PERDA COMPOSTA MSE
 # =============================================================================
 @keras.saving.register_keras_serializable(package="alf_moe")
 class ConvolutionalAutoencoder(keras.layers.Layer):
@@ -214,9 +212,8 @@ class ConvolutionalAutoencoder(keras.layers.Layer):
         Otherwise returns z as [batch, time, channels].
 
     decoder_output_activation:
-        Activation used by the last decoder layer. "relu" preserves the
-        original implementation and is appropriate for non-negative
-        magnitude spectra.
+        Activation used by the last decoder layer (e.g. "relu" for
+        non-negative magnitude spectra).
     """
 
     def __init__(
@@ -711,11 +708,6 @@ class AttentionRefinementLayer(keras.layers.Layer):
     refined_logits = tanh(refined_logits)
     a = softmax(refined_logits)
 
-    CORREÇÃO TÉCNICA ESSENCIAL (Equação 26 original):
-    A compressão via tf.nn.tanh limita simetricamente os logits em [-1, 1],
-    impedindo que biases negativos empurrem os logits para valores extremos (ex: -17),
-    o que causaria a extinção catastrófica de especialistas (como o CAE)
-    com pesos caindo para 10^-8 na soma ponderada Z.
     """
 
     def __init__(
@@ -780,13 +772,11 @@ class AttentionRefinementLayer(keras.layers.Layer):
 @keras.saving.register_keras_serializable(package="alf_moe")
 class WeightedSumFusion(keras.layers.Layer):
     """
-    Camada de fusão por soma ponderada estrita do módulo ALF (Equação 27):
+    Camada de fusão por soma ponderada do módulo ALF (Equação 27):
     Z = sum_{k=1}^K a_k * y^{(k)}
 
-    CORREÇÃO TÉCNICA ESSENCIAL:
-    Não inclui conexões residuais paralelas (sem concatenar os especialistas
-    diretamente na cabeça final). Todo o fluxo de gradiente passa estritamente
-    pelo produto atencional Z, forçando o Gating a especializar cada especialista.
+    Calcula a combinação linear das predições dos K especialistas ponderadas
+    pelos coeficientes de atenção a_k da Gating Network.
     """
 
     def __init__(self, name: str = "weighted_sum_fusion", **kwargs: Any) -> None:
@@ -833,8 +823,7 @@ class WeightedSumFusion(keras.layers.Layer):
 class SliceLayer(keras.layers.Layer):
     """
     Fatiamento determinístico de colunas tabulares para particionar a entrada única (D,)
-    nos 5 subespaços de domínio dos especialistas.
-    Totalmente serializável em Keras 3 sem dependência de Lambdas.
+    nos subespaços de domínio dos especialistas.
     """
 
     def __init__(self, indices: List[int], name: str = "slice_domain", **kwargs: Any) -> None:

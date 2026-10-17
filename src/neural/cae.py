@@ -34,8 +34,6 @@ def build_cae_expert(
         kernel_size: Tamanho do kernel convolucional 1D.
         lambda_rec: Peso da perda de reconstrução MSE adicionada via add_loss().
         lambda_reg: Peso de regularização L2 dos pesos convolucionais.
-        dense_units: Neurônios na camada densa pós-autoencoder.
-        dropout_rate: Taxa de dropout (padrão: 0.1).
         name: Nome identificador do especialista.
 
     Returns:
@@ -43,7 +41,7 @@ def build_cae_expert(
     """
     inputs = layers.Input(shape=input_shape, name=f"{name.lower()}_input")
 
-    # Camada customizada auto-suficiente: Hann + RFFT + Conv1D + Transpose + add_loss(MSE)
+    # Autoencoder convolucional com janelamento Hann e RFFT
     cae_layer = ConvolutionalAutoencoder(
         signal_length=signal_length,
         filters=tuple(filters),

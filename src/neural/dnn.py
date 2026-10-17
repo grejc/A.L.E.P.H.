@@ -2,10 +2,8 @@
 Especialista DNN (Deep Neural Network) para o Domínio Estatístico Geral.
 
 Processa características estatísticas globais do fluxo de rede (F_g).
-Arquitetura corrigida:
-- Capacidade adequada: 256 -> 128 neurônios
-- Batch Normalization e LeakyReLU para evitar saturação e neurônios mortos
-- Dropout moderado (0.1) para evitar sobre-regularização e colapso de classes raras
+Composto por camadas densas com Batch Normalization, LeakyReLU e Dropout,
+seguidas por projeção linear e ativação Softmax para classificação multiclasse.
 """
 
 import keras
@@ -21,13 +19,13 @@ def build_dnn_expert(
     name: str = "DNN",
 ) -> keras.Model:
     """
-    Constrói o especialista DNN robusto com capacidade balanceada.
+    Constrói o especialista DNN para o domínio estatístico geral.
 
     Args:
         input_shape: Formato de entrada estatística geral (ex: (29,)).
         num_classes: Quantidade de classes do problema.
         hidden_units: Neurônios nas camadas densas ocultas (padrão: 256, 128).
-        dropout_rate: Taxa de dropout moderada (padrão: 0.1).
+        dropout_rate: Taxa de dropout (padrão: 0.1).
         name: Nome identificador do modelo especialista.
 
     Returns:
