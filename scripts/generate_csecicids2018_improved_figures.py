@@ -260,7 +260,7 @@ ax2.set_title('Proporção Relativa das Macro-Categorias (L2)', fontsize=13.5, p
 legend_labels = [f"{cat}: {cnt:,} ({fmt_pct(pct)})" for cat, cnt, pct in zip(s_macro.index, s_macro.values, pct_macro.values)]
 ax2.legend(wedges, legend_labels, title="Macro-Categorias", loc="center left", bbox_to_anchor=(0.95, 0.5), fontsize=10, frameon=True)
 
-plt.suptitle('CSE-CIC-IDS2018 (Corrigido / Improved): Agrupamento em 9 Macro-Famílias (Threat Level 2)', fontsize=16, y=1.02)
+plt.suptitle('CSE-CIC-IDS2018 (Corrigido): Agrupamento em 9 Macro-Famílias (L2)', fontsize=16, y=1.02)
 save_fig(fig, "Dataset_CSECICIDS2018_Corrigido_L2")
 
 # =============================================================================
