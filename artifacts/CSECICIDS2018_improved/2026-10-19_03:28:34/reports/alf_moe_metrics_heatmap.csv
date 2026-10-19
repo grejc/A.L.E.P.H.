@@ -1,0 +1,10 @@
+,Precisão,Recall,F1-Score
+BENIGN,0.99556065,0.99795,0.9967539
+Botnet,1.0,1.0,1.0
+DDoS,1.0,1.0,1.0
+DoS,0.99988174,1.0,0.9999409
+Infiltration - Communication Victim Attacker,0.85106385,0.9756098,0.90909094
+Infiltration - Dropbox Download,0.25,0.11764706,0.16
+Infiltration - NMAP Portscan,0.9965116,0.9908252,0.9936602
+SSH-BruteForce,1.0,1.0,1.0
+Web Attack,0.93442625,1.0,0.9661017

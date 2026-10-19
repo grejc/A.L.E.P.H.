@@ -1,0 +1,16 @@
+,Precisão,Recall,F1-Score
+BENIGN,0.997498,0.9967,0.99709886
+Botnet Ares,1.0,1.0,1.0
+DDoS-HOIC,1.0,1.0,1.0
+DDoS-LOIC-HTTP,1.0,1.0,1.0
+DDoS-LOIC-UDP,1.0,1.0,1.0
+DoS GoldenEye,1.0,0.9997784,0.9998892
+DoS Hulk,0.9999723,1.0,0.9999861
+DoS Slowloris,0.9988228,0.99941105,0.9991169
+Infiltration - Communication Victim Attacker,1.0,0.9756098,0.9876543
+Infiltration - Dropbox Download,0.44444445,0.47058824,0.45714286
+Infiltration - NMAP Portscan,0.9932425,0.994965,0.994103
+SSH-BruteForce,1.0,1.0,1.0
+Web Attack - Brute Force,1.0,1.0,1.0
+Web Attack - SQL,1.0,1.0,1.0
+Web Attack - XSS,1.0,1.0,1.0

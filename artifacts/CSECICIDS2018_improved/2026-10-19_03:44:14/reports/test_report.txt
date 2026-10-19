@@ -1,0 +1,42 @@
+===========================================================================
+           RELATÓRIO DE AVALIAÇÃO DE TESTE - MODELO ALF-MoE
+===========================================================================
+Data/Hora:                     2026-10-19T03:58:33.080153Z
+Total de Amostras de Teste:    175,624
+Tempo de Inferência:           4.5202 s
+Latência por Amostra:          0.0257 ms/fluxo
+Vazão de Inferência:           38,853.24 fluxos/s
+---------------------------------------------------------------------------
+DESEMPENHO GLOBAL DO MODELO ALF-MoE:
+  Acurácia:                    99.87%
+  Macro F1-Score:              0.9623
+  Macro Precisão:              0.9623
+  Macro Recall:                0.9625
+  Weighted F1-Score:           0.9987
+---------------------------------------------------------------------------
+DESEMPENHO INDIVIDUAL DOS ESPECIALISTAS VS ALF-MoE:
+  DNN      F1: 0.9029 | Acc: 99.71% | Prec: 0.8789 | Rec: 0.9721
+  CNN      F1: 0.8629 | Acc: 91.49% | Prec: 0.8863 | Rec: 0.9078
+  GRU      F1: 0.9038 | Acc: 99.04% | Prec: 0.8812 | Rec: 0.9476
+  CAE      F1: 0.7174 | Acc: 99.42% | Prec: 0.7068 | Rec: 0.7302
+  LSTM     F1: 0.7985 | Acc: 95.98% | Prec: 0.7856 | Rec: 0.8682
+  ALF-MoE  F1: 0.9623 | Acc: 99.87% | Prec: 0.9623 | Rec: 0.9625
+-------------------------------------------------------------------------------
+Classe de Ameaça       Acurácia Bal.  Precisão   Recall     F1-Score   Suporte   
+-------------------------------------------------------------------------------
+BENIGN                 0.9980         0.9975     0.9967     0.9971     40,000    
+Botnet Ares            1.0000         1.0000     1.0000     1.0000     28,584    
+DDoS-HOIC              1.0000         1.0000     1.0000     1.0000     21,646    
+DDoS-LOIC-HTTP         1.0000         1.0000     1.0000     1.0000     5,787     
+DDoS-LOIC-UDP          1.0000         1.0000     1.0000     1.0000     505       
+DoS GoldenEye          0.9999         1.0000     0.9998     0.9999     4,512     
+DoS Hulk               1.0000         1.0000     1.0000     1.0000     36,063    
+DoS Slowloris          0.9997         0.9988     0.9994     0.9991     1,698     
+Infiltration - Communication Victim Attacker 0.9878         1.0000     0.9756     0.9877     41        
+Infiltration - Dropbox Download 0.7353         0.4444     0.4706     0.4571     17        
+Infiltration - NMAP Portscan 0.9971         0.9932     0.9950     0.9941     17,875    
+SSH-BruteForce         1.0000         1.0000     1.0000     1.0000     18,839    
+Web Attack - Brute Force 1.0000         1.0000     1.0000     1.0000     26        
+Web Attack - SQL       1.0000         1.0000     1.0000     1.0000     8         
+Web Attack - XSS       1.0000         1.0000     1.0000     1.0000     23        
+===============================================================================
