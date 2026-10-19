@@ -1,0 +1,2118 @@
+{
+  "timestamp": "2026-10-19T04:57:30.451828Z",
+  "num_test_samples": 685814,
+  "inference_time_sec": 18.1591,
+  "latency_ms_per_sample": 0.0265,
+  "throughput_samples_per_sec": 37767.02,
+  "alf_moe_metrics": {
+    "accuracy": 0.9199,
+    "macro_f1": 0.5828,
+    "macro_precision": 0.5779,
+    "macro_recall": 0.6851,
+    "weighted_f1": 0.9274,
+    "weighted_precision": 0.9426,
+    "weighted_recall": 0.9199
+  },
+  "alf_per_class_breakdown": {
+    "ACK Flood": {
+      "balanced_accuracy": 0.9377,
+      "precision": 0.969,
+      "recall": 0.8795,
+      "f1_score": 0.922,
+      "support": 86511
+    },
+    "Backdoor": {
+      "balanced_accuracy": 0.9643,
+      "precision": 0.9577,
+      "recall": 0.9296,
+      "f1_score": 0.9434,
+      "support": 16590
+    },
+    "Benign Traffic": {
+      "balanced_accuracy": 0.9516,
+      "precision": 0.9974,
+      "recall": 0.9036,
+      "f1_score": 0.9482,
+      "support": 70185
+    },
+    "DDoS ACK Fragmentation": {
+      "balanced_accuracy": 0.9926,
+      "precision": 0.9967,
+      "recall": 0.9852,
+      "f1_score": 0.9909,
+      "support": 12083
+    },
+    "DDoS HTTP Flood": {
+      "balanced_accuracy": 0.8988,
+      "precision": 0.6932,
+      "recall": 0.7979,
+      "f1_score": 0.7418,
+      "support": 470
+    },
+    "DDoS ICMP Flood": {
+      "balanced_accuracy": 0.8589,
+      "precision": 0.2198,
+      "recall": 0.7196,
+      "f1_score": 0.3367,
+      "support": 510
+    },
+    "DDoS ICMP Fragmentation": {
+      "balanced_accuracy": 0.7233,
+      "precision": 0.6952,
+      "recall": 0.4467,
+      "f1_score": 0.5439,
+      "support": 291
+    },
+    "DDoS PSHACK Flood": {
+      "balanced_accuracy": 0.9975,
+      "precision": 0.9933,
+      "recall": 0.9958,
+      "f1_score": 0.9945,
+      "support": 75839
+    },
+    "DDoS RSTFIN Flood": {
+      "balanced_accuracy": 0.955,
+      "precision": 0.9995,
+      "recall": 0.91,
+      "f1_score": 0.9527,
+      "support": 117261
+    },
+    "DDoS TCP SYN Flood": {
+      "balanced_accuracy": 0.9997,
+      "precision": 0.9999,
+      "recall": 0.9994,
+      "f1_score": 0.9996,
+      "support": 25116
+    },
+    "DDoS UDP Flood": {
+      "balanced_accuracy": 0.5687,
+      "precision": 0.2006,
+      "recall": 0.1379,
+      "f1_score": 0.1634,
+      "support": 515
+    },
+    "Dictionary Brute Force": {
+      "balanced_accuracy": 0.6995,
+      "precision": 0.2411,
+      "recall": 0.4,
+      "f1_score": 0.3008,
+      "support": 540
+    },
+    "DoS DNS Flood": {
+      "balanced_accuracy": 0.8887,
+      "precision": 0.0738,
+      "recall": 0.7824,
+      "f1_score": 0.1349,
+      "support": 340
+    },
+    "DoS ICMP Flood": {
+      "balanced_accuracy": 0.5106,
+      "precision": 0.0909,
+      "recall": 0.0214,
+      "f1_score": 0.0346,
+      "support": 702
+    },
+    "DoS SYN Flood": {
+      "balanced_accuracy": 0.9318,
+      "precision": 0.7137,
+      "recall": 0.8647,
+      "f1_score": 0.782,
+      "support": 2180
+    },
+    "DoS TCP Flood": {
+      "balanced_accuracy": 0.9745,
+      "precision": 0.9948,
+      "recall": 0.9496,
+      "f1_score": 0.9717,
+      "support": 66891
+    },
+    "DoS UDP Flood": {
+      "balanced_accuracy": 0.5761,
+      "precision": 0.2138,
+      "recall": 0.1531,
+      "f1_score": 0.1784,
+      "support": 993
+    },
+    "MITM": {
+      "balanced_accuracy": 0.9494,
+      "precision": 0.5932,
+      "recall": 0.9018,
+      "f1_score": 0.7156,
+      "support": 3279
+    },
+    "MITM ARP Spoofing": {
+      "balanced_accuracy": 0.6862,
+      "precision": 0.4192,
+      "recall": 0.3728,
+      "f1_score": 0.3947,
+      "support": 515
+    },
+    "MQTT Brute Force": {
+      "balanced_accuracy": 0.9991,
+      "precision": 0.999,
+      "recall": 0.9981,
+      "f1_score": 0.9986,
+      "support": 30249
+    },
+    "MQTT DDoS Publish Flood": {
+      "balanced_accuracy": 0.9709,
+      "precision": 0.8445,
+      "recall": 0.945,
+      "f1_score": 0.8919,
+      "support": 12324
+    },
+    "MQTT DoS Connect Flood": {
+      "balanced_accuracy": 0.9548,
+      "precision": 0.9816,
+      "recall": 0.9098,
+      "f1_score": 0.9443,
+      "support": 7087
+    },
+    "MQTT DoS Publish Flood": {
+      "balanced_accuracy": 0.9161,
+      "precision": 0.4848,
+      "recall": 0.8325,
+      "f1_score": 0.6127,
+      "support": 191
+    },
+    "MQTT Malformed": {
+      "balanced_accuracy": 0.9075,
+      "precision": 0.8318,
+      "recall": 0.8151,
+      "f1_score": 0.8234,
+      "support": 449
+    },
+    "Mirai ACK Flood": {
+      "balanced_accuracy": 0.7697,
+      "precision": 0.1602,
+      "recall": 0.5415,
+      "f1_score": 0.2473,
+      "support": 482
+    },
+    "Mirai HTTP Flood": {
+      "balanced_accuracy": 0.7959,
+      "precision": 0.7212,
+      "recall": 0.5921,
+      "f1_score": 0.6503,
+      "support": 782
+    },
+    "Mirai Host Brute Force": {
+      "balanced_accuracy": 0.8573,
+      "precision": 0.5,
+      "recall": 0.7154,
+      "f1_score": 0.5886,
+      "support": 745
+    },
+    "Mirai UDP Flood": {
+      "balanced_accuracy": 0.6369,
+      "precision": 0.1921,
+      "recall": 0.2742,
+      "f1_score": 0.2259,
+      "support": 248
+    },
+    "Mirai UDP Plain": {
+      "balanced_accuracy": 0.7862,
+      "precision": 0.1859,
+      "recall": 0.5736,
+      "f1_score": 0.2808,
+      "support": 326
+    },
+    "OS Fingerprinting": {
+      "balanced_accuracy": 0.5741,
+      "precision": 1.0,
+      "recall": 0.1481,
+      "f1_score": 0.2581,
+      "support": 27
+    },
+    "Password Attack": {
+      "balanced_accuracy": 0.981,
+      "precision": 0.9294,
+      "recall": 0.9625,
+      "f1_score": 0.9457,
+      "support": 5335
+    },
+    "Port Scanning": {
+      "balanced_accuracy": 0.9927,
+      "precision": 0.2772,
+      "recall": 0.9865,
+      "f1_score": 0.4328,
+      "support": 297
+    },
+    "Ransomware": {
+      "balanced_accuracy": 0.8569,
+      "precision": 0.2171,
+      "recall": 0.7157,
+      "f1_score": 0.3332,
+      "support": 496
+    },
+    "Recon Host Discovery": {
+      "balanced_accuracy": 0.5,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1_score": 0.0,
+      "support": 85
+    },
+    "Recon OS Scan": {
+      "balanced_accuracy": 0.6859,
+      "precision": 0.3839,
+      "recall": 0.3751,
+      "f1_score": 0.3795,
+      "support": 3796
+    },
+    "Recon Ping Sweep": {
+      "balanced_accuracy": 0.5092,
+      "precision": 0.1699,
+      "recall": 0.0185,
+      "f1_score": 0.0334,
+      "support": 1405
+    },
+    "Recon Port Scan": {
+      "balanced_accuracy": 0.9124,
+      "precision": 0.8832,
+      "recall": 0.8295,
+      "f1_score": 0.8555,
+      "support": 28434
+    },
+    "Recon Vulnerability Scan": {
+      "balanced_accuracy": 0.8806,
+      "precision": 0.432,
+      "recall": 0.7633,
+      "f1_score": 0.5518,
+      "support": 1424
+    },
+    "SQL Injection": {
+      "balanced_accuracy": 0.9232,
+      "precision": 0.514,
+      "recall": 0.8467,
+      "f1_score": 0.6397,
+      "support": 261
+    },
+    "SYN Flood": {
+      "balanced_accuracy": 0.9729,
+      "precision": 0.7374,
+      "recall": 0.9754,
+      "f1_score": 0.8399,
+      "support": 53713
+    },
+    "Scan Aggressive": {
+      "balanced_accuracy": 0.8932,
+      "precision": 0.6377,
+      "recall": 0.7869,
+      "f1_score": 0.7045,
+      "support": 765
+    },
+    "Scan Host Port": {
+      "balanced_accuracy": 0.8177,
+      "precision": 0.0953,
+      "recall": 0.6372,
+      "f1_score": 0.1658,
+      "support": 215
+    },
+    "Scan Port OS": {
+      "balanced_accuracy": 0.5256,
+      "precision": 0.3659,
+      "recall": 0.0512,
+      "f1_score": 0.0898,
+      "support": 293
+    },
+    "Scan UDP Attack": {
+      "balanced_accuracy": 0.9355,
+      "precision": 0.1038,
+      "recall": 0.8763,
+      "f1_score": 0.1856,
+      "support": 485
+    },
+    "Sparta SSH Brute Force": {
+      "balanced_accuracy": 0.9647,
+      "precision": 0.9885,
+      "recall": 0.93,
+      "f1_score": 0.9583,
+      "support": 33430
+    },
+    "Telnet Brute Force": {
+      "balanced_accuracy": 0.9208,
+      "precision": 0.4916,
+      "recall": 0.8417,
+      "f1_score": 0.6207,
+      "support": 139
+    },
+    "Uploading Attack": {
+      "balanced_accuracy": 0.8637,
+      "precision": 0.4047,
+      "recall": 0.7279,
+      "f1_score": 0.5202,
+      "support": 283
+    },
+    "Vulnerability Scanner": {
+      "balanced_accuracy": 0.9223,
+      "precision": 0.7684,
+      "recall": 0.8447,
+      "f1_score": 0.8047,
+      "support": 161
+    },
+    "XSS": {
+      "balanced_accuracy": 0.9504,
+      "precision": 0.9519,
+      "recall": 0.9023,
+      "f1_score": 0.9265,
+      "support": 21076
+    }
+  },
+  "experts_metrics": {
+    "DNN": {
+      "accuracy": 0.5149,
+      "macro_f1": 0.2162,
+      "macro_precision": 0.2674,
+      "macro_recall": 0.2259,
+      "per_class": {
+        "ACK Flood": {
+          "balanced_accuracy": 0.5203,
+          "precision": 0.1447,
+          "recall": 0.2767,
+          "f1_score": 0.19,
+          "support": 86511
+        },
+        "Backdoor": {
+          "balanced_accuracy": 0.9517,
+          "precision": 0.9258,
+          "recall": 0.9052,
+          "f1_score": 0.9154,
+          "support": 16590
+        },
+        "Benign Traffic": {
+          "balanced_accuracy": 0.9488,
+          "precision": 0.7545,
+          "recall": 0.9322,
+          "f1_score": 0.834,
+          "support": 70185
+        },
+        "DDoS ACK Fragmentation": {
+          "balanced_accuracy": 0.9899,
+          "precision": 0.8661,
+          "recall": 0.9826,
+          "f1_score": 0.9207,
+          "support": 12083
+        },
+        "DDoS HTTP Flood": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 470
+        },
+        "DDoS ICMP Flood": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 510
+        },
+        "DDoS ICMP Fragmentation": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 291
+        },
+        "DDoS PSHACK Flood": {
+          "balanced_accuracy": 0.9067,
+          "precision": 0.552,
+          "recall": 0.9047,
+          "f1_score": 0.6856,
+          "support": 75839
+        },
+        "DDoS RSTFIN Flood": {
+          "balanced_accuracy": 0.5154,
+          "precision": 1.0,
+          "recall": 0.0308,
+          "f1_score": 0.0598,
+          "support": 117261
+        },
+        "DDoS TCP SYN Flood": {
+          "balanced_accuracy": 0.9934,
+          "precision": 0.9925,
+          "recall": 0.9871,
+          "f1_score": 0.9898,
+          "support": 25116
+        },
+        "DDoS UDP Flood": {
+          "balanced_accuracy": 0.5048,
+          "precision": 0.1786,
+          "recall": 0.0097,
+          "f1_score": 0.0184,
+          "support": 515
+        },
+        "Dictionary Brute Force": {
+          "balanced_accuracy": 0.5009,
+          "precision": 0.1429,
+          "recall": 0.0019,
+          "f1_score": 0.0037,
+          "support": 540
+        },
+        "DoS DNS Flood": {
+          "balanced_accuracy": 0.5015,
+          "precision": 0.0714,
+          "recall": 0.0029,
+          "f1_score": 0.0056,
+          "support": 340
+        },
+        "DoS ICMP Flood": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 702
+        },
+        "DoS SYN Flood": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 2180
+        },
+        "DoS TCP Flood": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 66891
+        },
+        "DoS UDP Flood": {
+          "balanced_accuracy": 0.506,
+          "precision": 0.1111,
+          "recall": 0.0121,
+          "f1_score": 0.0218,
+          "support": 993
+        },
+        "MITM": {
+          "balanced_accuracy": 0.6774,
+          "precision": 0.4947,
+          "recall": 0.3565,
+          "f1_score": 0.4144,
+          "support": 3279
+        },
+        "MITM ARP Spoofing": {
+          "balanced_accuracy": 0.501,
+          "precision": 0.5,
+          "recall": 0.0019,
+          "f1_score": 0.0039,
+          "support": 515
+        },
+        "MQTT Brute Force": {
+          "balanced_accuracy": 0.9528,
+          "precision": 0.8707,
+          "recall": 0.9118,
+          "f1_score": 0.8907,
+          "support": 30249
+        },
+        "MQTT DDoS Publish Flood": {
+          "balanced_accuracy": 0.6939,
+          "precision": 0.9089,
+          "recall": 0.3885,
+          "f1_score": 0.5443,
+          "support": 12324
+        },
+        "MQTT DoS Connect Flood": {
+          "balanced_accuracy": 0.617,
+          "precision": 0.1772,
+          "recall": 0.2459,
+          "f1_score": 0.206,
+          "support": 7087
+        },
+        "MQTT DoS Publish Flood": {
+          "balanced_accuracy": 0.6518,
+          "precision": 0.8788,
+          "recall": 0.3037,
+          "f1_score": 0.4514,
+          "support": 191
+        },
+        "MQTT Malformed": {
+          "balanced_accuracy": 0.4995,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 449
+        },
+        "Mirai ACK Flood": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 482
+        },
+        "Mirai HTTP Flood": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 782
+        },
+        "Mirai Host Brute Force": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 745
+        },
+        "Mirai UDP Flood": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 248
+        },
+        "Mirai UDP Plain": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 326
+        },
+        "OS Fingerprinting": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 27
+        },
+        "Password Attack": {
+          "balanced_accuracy": 0.5501,
+          "precision": 0.1831,
+          "recall": 0.1038,
+          "f1_score": 0.1325,
+          "support": 5335
+        },
+        "Port Scanning": {
+          "balanced_accuracy": 0.8855,
+          "precision": 0.8481,
+          "recall": 0.771,
+          "f1_score": 0.8078,
+          "support": 297
+        },
+        "Ransomware": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 496
+        },
+        "Recon Host Discovery": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 85
+        },
+        "Recon OS Scan": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 3796
+        },
+        "Recon Ping Sweep": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 1405
+        },
+        "Recon Port Scan": {
+          "balanced_accuracy": 0.9388,
+          "precision": 0.7588,
+          "recall": 0.8899,
+          "f1_score": 0.8191,
+          "support": 28434
+        },
+        "Recon Vulnerability Scan": {
+          "balanced_accuracy": 0.5003,
+          "precision": 0.1429,
+          "recall": 0.0007,
+          "f1_score": 0.0014,
+          "support": 1424
+        },
+        "SQL Injection": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 261
+        },
+        "SYN Flood": {
+          "balanced_accuracy": 0.9108,
+          "precision": 0.4542,
+          "recall": 0.915,
+          "f1_score": 0.6071,
+          "support": 53713
+        },
+        "Scan Aggressive": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 765
+        },
+        "Scan Host Port": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 215
+        },
+        "Scan Port OS": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 293
+        },
+        "Scan UDP Attack": {
+          "balanced_accuracy": 0.5017,
+          "precision": 0.0046,
+          "recall": 0.0041,
+          "f1_score": 0.0043,
+          "support": 485
+        },
+        "Sparta SSH Brute Force": {
+          "balanced_accuracy": 0.7152,
+          "precision": 0.7275,
+          "recall": 0.4389,
+          "f1_score": 0.5475,
+          "support": 33430
+        },
+        "Telnet Brute Force": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 139
+        },
+        "Uploading Attack": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 283
+        },
+        "Vulnerability Scanner": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 161
+        },
+        "XSS": {
+          "balanced_accuracy": 0.8301,
+          "precision": 0.4122,
+          "recall": 0.6915,
+          "f1_score": 0.5165,
+          "support": 21076
+        }
+      }
+    },
+    "CNN": {
+      "accuracy": 0.3858,
+      "macro_f1": 0.2627,
+      "macro_precision": 0.401,
+      "macro_recall": 0.2933,
+      "per_class": {
+        "ACK Flood": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 86511
+        },
+        "Backdoor": {
+          "balanced_accuracy": 0.5122,
+          "precision": 0.8286,
+          "recall": 0.0245,
+          "f1_score": 0.0475,
+          "support": 16590
+        },
+        "Benign Traffic": {
+          "balanced_accuracy": 0.6429,
+          "precision": 0.997,
+          "recall": 0.286,
+          "f1_score": 0.4444,
+          "support": 70185
+        },
+        "DDoS ACK Fragmentation": {
+          "balanced_accuracy": 0.9885,
+          "precision": 0.9364,
+          "recall": 0.9782,
+          "f1_score": 0.9569,
+          "support": 12083
+        },
+        "DDoS HTTP Flood": {
+          "balanced_accuracy": 0.6404,
+          "precision": 0.8462,
+          "recall": 0.2809,
+          "f1_score": 0.4217,
+          "support": 470
+        },
+        "DDoS ICMP Flood": {
+          "balanced_accuracy": 0.7118,
+          "precision": 0.1484,
+          "recall": 0.4255,
+          "f1_score": 0.2201,
+          "support": 510
+        },
+        "DDoS ICMP Fragmentation": {
+          "balanced_accuracy": 0.5978,
+          "precision": 0.2317,
+          "recall": 0.1959,
+          "f1_score": 0.2123,
+          "support": 291
+        },
+        "DDoS PSHACK Flood": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 75839
+        },
+        "DDoS RSTFIN Flood": {
+          "balanced_accuracy": 0.645,
+          "precision": 0.2251,
+          "recall": 0.9998,
+          "f1_score": 0.3675,
+          "support": 117261
+        },
+        "DDoS TCP SYN Flood": {
+          "balanced_accuracy": 0.9999,
+          "precision": 0.9973,
+          "recall": 1.0,
+          "f1_score": 0.9986,
+          "support": 25116
+        },
+        "DDoS UDP Flood": {
+          "balanced_accuracy": 0.5618,
+          "precision": 0.1356,
+          "recall": 0.1243,
+          "f1_score": 0.1297,
+          "support": 515
+        },
+        "Dictionary Brute Force": {
+          "balanced_accuracy": 0.6126,
+          "precision": 0.221,
+          "recall": 0.2259,
+          "f1_score": 0.2234,
+          "support": 540
+        },
+        "DoS DNS Flood": {
+          "balanced_accuracy": 0.7585,
+          "precision": 0.0672,
+          "recall": 0.5206,
+          "f1_score": 0.119,
+          "support": 340
+        },
+        "DoS ICMP Flood": {
+          "balanced_accuracy": 0.5347,
+          "precision": 0.1296,
+          "recall": 0.0698,
+          "f1_score": 0.0907,
+          "support": 702
+        },
+        "DoS SYN Flood": {
+          "balanced_accuracy": 0.5899,
+          "precision": 1.0,
+          "recall": 0.1798,
+          "f1_score": 0.3048,
+          "support": 2180
+        },
+        "DoS TCP Flood": {
+          "balanced_accuracy": 0.5044,
+          "precision": 0.7689,
+          "recall": 0.0091,
+          "f1_score": 0.018,
+          "support": 66891
+        },
+        "DoS UDP Flood": {
+          "balanced_accuracy": 0.5239,
+          "precision": 0.1315,
+          "recall": 0.0483,
+          "f1_score": 0.0707,
+          "support": 993
+        },
+        "MITM": {
+          "balanced_accuracy": 0.5059,
+          "precision": 0.975,
+          "recall": 0.0119,
+          "f1_score": 0.0235,
+          "support": 3279
+        },
+        "MITM ARP Spoofing": {
+          "balanced_accuracy": 0.5617,
+          "precision": 0.1042,
+          "recall": 0.1243,
+          "f1_score": 0.1134,
+          "support": 515
+        },
+        "MQTT Brute Force": {
+          "balanced_accuracy": 0.992,
+          "precision": 0.9965,
+          "recall": 0.9842,
+          "f1_score": 0.9903,
+          "support": 30249
+        },
+        "MQTT DDoS Publish Flood": {
+          "balanced_accuracy": 0.6154,
+          "precision": 0.9016,
+          "recall": 0.2312,
+          "f1_score": 0.368,
+          "support": 12324
+        },
+        "MQTT DoS Connect Flood": {
+          "balanced_accuracy": 0.8908,
+          "precision": 0.9831,
+          "recall": 0.7817,
+          "f1_score": 0.8709,
+          "support": 7087
+        },
+        "MQTT DoS Publish Flood": {
+          "balanced_accuracy": 0.8376,
+          "precision": 0.5059,
+          "recall": 0.6754,
+          "f1_score": 0.5785,
+          "support": 191
+        },
+        "MQTT Malformed": {
+          "balanced_accuracy": 0.8724,
+          "precision": 0.2839,
+          "recall": 0.7461,
+          "f1_score": 0.4113,
+          "support": 449
+        },
+        "Mirai ACK Flood": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 482
+        },
+        "Mirai HTTP Flood": {
+          "balanced_accuracy": 0.7524,
+          "precision": 0.6361,
+          "recall": 0.5051,
+          "f1_score": 0.5631,
+          "support": 782
+        },
+        "Mirai Host Brute Force": {
+          "balanced_accuracy": 0.6487,
+          "precision": 0.361,
+          "recall": 0.298,
+          "f1_score": 0.3265,
+          "support": 745
+        },
+        "Mirai UDP Flood": {
+          "balanced_accuracy": 0.5402,
+          "precision": 0.1242,
+          "recall": 0.0806,
+          "f1_score": 0.0978,
+          "support": 248
+        },
+        "Mirai UDP Plain": {
+          "balanced_accuracy": 0.5245,
+          "precision": 0.4324,
+          "recall": 0.0491,
+          "f1_score": 0.0882,
+          "support": 326
+        },
+        "OS Fingerprinting": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 27
+        },
+        "Password Attack": {
+          "balanced_accuracy": 0.6935,
+          "precision": 0.903,
+          "recall": 0.3873,
+          "f1_score": 0.542,
+          "support": 5335
+        },
+        "Port Scanning": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 297
+        },
+        "Ransomware": {
+          "balanced_accuracy": 0.6507,
+          "precision": 0.1892,
+          "recall": 0.3024,
+          "f1_score": 0.2327,
+          "support": 496
+        },
+        "Recon Host Discovery": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 85
+        },
+        "Recon OS Scan": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 3796
+        },
+        "Recon Ping Sweep": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 1405
+        },
+        "Recon Port Scan": {
+          "balanced_accuracy": 0.535,
+          "precision": 0.9679,
+          "recall": 0.0701,
+          "f1_score": 0.1307,
+          "support": 28434
+        },
+        "Recon Vulnerability Scan": {
+          "balanced_accuracy": 0.5003,
+          "precision": 0.1111,
+          "recall": 0.0007,
+          "f1_score": 0.0014,
+          "support": 1424
+        },
+        "SQL Injection": {
+          "balanced_accuracy": 0.733,
+          "precision": 0.1141,
+          "recall": 0.4674,
+          "f1_score": 0.1835,
+          "support": 261
+        },
+        "SYN Flood": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 53713
+        },
+        "Scan Aggressive": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 765
+        },
+        "Scan Host Port": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 215
+        },
+        "Scan Port OS": {
+          "balanced_accuracy": 0.5017,
+          "precision": 0.3333,
+          "recall": 0.0034,
+          "f1_score": 0.0068,
+          "support": 293
+        },
+        "Scan UDP Attack": {
+          "balanced_accuracy": 0.9863,
+          "precision": 0.0926,
+          "recall": 0.9794,
+          "f1_score": 0.1692,
+          "support": 485
+        },
+        "Sparta SSH Brute Force": {
+          "balanced_accuracy": 0.9304,
+          "precision": 0.9851,
+          "recall": 0.8616,
+          "f1_score": 0.9192,
+          "support": 33430
+        },
+        "Telnet Brute Force": {
+          "balanced_accuracy": 0.6222,
+          "precision": 0.1553,
+          "recall": 0.2446,
+          "f1_score": 0.1899,
+          "support": 139
+        },
+        "Uploading Attack": {
+          "balanced_accuracy": 0.5989,
+          "precision": 0.3457,
+          "recall": 0.1979,
+          "f1_score": 0.2517,
+          "support": 283
+        },
+        "Vulnerability Scanner": {
+          "balanced_accuracy": 0.6459,
+          "precision": 0.5465,
+          "recall": 0.2919,
+          "f1_score": 0.3806,
+          "support": 161
+        },
+        "XSS": {
+          "balanced_accuracy": 0.854,
+          "precision": 0.9378,
+          "recall": 0.7096,
+          "f1_score": 0.8079,
+          "support": 21076
+        }
+      }
+    },
+    "GRU": {
+      "accuracy": 0.8598,
+      "macro_f1": 0.4969,
+      "macro_precision": 0.4809,
+      "macro_recall": 0.5744,
+      "per_class": {
+        "ACK Flood": {
+          "balanced_accuracy": 0.8573,
+          "precision": 0.6878,
+          "recall": 0.7647,
+          "f1_score": 0.7242,
+          "support": 86511
+        },
+        "Backdoor": {
+          "balanced_accuracy": 0.9164,
+          "precision": 0.8786,
+          "recall": 0.8357,
+          "f1_score": 0.8566,
+          "support": 16590
+        },
+        "Benign Traffic": {
+          "balanced_accuracy": 0.9419,
+          "precision": 0.9669,
+          "recall": 0.8873,
+          "f1_score": 0.9254,
+          "support": 70185
+        },
+        "DDoS ACK Fragmentation": {
+          "balanced_accuracy": 0.9927,
+          "precision": 0.994,
+          "recall": 0.9854,
+          "f1_score": 0.9897,
+          "support": 12083
+        },
+        "DDoS HTTP Flood": {
+          "balanced_accuracy": 0.8953,
+          "precision": 0.3577,
+          "recall": 0.7915,
+          "f1_score": 0.4927,
+          "support": 470
+        },
+        "DDoS ICMP Flood": {
+          "balanced_accuracy": 0.7836,
+          "precision": 0.235,
+          "recall": 0.5686,
+          "f1_score": 0.3326,
+          "support": 510
+        },
+        "DDoS ICMP Fragmentation": {
+          "balanced_accuracy": 0.7267,
+          "precision": 0.4164,
+          "recall": 0.4536,
+          "f1_score": 0.4342,
+          "support": 291
+        },
+        "DDoS PSHACK Flood": {
+          "balanced_accuracy": 0.9955,
+          "precision": 0.9695,
+          "recall": 0.9949,
+          "f1_score": 0.9821,
+          "support": 75839
+        },
+        "DDoS RSTFIN Flood": {
+          "balanced_accuracy": 0.9967,
+          "precision": 0.9776,
+          "recall": 0.9981,
+          "f1_score": 0.9877,
+          "support": 117261
+        },
+        "DDoS TCP SYN Flood": {
+          "balanced_accuracy": 0.9997,
+          "precision": 0.9998,
+          "recall": 0.9994,
+          "f1_score": 0.9996,
+          "support": 25116
+        },
+        "DDoS UDP Flood": {
+          "balanced_accuracy": 0.589,
+          "precision": 0.1661,
+          "recall": 0.1786,
+          "f1_score": 0.1721,
+          "support": 515
+        },
+        "Dictionary Brute Force": {
+          "balanced_accuracy": 0.691,
+          "precision": 0.1837,
+          "recall": 0.3833,
+          "f1_score": 0.2484,
+          "support": 540
+        },
+        "DoS DNS Flood": {
+          "balanced_accuracy": 0.6579,
+          "precision": 0.082,
+          "recall": 0.3176,
+          "f1_score": 0.1304,
+          "support": 340
+        },
+        "DoS ICMP Flood": {
+          "balanced_accuracy": 0.5537,
+          "precision": 0.1153,
+          "recall": 0.1083,
+          "f1_score": 0.1117,
+          "support": 702
+        },
+        "DoS SYN Flood": {
+          "balanced_accuracy": 0.7101,
+          "precision": 0.573,
+          "recall": 0.4211,
+          "f1_score": 0.4855,
+          "support": 2180
+        },
+        "DoS TCP Flood": {
+          "balanced_accuracy": 0.9712,
+          "precision": 0.9882,
+          "recall": 0.9437,
+          "f1_score": 0.9654,
+          "support": 66891
+        },
+        "DoS UDP Flood": {
+          "balanced_accuracy": 0.5606,
+          "precision": 0.1939,
+          "recall": 0.1219,
+          "f1_score": 0.1497,
+          "support": 993
+        },
+        "MITM": {
+          "balanced_accuracy": 0.9509,
+          "precision": 0.5864,
+          "recall": 0.9048,
+          "f1_score": 0.7116,
+          "support": 3279
+        },
+        "MITM ARP Spoofing": {
+          "balanced_accuracy": 0.6832,
+          "precision": 0.2864,
+          "recall": 0.367,
+          "f1_score": 0.3217,
+          "support": 515
+        },
+        "MQTT Brute Force": {
+          "balanced_accuracy": 0.9973,
+          "precision": 0.995,
+          "recall": 0.9949,
+          "f1_score": 0.9949,
+          "support": 30249
+        },
+        "MQTT DDoS Publish Flood": {
+          "balanced_accuracy": 0.9693,
+          "precision": 0.8263,
+          "recall": 0.9421,
+          "f1_score": 0.8804,
+          "support": 12324
+        },
+        "MQTT DoS Connect Flood": {
+          "balanced_accuracy": 0.9472,
+          "precision": 0.9852,
+          "recall": 0.8946,
+          "f1_score": 0.9377,
+          "support": 7087
+        },
+        "MQTT DoS Publish Flood": {
+          "balanced_accuracy": 0.8481,
+          "precision": 0.6856,
+          "recall": 0.6963,
+          "f1_score": 0.6909,
+          "support": 191
+        },
+        "MQTT Malformed": {
+          "balanced_accuracy": 0.8986,
+          "precision": 0.78,
+          "recall": 0.7973,
+          "f1_score": 0.7885,
+          "support": 449
+        },
+        "Mirai ACK Flood": {
+          "balanced_accuracy": 0.6558,
+          "precision": 0.1177,
+          "recall": 0.3133,
+          "f1_score": 0.1711,
+          "support": 482
+        },
+        "Mirai HTTP Flood": {
+          "balanced_accuracy": 0.7677,
+          "precision": 0.6598,
+          "recall": 0.5358,
+          "f1_score": 0.5914,
+          "support": 782
+        },
+        "Mirai Host Brute Force": {
+          "balanced_accuracy": 0.768,
+          "precision": 0.3683,
+          "recall": 0.5369,
+          "f1_score": 0.4369,
+          "support": 745
+        },
+        "Mirai UDP Flood": {
+          "balanced_accuracy": 0.6308,
+          "precision": 0.1743,
+          "recall": 0.2621,
+          "f1_score": 0.2093,
+          "support": 248
+        },
+        "Mirai UDP Plain": {
+          "balanced_accuracy": 0.7098,
+          "precision": 0.2178,
+          "recall": 0.4202,
+          "f1_score": 0.2869,
+          "support": 326
+        },
+        "OS Fingerprinting": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 27
+        },
+        "Password Attack": {
+          "balanced_accuracy": 0.9334,
+          "precision": 0.8993,
+          "recall": 0.8675,
+          "f1_score": 0.8831,
+          "support": 5335
+        },
+        "Port Scanning": {
+          "balanced_accuracy": 0.8279,
+          "precision": 0.2902,
+          "recall": 0.6566,
+          "f1_score": 0.4025,
+          "support": 297
+        },
+        "Ransomware": {
+          "balanced_accuracy": 0.8004,
+          "precision": 0.1737,
+          "recall": 0.6028,
+          "f1_score": 0.2697,
+          "support": 496
+        },
+        "Recon Host Discovery": {
+          "balanced_accuracy": 0.5935,
+          "precision": 0.0183,
+          "recall": 0.1882,
+          "f1_score": 0.0334,
+          "support": 85
+        },
+        "Recon OS Scan": {
+          "balanced_accuracy": 0.5716,
+          "precision": 0.1143,
+          "recall": 0.1496,
+          "f1_score": 0.1296,
+          "support": 3796
+        },
+        "Recon Ping Sweep": {
+          "balanced_accuracy": 0.5146,
+          "precision": 0.0782,
+          "recall": 0.0299,
+          "f1_score": 0.0433,
+          "support": 1405
+        },
+        "Recon Port Scan": {
+          "balanced_accuracy": 0.9224,
+          "precision": 0.6924,
+          "recall": 0.8613,
+          "f1_score": 0.7677,
+          "support": 28434
+        },
+        "Recon Vulnerability Scan": {
+          "balanced_accuracy": 0.5325,
+          "precision": 0.1216,
+          "recall": 0.066,
+          "f1_score": 0.0856,
+          "support": 1424
+        },
+        "SQL Injection": {
+          "balanced_accuracy": 0.8805,
+          "precision": 0.1698,
+          "recall": 0.7625,
+          "f1_score": 0.2777,
+          "support": 261
+        },
+        "SYN Flood": {
+          "balanced_accuracy": 0.6654,
+          "precision": 0.5786,
+          "recall": 0.3527,
+          "f1_score": 0.4383,
+          "support": 53713
+        },
+        "Scan Aggressive": {
+          "balanced_accuracy": 0.8098,
+          "precision": 0.3407,
+          "recall": 0.6209,
+          "f1_score": 0.44,
+          "support": 765
+        },
+        "Scan Host Port": {
+          "balanced_accuracy": 0.7269,
+          "precision": 0.0645,
+          "recall": 0.4558,
+          "f1_score": 0.113,
+          "support": 215
+        },
+        "Scan Port OS": {
+          "balanced_accuracy": 0.5187,
+          "precision": 0.234,
+          "recall": 0.0375,
+          "f1_score": 0.0647,
+          "support": 293
+        },
+        "Scan UDP Attack": {
+          "balanced_accuracy": 0.8279,
+          "precision": 0.1032,
+          "recall": 0.6598,
+          "f1_score": 0.1784,
+          "support": 485
+        },
+        "Sparta SSH Brute Force": {
+          "balanced_accuracy": 0.9694,
+          "precision": 0.9688,
+          "recall": 0.9404,
+          "f1_score": 0.9544,
+          "support": 33430
+        },
+        "Telnet Brute Force": {
+          "balanced_accuracy": 0.8739,
+          "precision": 0.3302,
+          "recall": 0.7482,
+          "f1_score": 0.4581,
+          "support": 139
+        },
+        "Uploading Attack": {
+          "balanced_accuracy": 0.6871,
+          "precision": 0.2775,
+          "recall": 0.3746,
+          "f1_score": 0.3188,
+          "support": 283
+        },
+        "Vulnerability Scanner": {
+          "balanced_accuracy": 0.7608,
+          "precision": 0.672,
+          "recall": 0.5217,
+          "f1_score": 0.5874,
+          "support": 161
+        },
+        "XSS": {
+          "balanced_accuracy": 0.9134,
+          "precision": 0.9663,
+          "recall": 0.8278,
+          "f1_score": 0.8917,
+          "support": 21076
+        }
+      }
+    },
+    "CAE": {
+      "accuracy": 0.3389,
+      "macro_f1": 0.0753,
+      "macro_precision": 0.0878,
+      "macro_recall": 0.086,
+      "per_class": {
+        "ACK Flood": {
+          "balanced_accuracy": 0.4722,
+          "precision": 0.026,
+          "recall": 0.0126,
+          "f1_score": 0.017,
+          "support": 86511
+        },
+        "Backdoor": {
+          "balanced_accuracy": 0.8635,
+          "precision": 0.8165,
+          "recall": 0.7312,
+          "f1_score": 0.7715,
+          "support": 16590
+        },
+        "Benign Traffic": {
+          "balanced_accuracy": 0.8503,
+          "precision": 0.3044,
+          "recall": 0.9473,
+          "f1_score": 0.4608,
+          "support": 70185
+        },
+        "DDoS ACK Fragmentation": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 12083
+        },
+        "DDoS HTTP Flood": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 470
+        },
+        "DDoS ICMP Flood": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 510
+        },
+        "DDoS ICMP Fragmentation": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 291
+        },
+        "DDoS PSHACK Flood": {
+          "balanced_accuracy": 0.9079,
+          "precision": 0.6807,
+          "recall": 0.8662,
+          "f1_score": 0.7624,
+          "support": 75839
+        },
+        "DDoS RSTFIN Flood": {
+          "balanced_accuracy": 0.7496,
+          "precision": 0.6056,
+          "recall": 0.5767,
+          "f1_score": 0.5908,
+          "support": 117261
+        },
+        "DDoS TCP SYN Flood": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 25116
+        },
+        "DDoS UDP Flood": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 515
+        },
+        "Dictionary Brute Force": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 540
+        },
+        "DoS DNS Flood": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 340
+        },
+        "DoS ICMP Flood": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 702
+        },
+        "DoS SYN Flood": {
+          "balanced_accuracy": 0.6618,
+          "precision": 0.1459,
+          "recall": 0.3298,
+          "f1_score": 0.2023,
+          "support": 2180
+        },
+        "DoS TCP Flood": {
+          "balanced_accuracy": 0.4983,
+          "precision": 0.0961,
+          "recall": 0.2029,
+          "f1_score": 0.1304,
+          "support": 66891
+        },
+        "DoS UDP Flood": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 993
+        },
+        "MITM": {
+          "balanced_accuracy": 0.6336,
+          "precision": 0.6718,
+          "recall": 0.2678,
+          "f1_score": 0.3829,
+          "support": 3279
+        },
+        "MITM ARP Spoofing": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 515
+        },
+        "MQTT Brute Force": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 30249
+        },
+        "MQTT DDoS Publish Flood": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 12324
+        },
+        "MQTT DoS Connect Flood": {
+          "balanced_accuracy": 0.5385,
+          "precision": 0.3687,
+          "recall": 0.0785,
+          "f1_score": 0.1294,
+          "support": 7087
+        },
+        "MQTT DoS Publish Flood": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 191
+        },
+        "MQTT Malformed": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 449
+        },
+        "Mirai ACK Flood": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 482
+        },
+        "Mirai HTTP Flood": {
+          "balanced_accuracy": 0.5532,
+          "precision": 0.114,
+          "recall": 0.1074,
+          "f1_score": 0.1106,
+          "support": 782
+        },
+        "Mirai Host Brute Force": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 745
+        },
+        "Mirai UDP Flood": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 248
+        },
+        "Mirai UDP Plain": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 326
+        },
+        "OS Fingerprinting": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 27
+        },
+        "Password Attack": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 5335
+        },
+        "Port Scanning": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 297
+        },
+        "Ransomware": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 496
+        },
+        "Recon Host Discovery": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 85
+        },
+        "Recon OS Scan": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 3796
+        },
+        "Recon Ping Sweep": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 1405
+        },
+        "Recon Port Scan": {
+          "balanced_accuracy": 0.4868,
+          "precision": 0.0239,
+          "recall": 0.0346,
+          "f1_score": 0.0283,
+          "support": 28434
+        },
+        "Recon Vulnerability Scan": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 1424
+        },
+        "SQL Injection": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 261
+        },
+        "SYN Flood": {
+          "balanced_accuracy": 0.5148,
+          "precision": 0.2288,
+          "recall": 0.0415,
+          "f1_score": 0.0702,
+          "support": 53713
+        },
+        "Scan Aggressive": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 765
+        },
+        "Scan Host Port": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 215
+        },
+        "Scan Port OS": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 293
+        },
+        "Scan UDP Attack": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 485
+        },
+        "Sparta SSH Brute Force": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 33430
+        },
+        "Telnet Brute Force": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 139
+        },
+        "Uploading Attack": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 283
+        },
+        "Vulnerability Scanner": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 161
+        },
+        "XSS": {
+          "balanced_accuracy": 0.5085,
+          "precision": 0.2216,
+          "recall": 0.0191,
+          "f1_score": 0.0352,
+          "support": 21076
+        }
+      }
+    },
+    "LSTM": {
+      "accuracy": 0.8134,
+      "macro_f1": 0.4405,
+      "macro_precision": 0.4296,
+      "macro_recall": 0.5064,
+      "per_class": {
+        "ACK Flood": {
+          "balanced_accuracy": 0.8853,
+          "precision": 0.6737,
+          "recall": 0.8284,
+          "f1_score": 0.7431,
+          "support": 86511
+        },
+        "Backdoor": {
+          "balanced_accuracy": 0.9029,
+          "precision": 0.8265,
+          "recall": 0.81,
+          "f1_score": 0.8182,
+          "support": 16590
+        },
+        "Benign Traffic": {
+          "balanced_accuracy": 0.7933,
+          "precision": 0.8992,
+          "recall": 0.5943,
+          "f1_score": 0.7156,
+          "support": 70185
+        },
+        "DDoS ACK Fragmentation": {
+          "balanced_accuracy": 0.9573,
+          "precision": 0.7744,
+          "recall": 0.9194,
+          "f1_score": 0.8407,
+          "support": 12083
+        },
+        "DDoS HTTP Flood": {
+          "balanced_accuracy": 0.8581,
+          "precision": 0.383,
+          "recall": 0.717,
+          "f1_score": 0.4993,
+          "support": 470
+        },
+        "DDoS ICMP Flood": {
+          "balanced_accuracy": 0.5987,
+          "precision": 0.2078,
+          "recall": 0.198,
+          "f1_score": 0.2028,
+          "support": 510
+        },
+        "DDoS ICMP Fragmentation": {
+          "balanced_accuracy": 0.7146,
+          "precision": 0.4032,
+          "recall": 0.4296,
+          "f1_score": 0.416,
+          "support": 291
+        },
+        "DDoS PSHACK Flood": {
+          "balanced_accuracy": 0.9946,
+          "precision": 0.978,
+          "recall": 0.9919,
+          "f1_score": 0.9849,
+          "support": 75839
+        },
+        "DDoS RSTFIN Flood": {
+          "balanced_accuracy": 0.9907,
+          "precision": 0.9774,
+          "recall": 0.9861,
+          "f1_score": 0.9817,
+          "support": 117261
+        },
+        "DDoS TCP SYN Flood": {
+          "balanced_accuracy": 0.9357,
+          "precision": 0.5191,
+          "recall": 0.9031,
+          "f1_score": 0.6593,
+          "support": 25116
+        },
+        "DDoS UDP Flood": {
+          "balanced_accuracy": 0.6537,
+          "precision": 0.1499,
+          "recall": 0.3087,
+          "f1_score": 0.2018,
+          "support": 515
+        },
+        "Dictionary Brute Force": {
+          "balanced_accuracy": 0.5601,
+          "precision": 0.3155,
+          "recall": 0.1204,
+          "f1_score": 0.1743,
+          "support": 540
+        },
+        "DoS DNS Flood": {
+          "balanced_accuracy": 0.7043,
+          "precision": 0.0623,
+          "recall": 0.4118,
+          "f1_score": 0.1082,
+          "support": 340
+        },
+        "DoS ICMP Flood": {
+          "balanced_accuracy": 0.5601,
+          "precision": 0.136,
+          "recall": 0.1211,
+          "f1_score": 0.1281,
+          "support": 702
+        },
+        "DoS SYN Flood": {
+          "balanced_accuracy": 0.7146,
+          "precision": 0.4801,
+          "recall": 0.4307,
+          "f1_score": 0.4541,
+          "support": 2180
+        },
+        "DoS TCP Flood": {
+          "balanced_accuracy": 0.9634,
+          "precision": 0.9931,
+          "recall": 0.9276,
+          "f1_score": 0.9592,
+          "support": 66891
+        },
+        "DoS UDP Flood": {
+          "balanced_accuracy": 0.5547,
+          "precision": 0.1088,
+          "recall": 0.1108,
+          "f1_score": 0.1098,
+          "support": 993
+        },
+        "MITM": {
+          "balanced_accuracy": 0.9407,
+          "precision": 0.4727,
+          "recall": 0.8862,
+          "f1_score": 0.6165,
+          "support": 3279
+        },
+        "MITM ARP Spoofing": {
+          "balanced_accuracy": 0.5823,
+          "precision": 0.2507,
+          "recall": 0.165,
+          "f1_score": 0.1991,
+          "support": 515
+        },
+        "MQTT Brute Force": {
+          "balanced_accuracy": 0.9784,
+          "precision": 0.9717,
+          "recall": 0.9582,
+          "f1_score": 0.9649,
+          "support": 30249
+        },
+        "MQTT DDoS Publish Flood": {
+          "balanced_accuracy": 0.948,
+          "precision": 0.7976,
+          "recall": 0.9003,
+          "f1_score": 0.8458,
+          "support": 12324
+        },
+        "MQTT DoS Connect Flood": {
+          "balanced_accuracy": 0.8554,
+          "precision": 0.871,
+          "recall": 0.7119,
+          "f1_score": 0.7834,
+          "support": 7087
+        },
+        "MQTT DoS Publish Flood": {
+          "balanced_accuracy": 0.8664,
+          "precision": 0.423,
+          "recall": 0.733,
+          "f1_score": 0.5364,
+          "support": 191
+        },
+        "MQTT Malformed": {
+          "balanced_accuracy": 0.8985,
+          "precision": 0.5756,
+          "recall": 0.7973,
+          "f1_score": 0.6685,
+          "support": 449
+        },
+        "Mirai ACK Flood": {
+          "balanced_accuracy": 0.6294,
+          "precision": 0.288,
+          "recall": 0.2593,
+          "f1_score": 0.2729,
+          "support": 482
+        },
+        "Mirai HTTP Flood": {
+          "balanced_accuracy": 0.7472,
+          "precision": 0.5153,
+          "recall": 0.4949,
+          "f1_score": 0.5049,
+          "support": 782
+        },
+        "Mirai Host Brute Force": {
+          "balanced_accuracy": 0.7083,
+          "precision": 0.3685,
+          "recall": 0.4174,
+          "f1_score": 0.3914,
+          "support": 745
+        },
+        "Mirai UDP Flood": {
+          "balanced_accuracy": 0.5906,
+          "precision": 0.1982,
+          "recall": 0.1815,
+          "f1_score": 0.1895,
+          "support": 248
+        },
+        "Mirai UDP Plain": {
+          "balanced_accuracy": 0.5917,
+          "precision": 0.1054,
+          "recall": 0.184,
+          "f1_score": 0.1341,
+          "support": 326
+        },
+        "OS Fingerprinting": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 27
+        },
+        "Password Attack": {
+          "balanced_accuracy": 0.9203,
+          "precision": 0.8571,
+          "recall": 0.8418,
+          "f1_score": 0.8494,
+          "support": 5335
+        },
+        "Port Scanning": {
+          "balanced_accuracy": 0.8277,
+          "precision": 0.1864,
+          "recall": 0.6566,
+          "f1_score": 0.2904,
+          "support": 297
+        },
+        "Ransomware": {
+          "balanced_accuracy": 0.7267,
+          "precision": 0.1254,
+          "recall": 0.4556,
+          "f1_score": 0.1967,
+          "support": 496
+        },
+        "Recon Host Discovery": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 85
+        },
+        "Recon OS Scan": {
+          "balanced_accuracy": 0.6181,
+          "precision": 0.3311,
+          "recall": 0.2389,
+          "f1_score": 0.2776,
+          "support": 3796
+        },
+        "Recon Ping Sweep": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 1405
+        },
+        "Recon Port Scan": {
+          "balanced_accuracy": 0.8807,
+          "precision": 0.6689,
+          "recall": 0.778,
+          "f1_score": 0.7194,
+          "support": 28434
+        },
+        "Recon Vulnerability Scan": {
+          "balanced_accuracy": 0.5193,
+          "precision": 0.1067,
+          "recall": 0.0393,
+          "f1_score": 0.0575,
+          "support": 1424
+        },
+        "SQL Injection": {
+          "balanced_accuracy": 0.779,
+          "precision": 0.1361,
+          "recall": 0.5594,
+          "f1_score": 0.2189,
+          "support": 261
+        },
+        "SYN Flood": {
+          "balanced_accuracy": 0.6502,
+          "precision": 0.603,
+          "recall": 0.3183,
+          "f1_score": 0.4167,
+          "support": 53713
+        },
+        "Scan Aggressive": {
+          "balanced_accuracy": 0.8046,
+          "precision": 0.2127,
+          "recall": 0.6118,
+          "f1_score": 0.3157,
+          "support": 765
+        },
+        "Scan Host Port": {
+          "balanced_accuracy": 0.662,
+          "precision": 0.0573,
+          "recall": 0.3256,
+          "f1_score": 0.0975,
+          "support": 215
+        },
+        "Scan Port OS": {
+          "balanced_accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "support": 293
+        },
+        "Scan UDP Attack": {
+          "balanced_accuracy": 0.8257,
+          "precision": 0.099,
+          "recall": 0.6557,
+          "f1_score": 0.172,
+          "support": 485
+        },
+        "Sparta SSH Brute Force": {
+          "balanced_accuracy": 0.9553,
+          "precision": 0.939,
+          "recall": 0.9137,
+          "f1_score": 0.9262,
+          "support": 33430
+        },
+        "Telnet Brute Force": {
+          "balanced_accuracy": 0.723,
+          "precision": 0.5041,
+          "recall": 0.446,
+          "f1_score": 0.4733,
+          "support": 139
+        },
+        "Uploading Attack": {
+          "balanced_accuracy": 0.6024,
+          "precision": 0.2788,
+          "recall": 0.2049,
+          "f1_score": 0.2363,
+          "support": 283
+        },
+        "Vulnerability Scanner": {
+          "balanced_accuracy": 0.7577,
+          "precision": 0.379,
+          "recall": 0.5155,
+          "f1_score": 0.4368,
+          "support": 161
+        },
+        "XSS": {
+          "balanced_accuracy": 0.8742,
+          "precision": 0.8406,
+          "recall": 0.753,
+          "f1_score": 0.7944,
+          "support": 21076
+        }
+      }
+    }
+  }
+}
