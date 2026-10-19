@@ -19,8 +19,6 @@ def build_gating_network(
     num_experts: int = 5,
     hidden_units: Sequence[int] = (128, 64),
     dropout_rate: float = 0.1,
-    temperature_init: float = 1.0,
-    learnable_temp: bool = True,
     name: str = "GN",
 ) -> keras.Model:
     """
@@ -31,8 +29,6 @@ def build_gating_network(
         num_experts: Quantidade de especialistas (padrão: 5).
         hidden_units: Neurônios nas camadas densas intermediárias (padrão: 128, 64).
         dropout_rate: Taxa de dropout (padrão: 0.1).
-        temperature_init: Temperatura inicial de calibração atencional.
-        learnable_temp: Se True, aprende o fator de escala de temperatura.
         name: Nome identificador do modelo da Gating Network.
 
     Returns:
@@ -55,8 +51,6 @@ def build_gating_network(
     # Refinamento atencional calibrado
     attention_weights = AttentionRefinementLayer(
         num_experts=num_experts,
-        temperature_init=temperature_init,
-        learnable_temp=learnable_temp,
         name=name,
     )(alpha_softmax)
 

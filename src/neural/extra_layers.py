@@ -714,17 +714,15 @@ class AttentionRefinementLayer(keras.layers.Layer):
         self,
         num_experts: int = 5,
         use_tanh: bool = True,
-        temperature_init: float = 1.0,
-        learnable_temp: bool = False,
         eps: float = 1e-7,
         name: str = "attention_refinement",
         **kwargs: Any,
     ) -> None:
+        kwargs.pop("temperature_init", None)
+        kwargs.pop("learnable_temp", None)
         super().__init__(name=name, **kwargs)
         self.num_experts = int(num_experts)
         self.use_tanh = bool(use_tanh)
-        self.temperature_init = float(temperature_init)
-        self.learnable_temp = bool(learnable_temp)
         self.eps = float(eps)
 
     def build(self, input_shape: Tuple[Optional[int], ...]) -> None:
@@ -759,8 +757,6 @@ class AttentionRefinementLayer(keras.layers.Layer):
         cfg.update({
             "num_experts": self.num_experts,
             "use_tanh": self.use_tanh,
-            "temperature_init": self.temperature_init,
-            "learnable_temp": self.learnable_temp,
             "eps": self.eps,
         })
         return cfg

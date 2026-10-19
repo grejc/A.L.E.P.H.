@@ -68,7 +68,6 @@ class ALFMoEModel:
         lstm_dropout: float = 0.1,
         gating_units: Tuple[int, ...] = (128, 64),
         gating_dropout: float = 0.1,
-        gating_temperature_init: float = 1.0,
         alf_units: int = 128,
         alf_dropout: float = 0.1,
         name: str = "ALF_MoE",
@@ -101,7 +100,6 @@ class ALFMoEModel:
             lstm_dropout=lstm_dropout,
             gating_units=gating_units,
             gating_dropout=gating_dropout,
-            gating_temperature_init=gating_temperature_init,
             alf_units=alf_units,
             alf_dropout=alf_dropout,
         )
@@ -128,7 +126,6 @@ class ALFMoEModel:
         lstm_dropout: float,
         gating_units: Tuple[int, ...],
         gating_dropout: float,
-        gating_temperature_init: float,
         alf_units: int,
         alf_dropout: float,
     ) -> keras.Model:
@@ -203,8 +200,6 @@ class ALFMoEModel:
             num_experts=5,
             hidden_units=gating_units,
             dropout_rate=gating_dropout,
-            temperature_init=gating_temperature_init,
-            learnable_temp=True,
             name="GN",
         )
 

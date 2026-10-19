@@ -53,8 +53,8 @@ O **ALF-MoE** é uma arquitetura de aprendizado profundo de ponta para Sistemas 
 ### 2. Gating Network e Refinamento Atencional
 - Avalia o vetor tabular completo (76 features) para computar a distribuição adaptativa $\alpha$.
 - A camada `AttentionRefinementLayer` implementa a calibração atencional:
-  $$a = \text{softmax}\left(\frac{W_g \cdot \log(\alpha + \epsilon) + b_g}{\tau}\right)$$
-- Utiliza escalonamento com parâmetro de temperatura aprendível $\tau$, prevenindo saturação precoce da distribuição de atenção e assegurando convergência seletiva ($> 0.90$) para o especialista mais representativo do padrão detectado.
+  $$a = \text{softmax}\left(\tanh(W_g \cdot \log(\alpha + \epsilon) + b_g)\right)$$
+- Utiliza ativação não-linear $\tanh$ sobre os logits refinados em espaço logarítmico, prevenindo saturação precoce da distribuição de atenção e estabilizando o roteamento para os especialistas.
 
 ### 3. Módulo ALF (Attention-based Learnable Fusion)
 - Agrega as predições probabilísticas estritamente via soma ponderada:

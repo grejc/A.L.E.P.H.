@@ -716,7 +716,6 @@ class ModelInferenceEngine:
                 lstm_dropout=CONFIG.model.lstm_dropout,
                 gating_units=CONFIG.model.gating_units,
                 gating_dropout=CONFIG.model.gating_dropout,
-                gating_temperature_init=CONFIG.model.gating_temperature_init,
                 alf_units=CONFIG.model.alf_units,
                 alf_dropout=CONFIG.model.alf_dropout,
             )

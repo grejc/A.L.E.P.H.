@@ -109,7 +109,6 @@ class ModelConfig:
     # Gating Network (Dynamic Router com Refinamento Atencional)
     gating_units: Tuple[int, ...] = (128, 64)
     gating_dropout: float = 0.1
-    gating_temperature_init: float = 1.0
 
     # ALF Module (Attention-based Learnable Fusion Module)
     alf_units: int = 128
