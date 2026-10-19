@@ -190,35 +190,7 @@ class CICDomainFeatures:
         ]
 
     def x_f(self) -> list[str]:
-        return [
-            'Flow duration',
-            'Flow Bytes/s',
-            'Flow Packets/s',
-            'Flow IAT Mean',
-            'Flow IAT Std',
-            'Flow IAT Max',
-            'Flow IAT Min',
-            'Fwd IAT Min',
-            'Fwd IAT Max',
-            'Fwd IAT Mean',
-            'Fwd IAT Std',
-            'Fwd IAT Total',
-            'Bwd IAT Min',
-            'Bwd IAT Max',
-            'Bwd IAT Mean',
-            'Bwd IAT Std',
-            'Bwd IAT Total',
-            'Active Min',
-            'Active Mean',
-            'Active Max',
-            'Active Std',
-            'Idle Min',
-            'Idle Mean',
-            'Idle Max',
-            'Idle Std',
-            'Packet Length Std',
-            'Packet Length Variance',
-        ]
+        return self._raw_features_list()
 
     def x_t(self) -> list[str]:
         return [
