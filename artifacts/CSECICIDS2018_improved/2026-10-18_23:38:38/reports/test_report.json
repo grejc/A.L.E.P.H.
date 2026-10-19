@@ -1,0 +1,690 @@
+{
+  "timestamp": "2026-10-18T23:52:25.545943Z",
+  "num_test_samples": 175624,
+  "inference_time_sec": 4.1808,
+  "latency_ms_per_sample": 0.0238,
+  "throughput_samples_per_sec": 42007.2,
+  "alf_moe_metrics": {
+    "accuracy": 0.9987,
+    "macro_f1": 0.9494,
+    "macro_precision": 0.9772,
+    "macro_recall": 0.949,
+    "weighted_f1": 0.9987,
+    "weighted_precision": 0.9988,
+    "weighted_recall": 0.9987
+  },
+  "alf_per_class_breakdown": {
+    "BENIGN": {
+      "balanced_accuracy": 0.9987,
+      "precision": 0.996,
+      "recall": 0.9986,
+      "f1_score": 0.9973,
+      "support": 40000
+    },
+    "Botnet Ares": {
+      "balanced_accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "support": 28584
+    },
+    "DDoS-HOIC": {
+      "balanced_accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "support": 21646
+    },
+    "DDoS-LOIC-HTTP": {
+      "balanced_accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "support": 5787
+    },
+    "DDoS-LOIC-UDP": {
+      "balanced_accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "support": 505
+    },
+    "DoS GoldenEye": {
+      "balanced_accuracy": 0.9999,
+      "precision": 0.9993,
+      "recall": 0.9998,
+      "f1_score": 0.9996,
+      "support": 4512
+    },
+    "DoS Hulk": {
+      "balanced_accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "support": 36063
+    },
+    "DoS Slowloris": {
+      "balanced_accuracy": 0.9997,
+      "precision": 0.9988,
+      "recall": 0.9994,
+      "f1_score": 0.9991,
+      "support": 1698
+    },
+    "Infiltration - Communication Victim Attacker": {
+      "balanced_accuracy": 0.9756,
+      "precision": 0.8667,
+      "recall": 0.9512,
+      "f1_score": 0.907,
+      "support": 41
+    },
+    "Infiltration - Dropbox Download": {
+      "balanced_accuracy": 0.6471,
+      "precision": 1.0,
+      "recall": 0.2941,
+      "f1_score": 0.4545,
+      "support": 17
+    },
+    "Infiltration - NMAP Portscan": {
+      "balanced_accuracy": 0.9957,
+      "precision": 0.9975,
+      "recall": 0.9918,
+      "f1_score": 0.9946,
+      "support": 17875
+    },
+    "SSH-BruteForce": {
+      "balanced_accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "support": 18839
+    },
+    "Web Attack - Brute Force": {
+      "balanced_accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "support": 26
+    },
+    "Web Attack - SQL": {
+      "balanced_accuracy": 1.0,
+      "precision": 0.8,
+      "recall": 1.0,
+      "f1_score": 0.8889,
+      "support": 8
+    },
+    "Web Attack - XSS": {
+      "balanced_accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "support": 23
+    }
+  },
+  "experts_metrics": {
+    "DNN": {
+      "accuracy": 0.9977,
+      "macro_f1": 0.8982,
+      "macro_precision": 0.8668,
+      "macro_recall": 0.9644,
+      "per_class": {
+        "BENIGN": {
+          "balanced_accuracy": 0.9961,
+          "precision": 0.9969,
+          "recall": 0.993,
+          "f1_score": 0.995,
+          "support": 40000
+        },
+        "Botnet Ares": {
+          "balanced_accuracy": 1.0,
+          "precision": 0.9998,
+          "recall": 1.0,
+          "f1_score": 0.9999,
+          "support": 28584
+        },
+        "DDoS-HOIC": {
+          "balanced_accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1_score": 1.0,
+          "support": 21646
+        },
+        "DDoS-LOIC-HTTP": {
+          "balanced_accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1_score": 1.0,
+          "support": 5787
+        },
+        "DDoS-LOIC-UDP": {
+          "balanced_accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1_score": 1.0,
+          "support": 505
+        },
+        "DoS GoldenEye": {
+          "balanced_accuracy": 0.9999,
+          "precision": 0.9993,
+          "recall": 0.9998,
+          "f1_score": 0.9996,
+          "support": 4512
+        },
+        "DoS Hulk": {
+          "balanced_accuracy": 1.0,
+          "precision": 0.9999,
+          "recall": 1.0,
+          "f1_score": 1.0,
+          "support": 36063
+        },
+        "DoS Slowloris": {
+          "balanced_accuracy": 0.9997,
+          "precision": 0.9994,
+          "recall": 0.9994,
+          "f1_score": 0.9994,
+          "support": 1698
+        },
+        "Infiltration - Communication Victim Attacker": {
+          "balanced_accuracy": 0.9754,
+          "precision": 0.3679,
+          "recall": 0.9512,
+          "f1_score": 0.5306,
+          "support": 41
+        },
+        "Infiltration - Dropbox Download": {
+          "balanced_accuracy": 0.7646,
+          "precision": 0.1837,
+          "recall": 0.5294,
+          "f1_score": 0.2727,
+          "support": 17
+        },
+        "Infiltration - NMAP Portscan": {
+          "balanced_accuracy": 0.9964,
+          "precision": 0.9916,
+          "recall": 0.9937,
+          "f1_score": 0.9927,
+          "support": 17875
+        },
+        "SSH-BruteForce": {
+          "balanced_accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1_score": 1.0,
+          "support": 18839
+        },
+        "Web Attack - Brute Force": {
+          "balanced_accuracy": 1.0,
+          "precision": 0.9286,
+          "recall": 1.0,
+          "f1_score": 0.963,
+          "support": 26
+        },
+        "Web Attack - SQL": {
+          "balanced_accuracy": 1.0,
+          "precision": 0.6154,
+          "recall": 1.0,
+          "f1_score": 0.7619,
+          "support": 8
+        },
+        "Web Attack - XSS": {
+          "balanced_accuracy": 1.0,
+          "precision": 0.92,
+          "recall": 1.0,
+          "f1_score": 0.9583,
+          "support": 23
+        }
+      }
+    },
+    "CNN": {
+      "accuracy": 0.919,
+      "macro_f1": 0.8296,
+      "macro_precision": 0.8315,
+      "macro_recall": 0.9084,
+      "per_class": {
+        "BENIGN": {
+          "balanced_accuracy": 0.959,
+          "precision": 0.9954,
+          "recall": 0.9194,
+          "f1_score": 0.9559,
+          "support": 40000
+        },
+        "Botnet Ares": {
+          "balanced_accuracy": 1.0,
+          "precision": 0.9999,
+          "recall": 1.0,
+          "f1_score": 0.9999,
+          "support": 28584
+        },
+        "DDoS-HOIC": {
+          "balanced_accuracy": 0.8857,
+          "precision": 0.7217,
+          "recall": 0.8155,
+          "f1_score": 0.7658,
+          "support": 21646
+        },
+        "DDoS-LOIC-HTTP": {
+          "balanced_accuracy": 1.0,
+          "precision": 0.9998,
+          "recall": 1.0,
+          "f1_score": 0.9999,
+          "support": 5787
+        },
+        "DDoS-LOIC-UDP": {
+          "balanced_accuracy": 0.9998,
+          "precision": 0.8938,
+          "recall": 1.0,
+          "f1_score": 0.9439,
+          "support": 505
+        },
+        "DoS GoldenEye": {
+          "balanced_accuracy": 0.9982,
+          "precision": 0.9927,
+          "recall": 0.9967,
+          "f1_score": 0.9947,
+          "support": 4512
+        },
+        "DoS Hulk": {
+          "balanced_accuracy": 0.8912,
+          "precision": 0.8794,
+          "recall": 0.8111,
+          "f1_score": 0.8439,
+          "support": 36063
+        },
+        "DoS Slowloris": {
+          "balanced_accuracy": 0.9997,
+          "precision": 0.9907,
+          "recall": 0.9994,
+          "f1_score": 0.995,
+          "support": 1698
+        },
+        "Infiltration - Communication Victim Attacker": {
+          "balanced_accuracy": 0.9876,
+          "precision": 0.381,
+          "recall": 0.9756,
+          "f1_score": 0.5479,
+          "support": 41
+        },
+        "Infiltration - Dropbox Download": {
+          "balanced_accuracy": 0.5588,
+          "precision": 0.6667,
+          "recall": 0.1176,
+          "f1_score": 0.2,
+          "support": 17
+        },
+        "Infiltration - NMAP Portscan": {
+          "balanced_accuracy": 0.986,
+          "precision": 0.8545,
+          "recall": 0.991,
+          "f1_score": 0.9177,
+          "support": 17875
+        },
+        "SSH-BruteForce": {
+          "balanced_accuracy": 1.0,
+          "precision": 0.9998,
+          "recall": 1.0,
+          "f1_score": 0.9999,
+          "support": 18839
+        },
+        "Web Attack - Brute Force": {
+          "balanced_accuracy": 1.0,
+          "precision": 0.8966,
+          "recall": 1.0,
+          "f1_score": 0.9455,
+          "support": 26
+        },
+        "Web Attack - SQL": {
+          "balanced_accuracy": 0.9999,
+          "precision": 0.2,
+          "recall": 1.0,
+          "f1_score": 0.3333,
+          "support": 8
+        },
+        "Web Attack - XSS": {
+          "balanced_accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1_score": 1.0,
+          "support": 23
+        }
+      }
+    },
+    "GRU": {
+      "accuracy": 0.9917,
+      "macro_f1": 0.9124,
+      "macro_precision": 0.8928,
+      "macro_recall": 0.94,
+      "per_class": {
+        "BENIGN": {
+          "balanced_accuracy": 0.9942,
+          "precision": 0.9913,
+          "recall": 0.991,
+          "f1_score": 0.9912,
+          "support": 40000
+        },
+        "Botnet Ares": {
+          "balanced_accuracy": 0.9999,
+          "precision": 0.9999,
+          "recall": 0.9999,
+          "f1_score": 0.9999,
+          "support": 28584
+        },
+        "DDoS-HOIC": {
+          "balanced_accuracy": 0.9944,
+          "precision": 0.9731,
+          "recall": 0.9927,
+          "f1_score": 0.9828,
+          "support": 21646
+        },
+        "DDoS-LOIC-HTTP": {
+          "balanced_accuracy": 1.0,
+          "precision": 0.9998,
+          "recall": 1.0,
+          "f1_score": 0.9999,
+          "support": 5787
+        },
+        "DDoS-LOIC-UDP": {
+          "balanced_accuracy": 1.0,
+          "precision": 0.998,
+          "recall": 1.0,
+          "f1_score": 0.999,
+          "support": 505
+        },
+        "DoS GoldenEye": {
+          "balanced_accuracy": 0.9998,
+          "precision": 0.9985,
+          "recall": 0.9996,
+          "f1_score": 0.999,
+          "support": 4512
+        },
+        "DoS Hulk": {
+          "balanced_accuracy": 0.9912,
+          "precision": 0.995,
+          "recall": 0.9836,
+          "f1_score": 0.9893,
+          "support": 36063
+        },
+        "DoS Slowloris": {
+          "balanced_accuracy": 1.0,
+          "precision": 0.9982,
+          "recall": 1.0,
+          "f1_score": 0.9991,
+          "support": 1698
+        },
+        "Infiltration - Communication Victim Attacker": {
+          "balanced_accuracy": 0.9878,
+          "precision": 0.8696,
+          "recall": 0.9756,
+          "f1_score": 0.9195,
+          "support": 41
+        },
+        "Infiltration - Dropbox Download": {
+          "balanced_accuracy": 0.5882,
+          "precision": 0.1304,
+          "recall": 0.1765,
+          "f1_score": 0.15,
+          "support": 17
+        },
+        "Infiltration - NMAP Portscan": {
+          "balanced_accuracy": 0.9897,
+          "precision": 0.9833,
+          "recall": 0.9813,
+          "f1_score": 0.9823,
+          "support": 17875
+        },
+        "SSH-BruteForce": {
+          "balanced_accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1_score": 1.0,
+          "support": 18839
+        },
+        "Web Attack - Brute Force": {
+          "balanced_accuracy": 1.0,
+          "precision": 0.8387,
+          "recall": 1.0,
+          "f1_score": 0.9123,
+          "support": 26
+        },
+        "Web Attack - SQL": {
+          "balanced_accuracy": 1.0,
+          "precision": 0.6154,
+          "recall": 1.0,
+          "f1_score": 0.7619,
+          "support": 8
+        },
+        "Web Attack - XSS": {
+          "balanced_accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1_score": 1.0,
+          "support": 23
+        }
+      }
+    },
+    "CAE": {
+      "accuracy": 0.9789,
+      "macro_f1": 0.7961,
+      "macro_precision": 0.7865,
+      "macro_recall": 0.8379,
+      "per_class": {
+        "BENIGN": {
+          "balanced_accuracy": 0.9842,
+          "precision": 0.9815,
+          "recall": 0.9738,
+          "f1_score": 0.9776,
+          "support": 40000
+        },
+        "Botnet Ares": {
+          "balanced_accuracy": 0.9941,
+          "precision": 0.9937,
+          "recall": 0.9895,
+          "f1_score": 0.9916,
+          "support": 28584
+        },
+        "DDoS-HOIC": {
+          "balanced_accuracy": 0.9855,
+          "precision": 0.9514,
+          "recall": 0.9781,
+          "f1_score": 0.9645,
+          "support": 21646
+        },
+        "DDoS-LOIC-HTTP": {
+          "balanced_accuracy": 0.9964,
+          "precision": 0.9972,
+          "recall": 0.9929,
+          "f1_score": 0.9951,
+          "support": 5787
+        },
+        "DDoS-LOIC-UDP": {
+          "balanced_accuracy": 1.0,
+          "precision": 0.998,
+          "recall": 1.0,
+          "f1_score": 0.999,
+          "support": 505
+        },
+        "DoS GoldenEye": {
+          "balanced_accuracy": 0.9939,
+          "precision": 0.9781,
+          "recall": 0.9885,
+          "f1_score": 0.9832,
+          "support": 4512
+        },
+        "DoS Hulk": {
+          "balanced_accuracy": 0.9827,
+          "precision": 0.9785,
+          "recall": 0.9709,
+          "f1_score": 0.9747,
+          "support": 36063
+        },
+        "DoS Slowloris": {
+          "balanced_accuracy": 0.991,
+          "precision": 0.976,
+          "recall": 0.9823,
+          "f1_score": 0.9792,
+          "support": 1698
+        },
+        "Infiltration - Communication Victim Attacker": {
+          "balanced_accuracy": 0.9145,
+          "precision": 0.4474,
+          "recall": 0.8293,
+          "f1_score": 0.5812,
+          "support": 41
+        },
+        "Infiltration - Dropbox Download": {
+          "balanced_accuracy": 0.5588,
+          "precision": 0.0769,
+          "recall": 0.1176,
+          "f1_score": 0.093,
+          "support": 17
+        },
+        "Infiltration - NMAP Portscan": {
+          "balanced_accuracy": 0.9795,
+          "precision": 0.9629,
+          "recall": 0.9632,
+          "f1_score": 0.9631,
+          "support": 17875
+        },
+        "SSH-BruteForce": {
+          "balanced_accuracy": 0.9995,
+          "precision": 0.9994,
+          "recall": 0.999,
+          "f1_score": 0.9992,
+          "support": 18839
+        },
+        "Web Attack - Brute Force": {
+          "balanced_accuracy": 0.7885,
+          "precision": 0.9375,
+          "recall": 0.5769,
+          "f1_score": 0.7143,
+          "support": 26
+        },
+        "Web Attack - SQL": {
+          "balanced_accuracy": 0.625,
+          "precision": 0.1111,
+          "recall": 0.25,
+          "f1_score": 0.1538,
+          "support": 8
+        },
+        "Web Attack - XSS": {
+          "balanced_accuracy": 0.9782,
+          "precision": 0.4074,
+          "recall": 0.9565,
+          "f1_score": 0.5714,
+          "support": 23
+        }
+      }
+    },
+    "LSTM": {
+      "accuracy": 0.9579,
+      "macro_f1": 0.8461,
+      "macro_precision": 0.8278,
+      "macro_recall": 0.8886,
+      "per_class": {
+        "BENIGN": {
+          "balanced_accuracy": 0.9434,
+          "precision": 0.9725,
+          "recall": 0.8943,
+          "f1_score": 0.9318,
+          "support": 40000
+        },
+        "Botnet Ares": {
+          "balanced_accuracy": 0.9993,
+          "precision": 0.9978,
+          "recall": 0.999,
+          "f1_score": 0.9984,
+          "support": 28584
+        },
+        "DDoS-HOIC": {
+          "balanced_accuracy": 0.991,
+          "precision": 0.9279,
+          "recall": 0.9928,
+          "f1_score": 0.9593,
+          "support": 21646
+        },
+        "DDoS-LOIC-HTTP": {
+          "balanced_accuracy": 0.998,
+          "precision": 0.9981,
+          "recall": 0.996,
+          "f1_score": 0.9971,
+          "support": 5787
+        },
+        "DDoS-LOIC-UDP": {
+          "balanced_accuracy": 1.0,
+          "precision": 0.998,
+          "recall": 1.0,
+          "f1_score": 0.999,
+          "support": 505
+        },
+        "DoS GoldenEye": {
+          "balanced_accuracy": 0.9962,
+          "precision": 0.984,
+          "recall": 0.9929,
+          "f1_score": 0.9884,
+          "support": 4512
+        },
+        "DoS Hulk": {
+          "balanced_accuracy": 0.9754,
+          "precision": 0.9957,
+          "recall": 0.9518,
+          "f1_score": 0.9732,
+          "support": 36063
+        },
+        "DoS Slowloris": {
+          "balanced_accuracy": 0.9464,
+          "precision": 0.9928,
+          "recall": 0.8928,
+          "f1_score": 0.9402,
+          "support": 1698
+        },
+        "Infiltration - Communication Victim Attacker": {
+          "balanced_accuracy": 0.9755,
+          "precision": 0.5417,
+          "recall": 0.9512,
+          "f1_score": 0.6903,
+          "support": 41
+        },
+        "Infiltration - Dropbox Download": {
+          "balanced_accuracy": 0.5588,
+          "precision": 0.0909,
+          "recall": 0.1176,
+          "f1_score": 0.1026,
+          "support": 17
+        },
+        "Infiltration - NMAP Portscan": {
+          "balanced_accuracy": 0.9587,
+          "precision": 0.7957,
+          "recall": 0.945,
+          "f1_score": 0.8639,
+          "support": 17875
+        },
+        "SSH-BruteForce": {
+          "balanced_accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1_score": 1.0,
+          "support": 18839
+        },
+        "Web Attack - Brute Force": {
+          "balanced_accuracy": 0.9231,
+          "precision": 1.0,
+          "recall": 0.8462,
+          "f1_score": 0.9167,
+          "support": 26
+        },
+        "Web Attack - SQL": {
+          "balanced_accuracy": 0.875,
+          "precision": 0.3,
+          "recall": 0.75,
+          "f1_score": 0.4286,
+          "support": 8
+        },
+        "Web Attack - XSS": {
+          "balanced_accuracy": 1.0,
+          "precision": 0.8214,
+          "recall": 1.0,
+          "f1_score": 0.902,
+          "support": 23
+        }
+      }
+    }
+  }
+}

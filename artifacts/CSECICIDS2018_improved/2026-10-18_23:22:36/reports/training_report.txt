@@ -1,0 +1,12 @@
+============================================================
+       RELATÓRIO DE TREINAMENTO - MODELO ALF-MoE
+============================================================
+Data/Hora:                     2026-10-18T23:35:47.656133Z
+Amostras de Treino:            561,996
+Tempo Total de Treino:         770.45 segundos
+Vazão de Processamento:        729.44 amostras/s
+Épocas Executadas:             10
+Melhor Época:                  7
+Melhor Val F1-Score (Macro):   0.9149
+Final Val Loss:                0.0033
+============================================================
