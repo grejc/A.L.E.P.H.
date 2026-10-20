@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 492 200" width="492" height="200">
+  <defs>
+    <style>
+      .card {
+        fill: #F8E6EC;
+        stroke: #BA0938;
+        stroke-width: 3.5;
+      }
+      .header-tab {
+        fill: #BA0938;
+      }
+      .header-title {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        font-size: 14px;
+        font-weight: 700;
+        fill: #FFFFFF;
+        text-anchor: middle;
+        dominant-baseline: central;
+        letter-spacing: 6px;
+      }
+      .layer-bar {
+        fill: #BA0938;
+        fill-opacity: 0.6;
+        stroke: #BA0938;
+        stroke-width: 2;
+      }
+      .layer-bar-attention {
+        fill: #BA0938;
+        fill-opacity: 0.6;
+        stroke: #BA0938;
+        stroke-width: 2;
+        stroke-dasharray: 4,4;
+      }
+      .layer-text {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        font-size: 11.5px;
+        font-weight: 600;
+        fill: #FFFFFF;
+        text-anchor: middle;
+        dominant-baseline: central;
+      }
+    </style>
+  </defs>
+
+  <!-- Card Externo -->
+  <rect class="card" x="16" y="29" width="460" height="165" rx="16" ry="16" />
+
+  <!-- Aba Superior Centralizada -->
+  <rect class="header-tab" x="119" y="7" width="254" height="26" rx="6" ry="6" />
+  <text class="header-title" x="181.5" y="20">GATING</text>
+  <text class="header-title" x="297" y="20">NETWORK</text>
+
+  <!-- Camadas da Gating Network -->
+  <!-- 1. Dense (128) -->
+  <g id="layer-dense-1">
+    <rect class="layer-bar" x="38" y="45" width="27" height="134" rx="8" ry="8" />
+    <text class="layer-text" x="51.5" y="112" transform="rotate(-90 51.5 112)">Dense</text>
+  </g>
+
+  <!-- 2. BatchNormalization -->
+  <g id="layer-bn-1">
+    <rect class="layer-bar" x="81" y="45" width="27" height="134" rx="8" ry="8" />
+    <text class="layer-text" x="94.5" y="112" transform="rotate(-90 94.5 112)">BatchNormalization</text>
+  </g>
+
+  <!-- 3. LeakyReLU (0.2) -->
+  <g id="layer-leakyrelu-1">
+    <rect class="layer-bar" x="124" y="45" width="27" height="134" rx="8" ry="8" />
+    <text class="layer-text" x="137.5" y="112" transform="rotate(-90 137.5 112)">LeakyReLU</text>
+  </g>
+
+  <!-- 4. Dropout (0.1) -->
+  <g id="layer-dropout-1">
+    <rect class="layer-bar" x="168" y="45" width="27" height="134" rx="8" ry="8" />
+    <text class="layer-text" x="181.5" y="112" transform="rotate(-90 181.5 112)">Dropout</text>
+  </g>
+
+  <!-- 5. Dense (64) -->
+  <g id="layer-dense-2">
+    <rect class="layer-bar" x="211" y="45" width="27" height="134" rx="8" ry="8" />
+    <text class="layer-text" x="224.5" y="112" transform="rotate(-90 224.5 112)">Dense</text>
+  </g>
+
+  <!-- 6. BatchNormalization -->
+  <g id="layer-bn-2">
+    <rect class="layer-bar" x="254" y="45" width="27" height="134" rx="8" ry="8" />
+    <text class="layer-text" x="267.5" y="112" transform="rotate(-90 267.5 112)">BatchNormalization</text>
+  </g>
+
+  <!-- 7. LeakyReLU (0.2) -->
+  <g id="layer-leakyrelu-2">
+    <rect class="layer-bar" x="297" y="45" width="27" height="134" rx="8" ry="8" />
+    <text class="layer-text" x="310.5" y="112" transform="rotate(-90 310.5 112)">LeakyReLU</text>
+  </g>
+
+  <!-- 8. Dense (5, raw logits) -->
+  <g id="layer-dense-logits">
+    <rect class="layer-bar" x="341" y="45" width="27" height="134" rx="8" ry="8" />
+    <text class="layer-text" x="354.5" y="112" transform="rotate(-90 354.5 112)">Dense</text>
+  </g>
+
+  <!-- 9. Softmax (alpha) -->
+  <g id="layer-softmax">
+    <rect class="layer-bar" x="384" y="45" width="27" height="134" rx="8" ry="8" />
+    <text class="layer-text" x="397.5" y="112" transform="rotate(-90 397.5 112)">Softmax</text>
+  </g>
+
+  <!-- 10. AttentionRefinement (camada customizada com borda tracejada) -->
+  <g id="layer-attention-refinement">
+    <rect class="layer-bar-attention" x="427" y="45" width="27" height="134" rx="8" ry="8" />
+    <text class="layer-text" x="440.5" y="112" transform="rotate(-90 440.5 112)">AttentionRefinement</text>
+  </g>
+</svg>

@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 492 200" width="492" height="200">
+  <defs>
+    <style>
+      .card { fill: #E6F8F7; stroke: #09BAB4; stroke-width: 3.5; }
+      .header-tab { fill: #09BAB4; }
+      .header-title { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; font-weight: 700; fill: #FFFFFF; text-anchor: middle; dominant-baseline: central; letter-spacing: 5px; }
+      .bar { fill: #09BAB4; fill-opacity: 0.6; stroke: #09BAB4; stroke-width: 2; }
+      .bar-fusion { fill: #09BAB4; fill-opacity: 0.6; stroke: #09BAB4; stroke-width: 2; stroke-dasharray: 4,4; }
+      .bar-label { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11.5px; font-weight: 600; fill: #FFFFFF; text-anchor: middle; dominant-baseline: central; }
+    </style>
+  </defs>
+
+  <!-- Card Externo -->
+  <rect class="card" x="16" y="29" width="460" height="165" rx="16" ry="16" />
+
+  <!-- Aba Superior Centralizada -->
+  <rect class="header-tab" x="173" y="7" width="146" height="26" rx="6" ry="6" />
+  <text class="header-title" x="246" y="20">A L F</text>
+
+  <!-- 10 Camadas do Módulo ALF -->
+  <!-- 1. WeightedSumFusion (camada customizada de fusão por soma ponderada com borda tracejada) -->
+  <rect class="bar-fusion" x="38" y="45" width="27" height="134" rx="6" ry="6" />
+  <text class="bar-label" x="51.5" y="112" transform="rotate(-90 51.5 112)">WeightedSumFusion</text>
+
+  <!-- 2. Dense (128) -->
+  <rect class="bar" x="81" y="45" width="27" height="134" rx="6" ry="6" />
+  <text class="bar-label" x="94.5" y="112" transform="rotate(-90 94.5 112)">Dense</text>
+
+  <!-- 3. BatchNormalization -->
+  <rect class="bar" x="124" y="45" width="27" height="134" rx="6" ry="6" />
+  <text class="bar-label" x="137.5" y="112" transform="rotate(-90 137.5 112)">BatchNormalization</text>
+
+  <!-- 4. LeakyReLU (0.2) -->
+  <rect class="bar" x="168" y="45" width="27" height="134" rx="6" ry="6" />
+  <text class="bar-label" x="181.5" y="112" transform="rotate(-90 181.5 112)">LeakyReLU</text>
+
+  <!-- 5. Dropout (0.1) -->
+  <rect class="bar" x="211" y="45" width="27" height="134" rx="6" ry="6" />
+  <text class="bar-label" x="224.5" y="112" transform="rotate(-90 224.5 112)">Dropout</text>
+
+  <!-- 6. Dense (64) -->
+  <rect class="bar" x="254" y="45" width="27" height="134" rx="6" ry="6" />
+  <text class="bar-label" x="267.5" y="112" transform="rotate(-90 267.5 112)">Dense</text>
+
+  <!-- 7. BatchNormalization -->
+  <rect class="bar" x="297" y="45" width="27" height="134" rx="6" ry="6" />
+  <text class="bar-label" x="310.5" y="112" transform="rotate(-90 310.5 112)">BatchNormalization</text>
+
+  <!-- 8. LeakyReLU (0.2) -->
+  <rect class="bar" x="341" y="45" width="27" height="134" rx="6" ry="6" />
+  <text class="bar-label" x="354.5" y="112" transform="rotate(-90 354.5 112)">LeakyReLU</text>
+
+  <!-- 9. Dense (num_classes logits) -->
+  <rect class="bar" x="384" y="45" width="27" height="134" rx="6" ry="6" />
+  <text class="bar-label" x="397.5" y="112" transform="rotate(-90 397.5 112)">Dense</text>
+
+  <!-- 10. Softmax -->
+  <rect class="bar" x="427" y="45" width="27" height="134" rx="6" ry="6" />
+  <text class="bar-label" x="440.5" y="112" transform="rotate(-90 440.5 112)">Softmax</text>
+</svg>
