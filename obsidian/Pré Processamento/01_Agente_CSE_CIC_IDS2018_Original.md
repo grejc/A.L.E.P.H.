@@ -139,8 +139,8 @@ O pré-processamento do dataset CSE-CIC-IDS2018 é orquestrado pelas classes [`P
 ### Etapa 6: Mapeamento de Hierarquia de Ameaças (*Threat Levels*)
 - **Módulos Utilizados:** Dicionário de mapeamento em [`Preprocessor.threat_classification()`](file:///home/null/ALF-MoE/src/preprocessing.py#L265-L310).
 - **Abstração:**
-  - **Level 0 (15 Classes Brutas):** `Benign`, `DDOS attack-HOIC`, `DDoS attacks-LOIC-HTTP`, `DDOS attack-LOIC-UDP`, `DoS attacks-Hulk`, `DoS attacks-SlowHTTPTest`, `DoS attacks-GoldenEye`, `DoS attacks-Slowloris`, `Bot`, `FTP-BruteForce`, `SSH-Bruteforce`, `Infilteration`, `Brute Force -Web`, `Brute Force -XSS`, `SQL Injection`.
-  - **Level 2 (7 Meta-Categorias Consolidadas para Produção e Teste):**
+  - **Threat Level 0 (TL0 - 15 Classes Brutas):** `Benign`, `DDOS attack-HOIC`, `DDoS attacks-LOIC-HTTP`, `DDOS attack-LOIC-UDP`, `DoS attacks-Hulk`, `DoS attacks-SlowHTTPTest`, `DoS attacks-GoldenEye`, `DoS attacks-Slowloris`, `Bot`, `FTP-BruteForce`, `SSH-Bruteforce`, `Infilteration`, `Brute Force -Web`, `Brute Force -XSS`, `SQL Injection`.
+  - **Threat Level 1 (TL1 - 7 Meta-Categorias Consolidadas para Produção e Teste):**
     - `0: Benign`
     - `1: Botnet` (`Bot`)
     - `2: BruteForce` (`FTP-BruteForce`, `SSH-Bruteforce`)
@@ -167,7 +167,7 @@ O pré-processamento do dataset CSE-CIC-IDS2018 é orquestrado pelas classes [`P
   4. **Pesos de Classe para Focal Loss:** Calculados via ponderação de raiz quadrada:
      $$w_c = \sqrt{\frac{N}{C \cdot N_c}}$$
 
-| Classe (ID) | Rótulo (Level 2) | Suporte no Teste (20%) | Proporção Relativa | Peso Calculado ($w_c$) |
+| Classe (ID) | Rótulo (TL1) | Suporte no Teste (20%) | Proporção Relativa | Peso Calculado ($w_c$) |
 | :---: | :--- | :--- | :--- | :--- |
 | **0** | `Benign` | 269.694 | 36,32% | **0,6272** |
 | **1** | `Botnet` | 56.462 | 7,60% | **1,3707** |

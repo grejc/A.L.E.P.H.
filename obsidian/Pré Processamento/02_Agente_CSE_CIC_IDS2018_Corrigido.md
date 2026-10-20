@@ -86,7 +86,7 @@ O pré-processamento do dataset corrigido é gerenciado pelo módulo [`src/prepr
         (Tratamento de NaN e Infinitos)
                     │
                     ▼
-     6. Agrupamento de Ameaças (Threat L2) ───► [src.preprocessing.Preprocessor.threat_classification]
+     6. Agrupamento de Ameaças (Threat TL1) ───► [src.preprocessing.Preprocessor.threat_classification]
         (15 Classes Ativas ──► 9 Meta-Categorias Consolidadas)
                     │
                     ▼
@@ -140,9 +140,9 @@ O pré-processamento do dataset corrigido é gerenciado pelo módulo [`src/prepr
 ### Etapa 5: Hierarquia Semântica de Ameaças (*Threat Levels*)
 - **Módulos Utilizados:** [`Preprocessor.threat_classification()`](file:///home/null/ALF-MoE/src/preprocessing.py#L186-L264).
 - **Mapeamento:**
-  - **Threat Level 0 (15 Classes Efetivas Ativas):**
+  - **Threat Level 0 (TL0 - 15 Classes Efetivas Ativas):**
     `BENIGN`, `DoS Hulk`, `Botnet Ares`, `DDoS-HOIC`, `SSH-BruteForce`, `Infiltration - NMAP Portscan`, `DDoS-LOIC-HTTP`, `DoS GoldenEye`, `DoS Slowloris`, `DDoS-LOIC-UDP`, `Infiltration - Communication Victim Attacker`, `Web Attack - Brute Force`, `Web Attack - XSS`, `Infiltration - Dropbox Download`, `Web Attack - SQL`.
-  - **Threat Level 2 (9 Meta-Categorias Consolidadas):**
+  - **Threat Level 1 (TL1 - 9 Meta-Categorias Consolidadas):**
     - `0: BENIGN` (incorporando tráfego normal e todos os fluxos *Attempted* e conexões com porta fechada)
     - `1: Botnet` (`Botnet Ares`)
     - `2: DDoS` (`DDoS-HOIC`, `DDoS-LOIC-HTTP`, `DDoS-LOIC-UDP`)
@@ -158,9 +158,9 @@ O pré-processamento do dataset corrigido é gerenciado pelo módulo [`src/prepr
 - **Divisão:** 80% desenvolvimento e 20% teste independente (`stratify=y`, `random_state=42`).
 - **Suporte de Teste:** O conjunto de teste consolidou **1.263.903 fluxos avaliados**, espelhando de forma realista a predominância de tráfego legítimo em redes corporativas (89,27% BENIGN).
 
-### Tabela de Distribuição e Ponderação de Classes (Threat Level 2):
+### Tabela de Distribuição e Ponderação de Classes (Threat Level 1 - TL1):
 
-| Classe (ID) | Macro-Categoria (L2) | Suporte de Teste (20%) | Proporção (%) | Peso Calculado ($w_c$) |
+| Classe (ID) | Macro-Categoria (TL1) | Suporte de Teste (20%) | Proporção (%) | Peso Calculado ($w_c$) |
 | :---: | :--- | :--- | :--- | :--- |
 | **0** | `BENIGN` | 1.128.279 | 89,269% | **0,3528** |
 | **1** | `Botnet` | 28.584 | 2,262% | **2,2165** |

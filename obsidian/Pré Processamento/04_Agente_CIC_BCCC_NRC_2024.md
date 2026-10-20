@@ -88,10 +88,10 @@ Durante a análise exploratória (EDA) comparativa entre o dataset bruto e a amo
 
 ## 4. Hierarquia Semântica de Ameaças (*Threat Levels*)
 
-O CIC-BCCC-NRC-2024 possui originalmente **49 classes granulares** (Threat Level 0). Para permitir tanto a análise forense minuciosa quanto a resposta automatizada perimetral em tempo real (bloqueio no firewall), o preprocessor mapeia deterministicamente essas classes em **9 macro-famílias funcionais** (Threat Level 2):
+O CIC-BCCC-NRC-2024 possui originalmente **49 classes granulares** (Threat Level 0 / TL0). Para permitir tanto a análise forense minuciosa quanto a resposta automatizada perimetral em tempo real (bloqueio no firewall), o preprocessor mapeia deterministicamente essas classes em **9 macro-famílias funcionais** (Threat Level 1 / TL1):
 
 ```
-                   [49 Classes Granulares (Level 0)]
+                   [49 Classes Granulares (Threat Level 0 / TL0)]
                                    │
   ┌────────────────────────────────┼────────────────────────────────┐
   ▼                                ▼                                ▼
@@ -107,7 +107,7 @@ DDoS PSHACK (75k)                          │                        ▼
   │                                                                 │
   └────────────────────────────────┬────────────────────────────────┘
                                    ▼
-             [9 Meta-Categorias Consolidadas (Level 2)]
+             [9 Meta-Categorias Consolidadas (Threat Level 1 / TL1)]
 ```
 
 ### Detalhamento das 9 Meta-Categorias:
@@ -138,7 +138,7 @@ DDoS PSHACK (75k)                          │                        ▼
 - **Módulos Utilizados:** `sklearn.model_selection.train_test_split`.
 - **Suporte de Teste:** O particionamento estratificado de 20% consolidou **652.845 fluxos de rede no conjunto de teste independente**, cuja distribuição e pesos para a função Focal Loss são detalhados a seguir:
 
-| ID | Macro-Categoria (Level 2) | Suporte no Teste (20%) | Proporção (%) | Peso Calculado ($w_c$) |
+| ID | Macro-Categoria (TL1) | Suporte no Teste (20%) | Proporção (%) | Peso Calculado ($w_c$) |
 | :-: | :--- | :--- | :--- | :--- |
 | **0** | `Benign Traffic` | 70.185 | 10,751% | **1,0166** |
 | **1** | `Botnet/Malware` | 14.691 | 2,250% | **2,2221** |

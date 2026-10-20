@@ -26,8 +26,8 @@ O pipeline do ALF-MoE suporta de forma nativa e unificada **quatro grandes bench
 | **Espaço Canônico Base** | 76 colunas canônicas | 76 colunas canônicas | 76 colunas canônicas | 76 colunas canônicas |
 | **Colunas Purgadas (Variância Zero)** | **10 colunas** (3 URG + 7 bulk/PSH) | **3 colunas** (3 URG flags) | **9 colunas** (3 URG + 6 bulk/flags) | **3 colunas** (3 URG flags) |
 | **Features Ativas Finais ($D$)** | **66 features** | **73 features** | **67 features** | **73 features** |
-| **Classes Granulares (Level 0)** | 15 classes | 15 classes ativas (25 originais) | 10 classes canônicas | 49 classes granulares |
-| **Meta-Categorias (Level 2)** | 7 classes consolidadas | 9 classes consolidadas | 10 classes (mapeamento 1:1) | 9 classes consolidadas |
+| **Classes Granulares (TL0)** | 15 classes | 15 classes ativas (25 originais) | 10 classes canônicas | 49 classes granulares |
+| **Meta-Categorias (TL1)** | 7 classes consolidadas | 9 classes consolidadas | 10 classes (mapeamento 1:1) | 9 classes consolidadas |
 | **Partição de Teste (20%)** | 742.589 instâncias | 1.263.903 instâncias | 27.917 instâncias (139k pool) / 25.076 (125k dedup) | 652.845 instâncias |
 | **Proporção Benign (Teste)** | 36,32% | 89,27% | 35,82% | 10,75% |
 | **Fatiamento MoE (DNN, CNN, GRU, CAE, LSTM)** | 27, 20 (16), 32, 27, 18 | 27, 20 (16), 32, 27, 18 | **25**, 20 (16), 32, 27, 18 | 27, 20 (16), 32, 27, 18 |
@@ -61,7 +61,7 @@ O ciclo de vida de dados do ALF-MoE é dividido em dois grandes fluxos operacion
  5. Imputação por Mediana ────────► [pandas.Series.fillna(mediana_condicional_classe)]
              │                                                              │
              ▼                                                              │
- 6. Mapeamento de Ameaças ────────► [Preprocessor.threat_classification: Level 0 / 1 / 2]
+ 6. Mapeamento de Ameaças ────────► [Preprocessor.threat_classification: TL0 / TL1]
              │                                                              │
              ▼                                                              │
  7. Deduplicação Opcional ────────► [pandas.DataFrame.drop_duplicates(subset=canonical_features)]
@@ -181,7 +181,7 @@ $$\mathcal{D}_{\mathrm{treino}} \cap \mathcal{D}_{\mathrm{val}} = \emptyset, \qu
 
 Para detalhar as particularidades de engenharia, amostragem, anomalias e distribuições de cada um dos quatro datasets, a documentação é dividida em relatórios autônomos gerados pelos respectivos agentes:
 
-- [[01_Agente_CSE_CIC_IDS2018_Original|Agente 1: CSE-CIC-IDS2018 Canônico / Original AWS]] — Documentação da base corporativa original AWS (16,2M fluxos $\to$ 3.712.942 amostrados), alinhamento sintático com o extrator CICFlowMeter-V3, purga de 10 colunas sem variância (66 features ativas), 15 classes L0 e 7 meta-categorias L2.
-- [[02_Agente_CSE_CIC_IDS2018_Corrigido|Agente 2: CSE-CIC-IDS2018 Corrigido / Improved]] — Documentação da versão melhorada (63,2M fluxos, 34 GiB), incorporando a auditoria de Liu et al. (IEEE CNS 2022), ingestão com streaming PyArrow, correção de porta fechada em FTP, reclassificação de fluxos "Attempted", 73 features ativas e 9 meta-categorias L2.
+- [[01_Agente_CSE_CIC_IDS2018_Original|Agente 1: CSE-CIC-IDS2018 Canônico / Original AWS]] — Documentação da base corporativa original AWS (16,2M fluxos $\to$ 3.712.942 amostrados), alinhamento sintático com o extrator CICFlowMeter-V3, purga de 10 colunas sem variância (66 features ativas), 15 classes TL0 e 7 meta-categorias TL1.
+- [[02_Agente_CSE_CIC_IDS2018_Corrigido|Agente 2: CSE-CIC-IDS2018 Corrigido / Improved]] — Documentação da versão melhorada (63,2M fluxos, 34 GiB), incorporando a auditoria de Liu et al. (IEEE CNS 2022), ingestão com streaming PyArrow, correção de porta fechada em FTP, reclassificação de fluxos "Attempted", 73 features ativas e 9 meta-categorias TL1.
 - [[03_Agente_CIC_UNSW_NB15|Agente 3: CIC-UNSW-NB15 (IXIA PerfectStorm)]] — Documentação da base IXIA de alta densidade, prevenção de shortcut learning por IP, protocolo de amostragem com máxima entropia comportamental, purga de 9 colunas sem variância (67 features ativas, DNN com 25 atributos) e 10 classes canônicas.
-- [[04_Agente_CIC_BCCC_NRC_2024|Agente 4: CIC-BCCC-NRC-2024 (TabularIoTAttack-2024)]] — Documentação do benchmark IoT contemporâneo com 9 sub-datasets (22,8M fluxos), amostragem estratificada Hare-Niemeyer, auditoria da anomalia na retenção de SYN Flood, 73 features ativas e agrupamento de 49 classes granulares em 9 macro-famílias L2.
+- [[04_Agente_CIC_BCCC_NRC_2024|Agente 4: CIC-BCCC-NRC-2024 (TabularIoTAttack-2024)]] — Documentação do benchmark IoT contemporâneo com 9 sub-datasets (22,8M fluxos), amostragem estratificada Hare-Niemeyer, auditoria da anomalia na retenção de SYN Flood, 73 features ativas e agrupamento de 49 classes granulares (TL0) em 9 macro-famílias (TL1).

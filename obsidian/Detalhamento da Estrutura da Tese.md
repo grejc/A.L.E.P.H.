@@ -165,7 +165,7 @@ Este documento consolida a estrutura final da tese de graduação, alinhada rigo
      - População bruta de 22.860.449 fluxos e 85 atributos;
      - Amostra de 15% (3.264.221 fluxos) preservando 100% das 14 classes raras e alocação Hare-Niemeyer nas demais;
      - 71 features mantidas na amostra CSV $\to$ 73 features no espaço canônico;
-     - 49 classes L0 agrupadas em 9 macro-classes L2 operacionais.
+     - 49 classes TL0 agrupadas em 9 macro-classes TL1 operacionais.
   4. **CIC-UNSW-NB15:**
      - Baseado em [[EDA_CIC_UNSW_NB15]].
      - População de 3.540.241 fluxos e 84 colunas;
