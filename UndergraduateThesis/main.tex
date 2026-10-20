@@ -320,7 +320,6 @@ para Classificação de Ataques Cibernéticos}
 	\end{flushright}
 \end{epigrafe}
 
-% TODO: Falta adicionar
 %------------------------------------------------------------------------------------%
 % R E S U M O   N O   I D I O M A   D O   T E X T O
 %
@@ -331,19 +330,12 @@ para Classificação de Ataques Cibernéticos}
 % ponto e virgula (;) e finalizadas por ponto final.  (NBR 6028)
 %------------------------------------------------------------------------------------%
 \begin{resumo}
-	O texto deve ser composto por frases concisas em parágrafo único, utilizando o verbo na terceira pessoa.
-	Evite símbolos e contrações que não sejam de uso corrente. Evite fórmulas, equações, diagramas etc., que não
-	sejam absolutamente necessários; quando seu emprego for imprescindível, defini-los na primeira vez que
-	aparecerem. Um resumo deve conter entre 150 a 500 palavras. As palavras-chave devem ficar logo abaixo do
-	resumo, separadas entre si por ponto e vírgula e finalizadas por ponto. Além disso, devem ser grafadas com
-	as iniciais em letra minúscula, exceto nomes próprios e nomes científicos. Para a escolha das palavras-chave
-	consulte descritores autorizados da área, que representam o conteúdo do trabalho.
+	Este trabalho investiga a adaptação da arquitetura ALF-MoE (\textit{Attention-Based Learnable Fusion of Specialized Expert Networks}), originalmente proposta para a classificação de tráfego de aplicações, à detecção e classificação multiclasse de intrusões em redes de computadores. Sistemas de Detecção de Intrusão em Redes (NIDS) baseados em aprendizado profundo precisam lidar com tráfego estatisticamente heterogêneo, desbalanceamento severo de classes, erros de rotulação em bases públicas e a dificuldade de levar modelos treinados em lote para a inspeção em tempo real. O modelo combina o paradigma de Mistura de Especialistas (\textit{Mixture of Experts}) a um bloco de fusão aprendível por atenção e distribui o vetor de até 73 atributos de fluxo entre cinco especialistas neurais: uma rede densa ($K_{\mathrm{DNN}}$) para contadores globais e sinalizadores TCP/IP; uma rede convolucional 2D ($K_{\mathrm{CNN}}$) para a distribuição de tamanhos de pacotes; duas redes recorrentes ($K_{\mathrm{GRU}}$ e $K_{\mathrm{LSTM}}$) para intervalos entre chegadas e ciclos de atividade e inatividade; e um autoencoder convolucional 1D ($K_{\mathrm{CAE}}$) que processa o fluxo completo no domínio da frequência e usa a perda de reconstrução como regularizador contra o colapso das representações latentes. Uma rede de roteamento (\textit{Gating Network}) com refinamento atencional pondera as predições dos especialistas, e o conjunto é treinado com supervisão profunda e \textit{Focal Loss} balanceada. A avaliação em quatro bases públicas (CIC-UNSW-NB15, CIC-BCCC-NRC-2024 e CSE-CIC-IDS2018 nas versões canônica e corrigida), em sete cenários experimentais, comparou a fusão aos cinco especialistas treinados isoladamente. O ALF-MoE superou o melhor especialista isolado em seis cenários e, no sétimo, obteve Macro $F_1$ equivalente ($0{,}8917$ contra $0{,}8928$) com acurácia superior. No CSE-CIC-IDS2018 Corrigido, alcançou $99{,}87\%$ de acurácia e Macro $F_1$-Score de $0{,}9623$ no nível granular (TL0), e $99{,}85\%$ de acurácia e Macro $F_1$ de $0{,}8917$ no nível consolidado (TL1). Os pesos de roteamento acompanharam a natureza do tráfego: a GRU recebeu $40{,}34\%$ da atenção média no tráfego IoT, o autoencoder liderou no CIC-UNSW-NB15 com $34{,}02\%$ e a rede densa liderou no tráfego corporativo, chegando a concentrar entre $40\%$ e $51\%$ dos pesos em ataques volumétricos e varreduras de portas. Em bancada física, com o extrator NFStream e um auditor SIEM em JSON Lines, a inferência unitária em GPU levou em média $54{,}23\,\mathrm{ms}$ por fluxo e não gerou falsos positivos sobre tráfego benigno após a calibração da lista de salvaguardas perimetrais. Conclui-se que a fusão atencional de especialistas é viável para a classificação multiclasse de intrusões sob desbalanceamento severo e que, em operação, a latência ponta a ponta depende sobretudo dos temporizadores de inatividade do extrator de fluxo, e não do custo da inferência neural.
 
 	\vspace*{0.5cm}
-	\noindent\textbf{{Palavras-Chave: }} palavra-chave; palavra-chave; palavra-chave.
+	\noindent\textbf{{Palavras-Chave: }} segurança de redes; sistemas de detecção de intrusão; aprendizado profundo; mistura de especialistas; mecanismos de atenção; telemetria em tempo real.
 \end{resumo}
 
-% TODO: Falta adicionar
 %------------------------------------------------------------------------------------%
 % A B S T R A C T :   R E S U M O   N O   I D I O M A   E S T R A N G E I R O
 %
@@ -352,19 +344,10 @@ para Classificação de Ataques Cibernéticos}
 % trabalho no idioma escolhido. Se redigido em inglês - KEYWORDS.
 %------------------------------------------------------------------------------------%
 \begin{resumo}[Abstract]
-	% Substitua 'Abstract' pela palavra no idioma desejado, caso precise.
-	The text should consist of concise sentences in a single paragraph, using the third person singular form of
-	the verb. Avoid symbols and contractions that are not commonly used. Avoid formulas, equations, diagrams,
-	etc., unless absolutely necessary; when their use is essential, define them the first time they appear. An
-	abstract should contain between 150 to 500 words. Keywords should be placed right below the abstract,
-	separated by semicolons and ending with a period. Additionally, they should be written in lowercase except
-	for proper names and scientific names. To choose keywords, consult authorized descriptors in the field that
-	represent the content of the work.
+	This work investigates the adaptation of the ALF-MoE architecture (Attention-Based Learnable Fusion of Specialized Expert Networks), originally proposed for application traffic classification, to multiclass intrusion detection and classification in computer networks. Deep-learning-based Network Intrusion Detection Systems (NIDS) must cope with statistically heterogeneous traffic, severe class imbalance, labeling errors in public datasets, and the difficulty of moving batch-trained models into real-time inspection. The model combines the Mixture of Experts paradigm with an attention-based learnable fusion block and distributes a vector of up to 73 flow features across five neural experts: a dense network ($K_{\mathrm{DNN}}$) for global counters and TCP/IP flags; a 2D convolutional network ($K_{\mathrm{CNN}}$) for packet size distributions; two recurrent networks ($K_{\mathrm{GRU}}$ and $K_{\mathrm{LSTM}}$) for inter-arrival times and active/idle cycles; and a 1D convolutional autoencoder ($K_{\mathrm{CAE}}$) that processes the full flow in the frequency domain and uses its reconstruction loss as a regularizer against latent representation collapse. A Gating Network with attention refinement weights the expert predictions, and the whole model is trained with deep supervision and class-balanced Focal Loss. The evaluation on four public datasets (CIC-UNSW-NB15, CIC-BCCC-NRC-2024, and the canonical and corrected versions of CSE-CIC-IDS2018), across seven experimental scenarios, compared the fusion against the five experts trained in isolation. ALF-MoE outperformed the best standalone expert in six scenarios and, in the seventh, reached an equivalent Macro $F_1$ ($0.8917$ versus $0.8928$) with higher accuracy. On the corrected CSE-CIC-IDS2018, it achieved $99.87\%$ accuracy and a Macro $F_1$-Score of $0.9623$ at the fine-grained level (TL0), and $99.85\%$ accuracy and a Macro $F_1$ of $0.8917$ at the consolidated level (TL1). Routing weights followed the nature of the traffic: the GRU received $40.34\%$ of the mean attention on IoT traffic, the autoencoder led on CIC-UNSW-NB15 with $34.02\%$, and the dense network led on enterprise traffic, concentrating between $40\%$ and $51\%$ of the weights on volumetric attacks and port scans. On a physical testbed with the NFStream extractor and a JSON Lines SIEM auditor, single-flow GPU inference took $54.23\,\mathrm{ms}$ on average and produced no false positives on benign traffic once the perimeter allowlist had been calibrated. The results indicate that attention-based fusion of experts is viable for multiclass intrusion classification under severe class imbalance and that, in operation, end-to-end latency depends mainly on the flow extractor's idle timers rather than on the cost of neural inference.
 
 	\vspace*{0.5cm}
-
-	%Subistitua 'Keywords' pela palavra no idioma desejado, caso precise.
-	\noindent\textbf{{Keywords: }} keyword; keyword; keyword.
+	\noindent\textbf{{Keywords: }} network security; network intrusion detection systems; deep learning; mixture of experts; attention mechanisms; real-time telemetry.
 \end{resumo}
 
 %------------------------------------------------------------------------------------%

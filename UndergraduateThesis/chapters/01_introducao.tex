@@ -1,68 +1,79 @@
 \section{Contextualização e Motivação}
 \label{sec:contextualizacao}
 
-A contínua expansão das infraestruturas de redes de computadores, impulsionada pela computação em nuvem, por ecossistemas corporativos distribuídos e pela proliferação generalizada de dispositivos conectados, transformou a transmissão contínua de dados em um dos pilares estruturantes da sociedade contemporânea. Entretanto, essa interconectividade extensiva acarretou uma ampliação proporcional da superfície de ataque exposta a intervenções maliciosas, tornando os ambientes computacionais alvos recorrentes de ameaças de complexidade técnica crescente \cite{cyberrisk2025}. Relatórios econômicos indicam que as perdas financeiras globais decorrentes de incidentes de segurança cibernética atingem a escala de trilhões de dólares anuais, englobando prejuízos materiais diretos, interrupções operacionais não programadas, violações de privacidade, penalidades regulatórias e o comprometimento da confiabilidade de ativos estratégicos de informação \cite{aiimpact2026}.
+A expansão das redes de computadores aumentou a interconexão de serviços em nuvem, sistemas corporativos e
+dispositivos autônomos. Esse crescimento ampliou a superfície exposta a incidentes cibernéticos \cite{cyberrisk2025},
+cujas perdas anuais alcançam trilhões de dólares em danos diretos, paradas operacionais e penalidades regulatórias
+\cite{aiimpact2026}.
 
-Nesse cenário de permanente vulnerabilidade, os Sistemas de Detecção de Intrusão em Redes (\emph{Network Intrusion Detection Systems} -- NIDS) consolidaram-se como elementos indispensáveis na arquitetura de defesa cibernética em profundidade (\emph{defense-in-depth}) \cite{advancedids2024, p4nids2025}. Historicamente, a operação dos NIDS fundamentava-se em dois paradigmas: a detecção por assinaturas determinísticas e a inspeção profunda de pacotes (\emph{Deep Packet Inspection} -- DPI), baseada na identificação de portas estáticas da camada de transporte e no exame direto do conteúdo textual ou binário da carga útil (\emph{payload}) dos pacotes transmitidos pela rede. 
+Nesse ambiente, os Sistemas de Detecção de Intrusão em Redes (\emph{Network Intrusion Detection Systems}, NIDS) formam
+uma camada essencial de defesa perimetral \cite{advancedids2024, p4nids2025}. Historicamente, esses sistemas operavam
+por assinaturas e inspeção profunda de pacotes (\emph{Deep Packet Inspection}, DPI), examinando portas fixas e o
+conteúdo bruto da carga útil (\emph{payload}). Contudo, o uso generalizado de criptografia ponta a ponta (como
+TLS~1.3, HTTPS e DoH), redes privadas virtuais (VPN) e portas dinâmicas tornou os dados transmitidos opacos aos pontos
+de monitoramento \cite{standard2021, trafficmoe2026}, inviabilizando abordagens baseadas em DPI.
 
-Contudo, transformações substanciais nos padrões e protocolos de comunicação da Internet debilitaram a viabilidade prática dessas abordagens legadas. A adoção generalizada de mecanismos de criptografia ponta a ponta, tais como os protocolos TLS~1.3, HTTPS e DNS sobre HTTPS (\emph{DNS over HTTPS} -- DoH), combinada à utilização disseminada de Redes Privadas Virtuais (\emph{Virtual Private Networks} -- VPN) e à alocação dinâmica de portas efêmeras, tornou a carga útil dos pacotes inteiramente opaca aos dispositivos intermediários de monitoramento e filtragem \cite{standard2021, trafficmoe2026}. Sob tais condições operacionais, os métodos fundamentados na inspeção direta do conteúdo tornaram-se ineficazes para a identificação de ameaças encapsuladas em fluxos criptografados.
+Diante dessa opacidade, a literatura convergiu para a análise comportamental de fluxos bidirecionais de rede
+(\emph{network flows}) com Aprendizado de Máquina e Aprendizado Profundo \cite{survey2025dl, neuralcyber2025}. Essa
+abordagem apoia-se em métricas estatísticas e temporais dos cabeçalhos TCP/IP, incluindo duração da sessão, taxas de
+transferência, volumes direcionais de pacotes e bytes, intervalos entre chegadas (\emph{Inter-Arrival Time}, IAT) e
+sinalizadores de controle.
 
-Como alternativa às limitações da análise estática de carga útil, consolidou-se na literatura o paradigma de análise comportamental de tráfego fundamentado em Aprendizado de Máquina (\emph{Machine Learning} -- ML) e Aprendizado Profundo (\emph{Deep Learning} -- DL) \cite{survey2025dl, neuralcyber2025}. Tais metodologias operam sobre fluxos de rede bidirecionais (\emph{bidirectional network flows}), extraindo padrões estatísticos e temporais a partir de agregados de tráfego --- tais como duração da conexão, taxas de transmissão, contagens de pacotes/bytes por sentido, tempos entre chegadas consecutivas de pacotes (\emph{Inter-Arrival Time} -- IAT) e sinalizadores de controle das camadas de rede e transporte (TCP/IP).
+A maioria dos classificadores propostos opera, contudo, sob representação homogênea (\emph{single-view})
+\cite{timematters2025, temporal2025}: empregam redes totalmente conectadas (DNN) para atributos tabulares, redes
+convolucionais (CNN) para correlações espaciais ou redes recorrentes (RNN) para dependências sequenciais. Esse recorte
+arquitetural restringe a detecção porque diferentes famílias de intrusão manifestam seus traços em domínios
+distintos \cite{ciciot2023, ugr162021}. Ataques de negação de serviço (DoS/DDoS) causam anomalias volumétricas e picos
+de vazão; varreduras de portas geram dispersões espaciais de pacotes curtos entre vários destinos; botnets e canais de
+comando e controle (C2) operam com cadências temporais sutis no IAT; e abusos em aplicações web apresentam padrões
+periódicos capturáveis no domínio da frequência.
 
-Não obstante os avanços demonstrados pelos classificadores baseados em Aprendizado Profundo, parcela expressiva das soluções propostas na literatura é concebida sob uma perspectiva homogênea ou restrita de representação de atributos (\emph{single-view representation}) \cite{timematters2025, temporal2025}. Tais modelos monolíticos empregam predominantemente uma única família arquitetural: Redes Neurais Totalmente Conectadas (\emph{Dense Neural Networks} -- DNN) para sumários estatísticos tabulares, Redes Neurais Convolucionais (\emph{Convolutional Neural Networks} -- CNN) para examinar correlações espaciais, ou Redes Neurais Recorrentes (\emph{Recurrent Neural Networks} -- RNN) para dependências sequenciais.
+Modelos com perspectiva única perdem sensibilidade quando as características do ataque residem em domínios ignorados
+por sua arquitetura. O uso de comitês (\emph{ensembles}) tenta atenuar esse problema \cite{hsae2025, moevd2025}, mas
+recorre frequentemente à fusão tardia estática por média simples ou votação majoritária \cite{alfmoe2026}. Esses
+esquemas tratam os domínios de forma desacoplada e não adaptam os pesos de cada classificador ao tráfego inspecionado
+\cite{trafficmoe2026}.
 
-Essa restrição metodológica contrasta frontalmente com a natureza intrinsecamente multifacetada do tráfego malicioso contemporâneo, no qual diferentes classes de ameaças manifestam comportamentos em domínios informacionais amplamente divergentes entre si \cite{ciciot2023, ugr162021}:
-\begin{itemize}
-    \item \textbf{Ataques de Negação de Serviço (\emph{Denial of Service} -- DoS) e Negação de Serviço Distribuída (\emph{Distributed Denial of Service} -- DDoS):} caracterizam-se por perturbações estatísticas volumétricas agudas, marcadas por taxas extremas de pacotes por segundo e saturação do canal de transmissão;
-    \item \textbf{Varreduras de portas e de rede (\emph{Port Scans} e \emph{IP Sweeps}):} caracterizam-se por estruturas espaciais esparsas, com distribuição sistemática de pacotes reduzidos entre múltiplos destinos em intervalos comprimidos;
-    \item \textbf{Canais de Comando e Controle (C2), Botnets e Infiltrações:} utilizam mensagens compactas e cadências temporais programadas para mimetizar conexões legítimas, tornando os intervalos entre chegadas consecutivas (IAT) e as dinâmicas transitórias a dimensão prioritária de discriminação;
-    \item \textbf{Fluxos de exfiltração de dados e abusos sobre aplicações web:} exibem padrões de densidade espectral, ciclicidade e periodicidade harmônica que encontram representação ótima no domínio da frequência.
-\end{itemize}
-Modelos monolíticos que operam sob uma única perspectiva tendem a apresentar desempenho subótimo na identificação de ataques cujas assinaturas determinantes residem em domínios ignorados pelo extrator. Embora estratégias baseadas em Aprendizado em Conjunto (\emph{Ensemble Learning}) busquem atenuar essa deficiência combinando múltiplos classificadores \cite{hsae2025, moevd2025}, as abordagens convencionais comumente recorrem à fusão tardia estática (\emph{late fusion}), agregando decisões via média aritmética simples, votação majoritária ou concatenação linear de escores \cite{alfmoe2026}. Esse procedimento estático desconsidera a interdependência dos domínios durante o processo de aprendizagem e falha em modular dinamicamente a relevância de cada modelo com base no perfil particular do fluxo em análise \cite{trafficmoe2026}.
+Para integrar domínios heterogêneos de forma dinâmica, \citeonline{alfmoe2026} propuseram o modelo ALF-MoE
+(\emph{Attention-Based Learnable Fusion of Specialized Expert Networks}), fundamentado em Mistura de Especialistas
+(\emph{Mixture of Experts}, MoE) \cite{jacobs1991adaptive, shazeer2017outrageously}. A arquitetura distribui a extração
+de representações entre cinco redes neurais dedicadas: uma DNN para atributos estatísticos tabulares e contadores de
+sinalizadores TCP; uma CNN para correlações espaciais no tamanho de pacotes; uma GRU para dinâmicas sequenciais de curto
+prazo no IAT; um autoencoder convolucional (CAE) para representações em frequência via janelamento Hann e transformada
+rápida de Fourier (RFFT); e uma LSTM para dependências temporais de longo prazo ao longo do fluxo.
 
-Com o objetivo de superar essas deficiências estruturais, \citeonline{alfmoe2026} introduziram a arquitetura ALF-MoE (\emph{Attention-Based Learnable Fusion of Specialized Expert Networks}). O ALF-MoE fundamenta-se no paradigma de Mistura de Especialistas (\emph{Mixture of Experts} -- MoE) \cite{jacobs1991adaptive, shazeer2017outrageously}, distribuindo o aprendizado de representações entre cinco redes neurais profundas dedicadas, cada qual concebida para extrair padrões de uma modalidade informacional distinta do tráfego:
-\begin{enumerate}
-    \item \textbf{Dense Neural Network (DNN):} especializada na representação de atributos estatísticos globais e tabulares agregados da conexão, tais como duração da sessão, contagens totais de pacotes/bytes por direção e contadores de sinalizadores TCP;
-    \item \textbf{Convolutional Neural Network (CNN):} dedicada ao aprendizado de correlações espaciais e dependências locais a partir de arranjos dimensionais derivados da geometria e comprimento de pacotes e segmentos;
-    \item \textbf{Gated Recurrent Unit (GRU):} orientada à captura de variações estatísticas sequenciais e dinâmicas temporais de curta cadência, focando primordialmente nos intervalos temporais entre chegadas consecutivas de pacotes (IATs);
-    \item \textbf{Convolutional Autoencoder (CAE):} projetado para a extração de representações comprimidas no domínio da frequência, processadas mediante a aplicação da janela de Hann afim de diminuir o vazamento espectral e o cálculo da magnitude da Transformada Rápida de Fourier Real (\emph{Real Fast Fourier Transform} -- RFFT) sobre os vetores de tráfego;
-    \item \textbf{Long Short-Term Memory (LSTM):} encarregada de modelar dependências temporais de longo alcance e transições de estado ao longo do ciclo de vida da conexão.
-\end{enumerate}
-
-Para coordenar a cooperação entre os múltiplos especialistas, a arquitetura ALF-MoE integra uma Rede de Roteamento Dinâmico (\emph{Gating Network}) a um módulo de Fusão Aprendível Baseada em Atenção (\emph{Attention-Based Learnable Fusion} -- ALF) dotado de refinamento atencional \cite{alfmoe2026}. Em nível arquitetural, o processo ocorre em etapas coordenadas, conforme a \ref{fig:Arquitetura_Completa}:
-\begin{enumerate}
-    \item Cada rede especialista processa de maneira independente seu respectivo subespaço informacional, gerando uma distribuição probabilística preliminar sobre as classes do problema via função de ativação \emph{softmax}. O subespaço informacional está representado pelas linhas pontilhadas que ligam o \emph{input} aos \emph{especialistas} na \ref{fig:Arquitetura_Completa};
-    \item Paralelamente, a \emph{Gating Network} analisa o vetor global do fluxo e estima escores contextuais de relevância para cada especialista;
-    \item As predições individuais dos cinco especialistas são consolidadas por meio de uma soma ponderada pelos pesos atencionais gerados pela \emph{Gating Network}, formando uma representação unificada intermediária;
-    \item Por fim, o módulo de fusão ALF processa essa representação gerando a predição final de probabilidade calibrada para o fluxo de rede.
-\end{enumerate}
+A cooperação entre essas redes é coordenada por uma rede de roteamento (\emph{Gating Network}) associada ao módulo de
+fusão aprendível baseada em atenção (ALF) \cite{alfmoe2026}. Como ilustrado em \ref{fig:Arquitetura_Completa}, cada
+especialista avalia seu subespaço de atributos e gera predições preliminares por meio de uma ativação \emph{softmax}. Em
+paralelo, a \emph{Gating Network} inspeciona o vetor global do fluxo para calcular coeficientes contextuais de atenção,
+ponderando a combinação linear dos especialistas antes que a cabeça classificadora do módulo ALF consolide o julgamento
+final de probabilidade para a conexão.
 
 \begin{figure}[htbp]
     \centering
-    % Ajusta a largura para 80% da largura do texto
     \includegraphics[width=0.8\textwidth]{figures/Arquitetura-Completa.pdf} 
-    \caption{Macro visão da Arquitetura ALF-MoE.}
+    \caption{Macrovisão da Arquitetura ALF-MoE.}
     \label{fig:Arquitetura_Completa}
+    \fonte{Elaborado pelo autor (2026), adaptado de \citeonline{alfmoe2026}.}
 \end{figure}
-
-A combinação entre especialização em domínios complementares, roteamento atencional dinâmico e fusão aprendível não linear confere à arquitetura ALF-MoE uma notável capacidade de generalização e adaptação representacional perante a diversidade do tráfego de rede contemporâneo.
 
 \section{Definição do Problema}
 \label{sec:problema}
 
-Acerca dos promissores resultados obtidos no estudo original de \citeonline{alfmoe2026}, no qual o ALF-MoE alcançou acurácias superiores a 97\% em tarefas de classificação de tráfego de aplicações e segregação de conexões VPN e não-VPN sobre bases como ISCX VPN-nonVPN, Unicauca e UNSW-IoTraffic, a transposição direta dessa arquitetura para o domínio dos Sistemas de Detecção de Intrusão em Redes (NIDS) multiclasse impõe desafios conceituais e metodológicos substanciais, os quais delimitam o problema investigado neste trabalho:
+Em relação aos promissores resultados obtidos no estudo original de \citeonline{alfmoe2026}, no qual o ALF-MoE alcançou acurácias superiores a 97\% em tarefas de classificação de tráfego de aplicações e segregação de conexões VPN e não-VPN sobre bases como ISCX VPN-nonVPN, Unicauca e UNSW-IoTraffic, a transposição direta dessa arquitetura para o domínio dos Sistemas de Detecção de Intrusão em Redes (NIDS) multiclasse impõe desafios conceituais e metodológicos substanciais, os quais delimitam o problema investigado neste trabalho:
 
-Em primeiro lugar, existe uma disparidade estrutural basilar entre a classificação de aplicações e a identificação de ataques em redes operacionais. Em tarefas de classificação de aplicações, as instâncias distribuem-se de maneira comparativamente homogênea entre os rótulos de serviço, com fluxos contínuos e volumes amostrais estáveis. Em contrapartida, conjuntos de dados canônicos de referência em segurança cibernética --- a exemplo de CSE-CIC-IDS2018 \cite{Sharafaldin2018TowardGA} e CIC-UNSW-NB15 \cite{moustafa2015unsw, standard2021} --- exibem um desbalanceamento de classes extremo, como mostra a \ref{fig:Dataset_Distribuicao_Classes} que fornece o perfil populacional de classes dos datasets supracitados. 
-%Nesses cenários, o tráfego estritamente benigno perfaz entre 85\% e mais de 97\% do total de conexões observadas, enquanto categorias críticas de invasão (tais como \emph{Infiltration}, \emph{Botnets}, ataques web, \emph{Shellcode} e \emph{Worms}) compõem frações inferiores a 1\% ou mesmo 0,1\% do suporte amostral. Diante de assimetrias agudas, classificadores neurais padrão sofrem de viés sistemático em favor da classe majoritária, e as redes de roteamento correm o risco de colapso de especialistas (\emph{expert collapse}), priorizando monotonicamente predições benignas. Determinar se a divisão em múltiplos especialistas e o roteamento atencional mantêm sua eficácia discriminatória e calibrada perante tal desbalanceamento constitui uma questão científica aberta.
+Em primeiro lugar, existe uma disparidade estrutural entre a classificação de aplicações e a identificação de ataques em redes operacionais. Em tarefas de classificação de aplicações, as instâncias distribuem-se de maneira comparativamente homogênea entre os rótulos de serviço, com fluxos contínuos e volumes amostrais estáveis. Em contrapartida, conjuntos de dados canônicos de referência em segurança cibernética --- a exemplo de CSE-CIC-IDS2018 \cite{Sharafaldin2018TowardGA} e CIC-UNSW-NB15 \cite{moustafa2015unsw, standard2021} --- exibem um desbalanceamento de classes extremo, como mostra a Figura~\ref{fig:Dataset_Distribuicao_Classes}, que fornece o perfil populacional de classes dos datasets supracitados. 
+Nesses cenários, o tráfego estritamente benigno perfaz entre 80\% e mais de 97\% do total de conexões observadas, enquanto categorias críticas de invasão (tais como \emph{Infiltration}, \emph{Botnets}, ataques web, \emph{Shellcode} e \emph{Worms}) compõem frações inferiores a 1\% ou mesmo 0,1\% do suporte amostral. Diante de assimetrias agudas, classificadores neurais padrão sofrem de viés sistemático em favor da classe majoritária, e as redes de roteamento correm o risco de colapso de especialistas (\emph{expert collapse}), priorizando monotonicamente predições benignas. Determinar se a divisão em múltiplos especialistas e o roteamento atencional mantêm sua eficácia discriminatória e calibrada perante tal desbalanceamento constitui uma questão científica aberta.
 
 \begin{figure}[htbp]
     \centering
     % Ajusta a largura para 80% da largura do texto
-    \includegraphics[width=1\textwidth]{figures/Dataset_CICUNSWNB15_Classes.pdf}
+    \includegraphics[width=1\textwidth]{figures/classdist/Dataset_CICUNSWNB15_Classes.pdf}
     % \includegraphics[width=1\textwidth]{figures/Dataset_CICBCCCNRC2024_Classes.pdf}
-    \includegraphics[width=1\textwidth]{figures/Dataset_CSECICIDS2018_Classes.pdf} 
+    \includegraphics[width=1\textwidth]{figures/classdist/Dataset_CSECICIDS2018_Classes.pdf} 
     \caption{Distribuição populacional de classes e severo desbalanceamento amostral nos conjuntos de dados de referência (CIC-UNSW-NB15 e CSE-CIC-IDS2018).}
     \label{fig:Dataset_Distribuicao_Classes}
+    \fonte{Elaborado pelo autor (2026).}
 \end{figure}
 
 Em segundo lugar, a caracterização de ameaças cibernéticas sob tráfego criptografado repousa exclusivamente sobre atributos estatísticos e comportamentais extraídos dos cabeçalhos dos fluxos \cite{standard2021, trafficmoe2026}. 
@@ -104,7 +115,6 @@ As principais contribuições teóricas, metodológicas e práticas proporcionad
     \item \textbf{Integração de refinamento atencional na Gating Network e formulação para dados desbalanceados:} Implementação funcional de um módulo de refinamento atencional dotado de estabilização logarítmica, projeção afim e limite não linear $\tanh$ na \emph{Gating Network}, prevenindo o colapso e a extinção de especialistas, associado à otimização conjunta via \emph{Focal Loss} multiclasse balanceada e supervisão profunda (\emph{deep supervision});
     \item \textbf{Fusão por soma ponderada e cabeça classificatória profunda:} Concepção do módulo ALF operando estritamente sobre a combinação linear ponderada das predições de probabilidade dos especialistas ($z = \sum a_k \hat{y}^{(k)}$);
     \item \textbf{Validação empírica abrangente em múltiplos benchmarks consolidados:} Condução de avaliação experimental sistemática sobre referências públicas heterogêneas de cibersegurança (CSE-CIC-IDS2018 Canônico e Corrigido, CIC-BCCC-NRC-2024 e CIC-UNSW-NB15) em sete configurações de teste, evidenciando a consistência da arquitetura frente a perfis operacionais de redes corporativas em nuvem, ambientes IoT com protocolos leves (MQTT) e emulação de ataques complexos;
-    % TODO: Verificar veracidade das informações e possibilidade de simplicação do texto, além de conferir a informação sobre "tempo real"
     \item \textbf{Análise comparativa dos especialistas e viabilidade de inferência em tempo real:} Comprovação experimental da superioridade sistemática da fusão adaptativa ALF sobre todos os especialistas isolados, associada à implementação de um pipeline de inferência em tempo real com NFStream capaz de processar fluxos com latência média de aproximadamente $54\,\mathrm{ms}$ na GPU e vazão superior a $80.000\,\mathrm{fluxos/s}$ em regime de lote.
 \end{enumerate}
 

@@ -71,6 +71,7 @@ Historicamente, os sistemas de detecção de intrusão classificam-se em três p
 \end{itemize}
 
 \subsubsection{Granularidade de Inspeção: DPI versus Análise Baseada em Fluxos}
+\label{subsubsec:dpi_vs_fluxos}
 
 A viabilidade técnica e a escalabilidade dos NIDS são governadas pela camada e pela granularidade com que a inspeção do tráfego é conduzida:
 
@@ -147,40 +148,17 @@ As Redes Neurais Profundas Totalmente Conectadas (\emph{Dense Neural Networks} -
 
 O paradigma do Autoencoder (\emph{Autoencoder} -- AE) baseia-se no aprendizado não supervisionado ou semi-supervisionado de representações latentes comprimidas \cite{hsae2025}. A arquitetura típica é composta por duas estruturas acopladas: um codificador (\emph{encoder}) $\mathcal{E}(\cdot)$, que mapeia o vetor de entrada para um espaço latente de baixa dimensionalidade $\mathbf{z}$, e um decodificador (\emph{decoder}) $\mathcal{D}(\cdot)$, encarregado de reconstruir a entrada original gerando $\tilde{\mathbf{x}}$. Treinado predominantemente com amostras de tráfego benigno, o modelo aprende a variedade geométrica subjacente à operação regular; fluxos intrusivos com propriedades anômalas não encontram suporte adequado nessa representação compacta, resultando em elevados erros de reconstrução $\|\mathbf{x} - \tilde{\mathbf{x}}\|^2$ \cite{hsae2025, borgioli2024cae}.
 
-Determinadas categorias de agressão cibernética -- a exemplo de inundações pulsáteis periódicas (DDoS), varreduras programadas por temporizadores e canais de comando e controle (C2) com sinalização periódica (\emph{beaconing}) -- manifestam comportamentos que se destacam como frequências harmônicas bem delineadas no domínio da frequência \cite{ugr162021}. Para capturar essas características, o especialista Autoencoder Convolucional 1D (1D-CAE) integra o pré-processamento espectral à arquitetura neural em três etapas analíticas:
+Determinadas categorias de agressão cibernética -- a exemplo de inundações pulsáteis periódicas (DDoS), varreduras programadas por temporizadores e canais de comando e controle (C2) com sinalização periódica (\emph{beaconing}) -- manifestam comportamentos que se destacam como frequências harmônicas bem delineadas no domínio da frequência \cite{ugr162021}. Para capturar essas características, o processamento espectral pode ser acoplado a autoencoders em três etapas analíticas fundamentais:
 
 \begin{enumerate}
-    \item \textbf{Janelamento de Hann e RFFT:} a partir do subconjunto de atributos temporais e dinâmicos $\mathbf{u} \in \mathbb{R}^{L_f}$, aplica-se uma Janela Periódica de Hann $\mathbf{w}$ para atenuar o espalhamento espectral (\emph{spectral leakage}), seguida pela Transformada Rápida de Fourier Discreta para entradas puramente reais (RFFT), obtendo a densidade de magnitude espectral:
-    \begin{equation}
-    \label{eq:espectro_rfft}
-    \mathbf{x}_f = \left| \mathrm{RFFT}(\mathbf{u} \odot \mathbf{w}) \right| \in \mathbb{R}^{K_{\mathrm{fft}}},
-    \end{equation}
-    em que $K_{\mathrm{fft}} = \lfloor L_f / 2 \rfloor + 1$ representa a quantidade de coeficientes discretos unilaterais e $\odot$ denota o produto elemento a elemento (Hadamard);
+    \item \textbf{Janelamento e Análise Espectral:} a aplicação de janelas temporais periódicas (tais como a Janela de Hann) atenua descontinuidades nas fronteiras do sinal e mitiga o espalhamento espectral (\emph{spectral leakage}). Em seguida, a Transformada Rápida de Fourier Discreta para entradas reais (RFFT) mapeia o sinal temporal para um espectro unilateral de magnitude, isolando componentes de frequência característicos de tráfego volumétrico ou de repetição periódica;
     
-    \item \textbf{Codificação e Decodificação Convolucional 1D:} o espectro $\mathbf{x}_f$ é processado por camadas de convolução unidimensional com filtros locais e funções de ativação LeakyReLU, compactando as componentes de frequência em uma representação latente $\mathbf{z}$. Subsequentemente, camadas de convolução transposta 1D (\emph{Conv1DTranspose}) reconstroem a estimativa do espectro de magnitude $\tilde{\mathbf{x}}_f$;
+    \item \textbf{Codificação e Decodificação Latente:} o espectro de frequências obtido é processado por camadas convolucionais unidimensionais, cuja invariância a pequenas translações locais permite compactar as densidades espectrais em uma representação latente comprimida $\mathbf{z}$; subsequentemente, camadas de convolução transposta reconstroem a estimativa do espectro original;
     
-    \item \textbf{Supervisão e Reconstrução Espectral:} além da perda supervisionada de classificação do fluxo malicioso, o módulo avalia a regularidade harmônica do tráfego através do Erro Quadrático Médio (\emph{Mean Squared Error} -- MSE) entre o espectro original e o reconstruído:
-    \begin{equation}
-    \label{eq:cae_rec_loss_simple}
-    \mathcal{L}_{\mathrm{rec}} = \frac{1}{K_{\mathrm{fft}}} \sum_{k=0}^{K_{\mathrm{fft}}-1} \left( x_f[k] - \tilde{x}_f[k] \right)^2.
-    \end{equation}
+    \item \textbf{Avaliação da Regularidade Espectral por Reconstrução:} além da tarefa principal de classificação supervisionada, a preservação dos padrões harmônicos do tráfego é monitorada pela minimização do Erro Quadrático Médio (\emph{Mean Squared Error} -- MSE) entre o espectro original e o espectro reconstruído, penalizando distorções introduzidas por anomalias.
 \end{enumerate}
 
-Essa modelagem assegura que a representação latente capture tanto propriedades discriminatórias de classes quanto a regularidade espectral do tráfego legítimo \cite{borgioli2024cae}.
-
-\subsection{Tratamento de Desbalanceamento Extremo via Focal Loss}
-\label{subsec:focal_loss}
-
-Conjuntos de dados de cibersegurança caracterizam-se por desbalanceamento severo de classes, em que o tráfego benigno frequentemente responde por mais de 90\% das amostras, ao passo que ataques críticos (como \emph{Infiltration}, \emph{Web Attacks} e \emph{Botnets}) representam frações inferiores a 1\% do total coletado \cite{ciciot2023, standard2021}. Nessas condições, a função convencional de Entropia Cruzada (\emph{Categorical Cross-Entropy} -- CE) tende a ser dominada pelo acúmulo de gradientes das amostras majoritárias facilmente classificáveis, negligenciando as categorias minoritárias essenciais.
-
-Para mitigar essa assimetria, incorpora-se a função de Perda Focal (\emph{Focal Loss} -- FL), concebida por \citeonline{lin2017focal}:
-\begin{equation}
-\label{eq:focal_loss_formula}
-\mathrm{FL}(p_t) = -\alpha_t \, (1 - p_t)^\gamma \, \log(p_t),
-\end{equation}
-em que $p_t \in (0, 1]$ denota a probabilidade estimada pelo classificador para a classe verdadeira do fluxo, $\gamma \ge 0$ representa o parâmetro de foco e $\alpha_t \in (0, 1]$ atua como o coeficiente ponderador de balanceamento de classe.
-
-O fator modulador $(1 - p_t)^\gamma$ reduz dinamicamente a contribuição de exemplos fáceis e bem calibrados ($p_t \to 1$), concentrando o esforço de otimização nos padrões raros ou fronteiriços de ataque ($p_t \to 0$). Dessa forma, a perda focal assegura sensibilidade discriminatória às classes de ataque minoritárias sem incorrer em instabilidade perante o volume massivo de tráfego ordinário.
+Essa fundamentação assegura que modelos híbridos capturem tanto assinaturas estatísticas diretas quanto propriedades oscilatórias inerentes a ataques contemporâneos \cite{borgioli2024cae}.
 
 \subsection{Mixture of Experts (MoE) e Mecanismos de Fusão Atencional}
 \label{subsec:moe_e_atencao}
@@ -191,23 +169,33 @@ O paradigma de Mistura de Especialistas (\emph{Mixture of Experts} -- MoE), form
 
 \subsubsection{Rede de Roteamento Dinâmico (Gating Network)}
 
-A Gating Network atua como o módulo decisório da arquitetura MoE. Sua responsabilidade analítica consiste em examinar o contexto global de cada amostra de tráfego e computar dinamicamente uma distribuição de pesos sobre os $K$ especialistas, quantificando a pertinência diagnóstica de cada perspectiva analítica para o fluxo sob análise \cite{trafficmoe2026}.
+A Gating Network atua como o módulo decisório da arquitetura MoE. Sua responsabilidade analítica consiste em examinar o contexto global de cada amostra de tráfego e computar dinamicamente uma distribuição de pesos sobre os $K$ especialistas, quantificando a pertinência diagnóstica de cada perspectiva analítica para o fluxo sob análise \cite{alfmoe2026}.
 
-Para garantir que a arbitragem dependa exclusivamente das características intrínsecas da conexão e viabilizar a inferência concorrente dos especialistas sem latência sequencial adicional, a entrada da rede de roteamento recebe diretamente o vetor tabular completo do fluxo $\mathbf{x} \in \mathbb{R}^F$. Após camadas densas intermediárias com normalização em lote (\emph{Batch Normalization}), ativações LeakyReLU e regularização por Dropout, a rede infere uma distribuição preliminar de confiança $\boldsymbol{\alpha} = [\alpha_1, \dots, \alpha_K]^\top \in \mathbb{R}^K$.
+Para garantir que a arbitragem dependa exclusivamente das características intrínsecas da conexão e viabilizar a inferência concorrente dos especialistas sem latência sequencial adicional, a entrada da rede de roteamento recebe diretamente o vetor tabular completo do fluxo $\mathbf{x} \in \mathbb{R}^F$. Após camadas densas intermediárias com normalização em lote (\emph{Batch Normalization}), ativações LeakyReLU e regularização por Dropout, a rede infere uma distribuição preliminar de confiança $\boldsymbol{\alpha} = [\alpha_1, \dots, \alpha_K]^\top \in \mathbb{R}^K$ por meio de uma função Softmax padrão:
+\begin{equation}
+\label{eq:gating_preliminary_softmax}
+\alpha_k = \frac{\exp(g_k)}{\sum_{j=1}^K \exp(g_j)}, \quad \forall k \in \{1, \dots, K\},
+\end{equation}
+em que $g_k$ denota o logit bruto gerado para o $k$-ésimo especialista \cite{alfmoe2026}.
 
 Com o propósito de capturar correlações cruzadas entre especialistas e permitir que a relevância de cada modelo dependa do contexto do comitê como um todo, aplica-se uma camada de refinamento atencional no domínio logarítmico:
 \begin{equation}
 \label{eq:attention_refinement}
-\mathbf{z}_{\mathrm{refined}} = \mathbf{W}_g \log(\boldsymbol{\alpha}) + \mathbf{b}_g,
+\mathbf{z}_{\mathrm{refined}} = \mathbf{W}_g \ln(\boldsymbol{\alpha} + \epsilon) + \mathbf{b}_g,
 \end{equation}
-em que $\mathbf{W}_g \in \mathbb{R}^{K \times K}$ e $\mathbf{b}_g \in \mathbb{R}^K$ são parâmetros aprendíveis. A representação no domínio logarítmico converte relações multiplicativas em variações aditivas, facilitando o aprendizado de sinergias através de transformações lineares.
+em que $\mathbf{W}_g \in \mathbb{R}^{K \times K}$ e $\mathbf{b}_g \in \mathbb{R}^K$ são parâmetros aprendíveis e $\epsilon > 0$ é uma constante de estabilidade numérica. A projeção afim sobre o logaritmo das probabilidades atua de forma análoga a uma transformação de calibração afim multivariada (\emph{matrix scaling}) \cite{guo2017calibration}, permitindo ao modelo aprender sinergias e compensações entre especialistas.
 
-Para restaurar a calibração de confiança e mitigar a descalibração probabilística (\emph{miscalibration}) em que saídas superconfiantes distorcem a ponderação, incorpora-se o escalonamento por temperatura baseado nos princípios teóricos de \citeonline{guo2017calibration}, produzindo os pesos atencionais finais dos especialistas:
+Para evitar que dispersões excessivas de magnitude saturem prematuramente o roteador em distribuições degeneradas (\emph{winner-takes-all}) e assegurar a diversidade analítica do comitê, os logits refinados são comprimidos pela função tangente hiperbólica:
 \begin{equation}
-\label{eq:gating_weights}
-a_k = \frac{\exp(z_{\mathrm{refined}, k} / T)}{\sum_{j=1}^K \exp(z_{\mathrm{refined}, j} / T)}, \quad \forall k \in \{1, \dots, K\}, \quad \text{satisfazendo} \quad \sum_{k=1}^K a_k = 1 \quad \text{e} \quad a_k \ge 0,
+\label{eq:gating_tanh_theory}
+\tilde{\mathbf{z}} = \tanh(\mathbf{z}_{\mathrm{refined}}),
 \end{equation}
-em que $T > 0$ representa o parâmetro de temperatura aprendível que calibra a dispersão da distribuição de probabilidade, prevenindo a extinção prematura de especialistas voltados a ameaças com menor densidade amostral.
+a qual restringe estritamente os valores ao intervalo $[-1, 1]$. Embasando-se nos princípios de calibração de redes neurais modernas de \citeonline{guo2017calibration}, a distribuição atencional final $\mathbf{a} = [a_1, \dots, a_K]^\top$ é normalizada por uma função Softmax com temperatura de calibração $\tau$:
+\begin{equation}
+\label{eq:gating_weights_theory}
+a_k = \frac{\exp(\tilde{z}_k / \tau)}{\sum_{j=1}^K \exp(\tilde{z}_j / \tau)}, \quad \forall k \in \{1, \dots, K\}, \quad \text{satisfazendo} \quad \sum_{k=1}^K a_k = 1 \quad \text{e} \quad a_k > 0,
+\end{equation}
+em que $\tau > 0$ atua como a temperatura de escalonamento. Conforme estabelecido por \citeonline{guo2017calibration}, adota-se a temperatura neutra de calibração $\tau = 1{,}0$ durante o treinamento supervisionado conjunto da rede. A estabilização contra a descalibração e superconfiança de roteamento é garantida estruturalmente pela limitação de amplitude imposta pela função $\tanh$, assegurando que nenhum especialista tenha seu gradiente extinguido durante a convergência multitarefa.
 
 \subsubsection{Mecanismo de Refinamento Atencional Aprendível (ALF)}
 
@@ -227,78 +215,159 @@ Subsequentemente, o vetor consensual $\mathbf{Z}$ é processado por camadas dens
 \end{equation}
 em que $\mathbf{h}_{\mathrm{ALF}}$ representa a ativação latente expandida a partir de $\mathbf{Z}$, dotando a arquitetura da flexibilidade necessária para discernir anomalias sutis sem perder a capacidade de generalização sobre o tráfego regular \cite{alfmoe2026}.
 
+\subsection{Tratamento de Desbalanceamento Extremo via Focal Loss}
+\label{subsec:focal_loss}
+
+Conjuntos de dados de cibersegurança caracterizam-se por desbalanceamento severo de classes, em que o tráfego benigno frequentemente responde por mais de 90\% das amostras, ao passo que ataques críticos (como \emph{Infiltration}, \emph{Web Attacks} e \emph{Botnets}) representam frações inferiores a 1\% do total coletado \cite{ciciot2023, standard2021}. Nessas condições, a função convencional de Entropia Cruzada (\emph{Categorical Cross-Entropy} -- CE) tende a ser dominada pelo acúmulo de gradientes das amostras majoritárias facilmente classificáveis, negligenciando as categorias minoritárias essenciais.
+
+Para mitigar essa assimetria, incorpora-se a função de Perda Focal (\emph{Focal Loss} -- FL), concebida por \citeonline{lin2017focal}:
+\begin{equation}
+\label{eq:focal_loss_formula}
+\mathrm{FL}(p_t) = -\alpha_t \, (1 - p_t)^\gamma \, \log(p_t),
+\end{equation}
+em que $p_t \in (0, 1]$ denota a probabilidade estimada pelo classificador para a classe verdadeira do fluxo, $\gamma \ge 0$ representa o parâmetro de foco e $\alpha_t \in (0, 1]$ atua como o coeficiente ponderador de balanceamento de classe.
+
+O fator modulador $(1 - p_t)^\gamma$ reduz dinamicamente a contribuição de exemplos fáceis e bem calibrados ($p_t \to 1$), concentrando o esforço de otimização nos padrões raros ou fronteiriços de ataque ($p_t \to 0$). Dessa forma, a perda focal assegura sensibilidade discriminatória às classes de ataque minoritárias sem incorrer em instabilidade perante o volume massivo de tráfego ordinário.
+
+
 % ===========================================================================
 \section{Trabalhos Correlatos}
 \label{sec:trabalhos_correlatos}
 % ===========================================================================
 
-O desenvolvimento de arquiteturas computacionais robustas para detecção de anomalias em redes constitui uma linha de investigação consolidada e fértil na Ciência da Computação. O exame crítico das abordagens existentes permite posicionar formalmente as contribuições deste trabalho, examinando a transição de classificadores profundos homogêneos para propostas estruturadas em conjuntos e misturas de especialistas.
+A pesquisa em sistemas de detecção de intrusão em redes (NIDS) transitou de classificadores estatísticos rasos para
+arquiteturas neurais profundas e, mais recentemente, para arranjos baseados em comitês e misturas de especialistas
+(MoE). Esta seção revisa os principais trabalhos da literatura, analisando avanços, premissas de projeto e
+limitações que motivam a abordagem adotada neste trabalho.
 
 \subsection{NIDS Baseados em Aprendizado Profundo}
 \label{subsec:correlatos_dl}
 
-A evolução dos NIDS baseados em inteligência artificial focou inicialmente na substituição de classificadores superficiais por redes neurais profundas monolíticas aplicadas de forma uniforme sobre os dados \cite{survey2025dl}.
+As primeiras aplicações de aprendizado profundo em NIDS priorizaram a substituição de classificadores rasos por
+redes neurais monolíticas aplicadas sobre todo o conjunto de atributos \cite{survey2025dl}.
 
-\citeonline{feature2018} investigaram a detecção de valores atípicos (\emph{outlier detection}) combinada a algoritmos de seleção de atributos para aprimoramento da precisão de sistemas IDS. Os autores constataram que a seleção supervisionada de variáveis reduz taxas de falsos positivos em conjuntos de dados legados, a exemplo de KDD-Cup99 e NSL-KDD. Entretanto, a abordagem restringiu-se a classificadores rasos tradicionais (SVM, Árvores de Decisão e Random Forest) aplicados sobre a totalidade indiscriminada dos atributos, sem distinguir domínios espaciais, temporais ou espectrais específicos do tráfego.
+\citeonline{feature2018} analisaram a detecção de valores atípicos (\emph{outlier detection}) associada a algoritmos
+de seleção de atributos para sistemas de detecção de intrusão. O estudo indicou que a seleção supervisionada de
+variáveis diminui a taxa de falsos positivos em bases de dados legadas, como KDD-Cup99 e NSL-KDD. No entanto, o método
+empregou classificadores tradicionais (SVM, Árvores de Decisão e Random Forest) aplicados sobre a totalidade dos
+atributos tabulares, sem separar domínios espaciais, temporais ou espectrais do tráfego.
 
-\citeonline{netflow2020} propuseram representações universais de tráfego baseadas no protocolo NetFlow com o propósito de solucionar a fragmentação metodológica dos dados de rede. Subsequentemente, \citeonline{standard2021} expandiram essa abordagem estabelecendo um conjunto padronizado e canônico de atributos estatísticos aplicável a múltiplos conjuntos de referência (NF-UNSW-NB15, NF-CSE-CIC-IDS2018 e NF-BoT-IoT). As análises confirmaram a viabilidade da identificação de fluxos anômalos a partir de metadados sumarizados de rede. Não obstante, os autores fundamentaram suas avaliações em classificadores convencionais estáticos, sem investigar o encadeamento dinâmico entre chegadas sucessivas de pacotes ou propriedades harmônicas de frequência.
+\citeonline{netflow2020} propuseram representações de tráfego baseadas no protocolo NetFlow para mitigar a
+heterogeneidade de formatos entre bases de dados de rede. Em seguida, \citeonline{standard2021} estenderam essa
+proposta ao definir um conjunto padronizado de atributos estatísticos aplicável a múltiplos conjuntos de referência
+(NF-UNSW-NB15, NF-CSE-CIC-IDS2018 e NF-BoT-IoT). Embora tenham confirmado a viabilidade de identificar anomalias a
+partir de metadados agregados, os experimentos basearam-se em classificadores estáticos e não contemplaram correlações
+temporais entre chegadas de pacotes ou propriedades no domínio da frequência.
 
-\citeonline{advancedids2024} conduziram um estudo comparativo abrangente sobre conjuntos de dados e algoritmos de aprendizado de máquina para NIDS baseados em fluxos. O trabalho avaliou rigorosamente modelos supervisionados sob diferentes regimes de balanceamento de dados. As principais fragilidades evidenciadas pelos autores situam-se na perda severa de sensibilidade multiclasse perante categorias com baixa representatividade amostral e no custo computacional exigido pelo retreinamento de arquiteturas monolíticas quando confrontadas com volumes massivos de tráfego.
+\citeonline{advancedids2024} compararam algoritmos de aprendizado supervisionado em NIDS baseados em fluxos sob
+diferentes condições de balanceamento de classes. As limitações reportadas incluem a degradação de sensibilidade nas
+classes minoritárias e o custo computacional de retreinar modelos monolíticos perante grandes volumes de dados.
 
-\citeonline{neuralcyber2025} elaboraram uma avaliação comparativa de redes profundas para resiliência cibernética, confrontando topologias CNN, RNN e DNN na mitigação de intrusões. Os experimentos comprovaram que redes convolucionais sobressaem-se na captura de padrões morfológicos de cabeçalhos, enquanto modelos recorrentes (LSTM e GRU) destacam-se na detecção de ameaças com cadência temporal lenta. Contudo, os autores analisaram cada família de forma isolada, concluindo que nenhuma arquitetura homogênea foi capaz de manter liderança de desempenho em todas as classes de ataques simultaneamente.
+\citeonline{neuralcyber2025} avaliaram topologias CNN, RNN e DNN na classificação de intrusões em bases públicas.
+Os resultados indicaram que redes convolucionais capturam relações espaciais e morfológicas em cabeçalhos, enquanto
+modelos recorrentes (LSTM e GRU) detectam melhor padrões com dependência temporal prolongada. Como cada arquitetura
+foi avaliada isoladamente, nenhuma manteve desempenho superior em todas as classes de ataque.
 
-\citeonline{fnids2025} conceberam o F-NIDS, um sistema de detecção de intrusão alicerçado em Aprendizado Federado (\emph{Federated Learning}) com o objetivo de viabilizar o treinamento colaborativo entre instituições sem exposição de dados brutos. Conquanto enderece requisitos fundamentais de privacidade e descentralização em borda, o classificador local utilizado nos nós baseia-se em uma rede profunda homogênea, reproduzindo a vulnerabilidade analítica diante de ataques heterogêneos.
+\citeonline{fnids2025} desenvolveram o F-NIDS, que utiliza aprendizado federado (\emph{Federated Learning}) para
+treinamento colaborativo entre instituições com preservação da privacidade dos dados brutos. Embora atenda aos
+requisitos de descentralização, o modelo local de cada nó consiste em uma rede profunda homogênea, sujeita a
+limitações na detecção de perfis heterogêneos de tráfego malicioso.
 
-\citeonline{sistema2022} apresentaram um sistema híbrido e contínuo (\emph{on-line}) voltado à triagem e classificação de fluxos maliciosos em tempo real. A arquitetura emprega filtros estatísticos preliminares combinados a algoritmos supervisionados em linha de transmissão. Apesar dos avanços na redução da latência operacional, a solução depende de limiares determinísticos estáticos, sofrendo perda de precisão perante novas aplicações benignas que compartilham portas ordinárias de transporte.
+\citeonline{sistema2022} propuseram um sistema contínuo (\emph{on-line}) para triagem e classificação de fluxos em
+tempo real por meio da combinação de filtros estatísticos e classificadores supervisionados. Apesar da baixa latência
+de processamento, a dependência de limiares determinísticos pré-fixados reduz a precisão quando aplicações benignas
+utilizam portas de rede convencionais.
 
-\citeonline{sasi2025efficient} desenvolveram uma rede híbrida integrando camadas 1D-CNN e LSTM com mecanismos de autoatenção (\emph{self-attention}) voltada a ambientes de IoT. Os resultados apontaram ganhos na detecção de ataques combinados; todavia, a complexidade quadrática do mecanismo de atenção impôs sobrecarga computacional excessiva, tornando o modelo oneroso para execução em taxas de transmissão elevadas de tráfego contínuo.
+\citeonline{sasi2025efficient} combinaram camadas 1D-CNN e LSTM com mecanismos de autoatenção (\emph{self-attention})
+para ambientes de IoT. Embora a abordagem tenha melhorado a detecção de ataques combinados, a complexidade quadrática
+do mecanismo de atenção impõe alto custo computacional, o que inviabiliza a operação em tempo real sob fluxos contínuos
+de alta vazão.
 
 \subsection{Abordagens Ensemble e Mixture of Experts em Cibersegurança}
 \label{subsec:correlatos_ensemble_moe}
 
-Buscando suplantar os limites teóricos e operacionais das redes homogêneas, a comunidade acadêmica voltou-se para abordagens baseadas em aprendizado em conjunto (\emph{ensemble}) e especialização de redes.
+Para contornar as restrições de modelos homogêneos, diversas pesquisas exploram comitês de classificadores
+(\emph{ensemble}) e arquiteturas baseadas em especialização de sub-redes.
 
-\citeonline{hsae2025} propuseram o HSAE (\emph{Hybrid Semi-Supervised Autoencoder}), uma estrutura semi-supervisionada projetada para identificação de ameaças de dia zero combinada a um comitê ensemble. O arranjo sintetiza autoencoders para a caracterização da normalidade com classificadores em comitê. Entretanto, a fusão das decisões decorre de votação majoritária ou média aritmética simples com ponderações estáticas, desconsiderando a dependência contextual das amostras sob avaliação.
+\citeonline{hsae2025} propuseram o HSAE (\emph{Hybrid Semi-Supervised Autoencoder}), que combina autoencoders para
+modelagem de normalidade e comitês de classificadores para detecção de anomalias de dia zero em CSE-CIC-IDS2018 e
+NSL-KDD. Contudo, a agregação das saídas baseia-se em votação majoritária ou média aritmética simples com pesos fixos,
+sem ponderar a contribuição de cada modelo a partir do contexto específico do fluxo analisado.
 
-\citeonline{borgioli2024cae} estruturaram um autoencoder convolucional 1D (1D-CAE) voltado à detecção de intrusão em sistemas embarcados de tempo real com tolerância a ataques de envenenamento de dados (\emph{data poisoning}). O método comprovou a utilidade das operações convolucionais na compressão de padrões operacionais de rede. A investigação restringiu-se, todavia, ao diagnóstico binário (tráfego anômalo versus tráfego regular), sem fornecer discriminação granular multiclasse nem integrar mecanismos dinâmicos de governança cooperativa.
+\citeonline{borgioli2024cae} desenvolveram um autoencoder convolucional unidimensional (1D-CAE) para detecção de
+intrusão em sistemas embarcados de tempo real com tolerância a envenenamento de dados (\emph{data poisoning}),
+avaliado em CIC-IDS2017 e Modbus. Embora confirme a capacidade das convoluções em comprimir atributos de tráfego, o
+estudo limitou-se à classificação binária (tráfego anômalo versus regular), sem abordar a identificação multiclasse de
+ataques nem incorporar roteamento dinâmico entre classificadores.
 
-Paralelamente, o emprego do paradigma de Mistura de Especialistas (MoE) começou a emergir em vertentes correlatas da segurança computacional:
+Em detecção de falhas de software, \citeonline{moevd2025} desenvolveram a arquitetura MoEVD para análise de
+código-fonte C/C++. Diante da perda de eficácia de classificadores monolíticos perante a diversidade de
+vulnerabilidades, os autores dividiram o aprendizado entre sub-redes especializadas coordenadas por roteamento
+condicional. Embora o método tenha superado modelos monolíticos em código estático, o processamento de grafos
+sintáticos difere substancialmente do fluxo contínuo de pacotes em redes de dados.
 
-\citeonline{moevd2025} introduziram a arquitetura MoEVD para a identificação de falhas em código-fonte de software. Sob a máxima de que nenhum modelo monolítico atende eficazmente a todas as modalidades de ameaça (\emph{"One-for-All Does Not Work!"}), os autores demonstraram experimentalmente que classificadores generalistas colapsam perante a diversidade estrutural das vulnerabilidades. Ao segmentar o aprendizado em redes especializadas reguladas por roteamento condicional, o MoEVD superou arquiteturas de grande escala. Contudo, o processamento estático de grafos sintáticos em código impõe requisitos distintos do monitoramento em streaming de alta velocidade exigido por redes de telecomunicações.
+No contexto de tráfego de rede, \citeonline{trafficmoe2026} apresentaram o TrafficMoE para classificação de fluxos
+cifrados com protocolos como QUIC e túneis ISCX VPN. O método emprega especialistas neurais com roteamento adaptativo
+para tratar variações de entropia entre aplicações benignas. O escopo do estudo, contudo, limitou-se à categorização de
+aplicações (como navegação web e videoconferência), sem contemplar cenários de detecção de intrusão ou ataques
+multiclasse.
 
-\citeonline{trafficmoe2026} apresentaram o TrafficMoE, um framework fundamentado em MoE orientado à classificação de tráfego de rede criptografado sensível à heterogeneidade dos dados (\emph{heterogeneity-aware}). Os autores constataram que a criptografia moderna introduz distribuições disjuntas de entropia entre aplicações benignas. O sistema emprega especialistas neurais governados por roteamento adaptativo. Não obstante o mérito técnico, o trabalho ateve-se estritamente à categorização de serviços e aplicações ordinárias (como videoconferência versus navegação convencional), sem contemplar cenários de intrusão cibernética, ataques persistentes multi-estágio ou agentes adversariais conduzidos por inteligência artificial.
+\citeonline{alfmoe2026} introduziram o ALF-MoE (\emph{Attention-Based Learnable Fusion of Specialized Expert
+Networks}) para classificação de tráfego agregado e túneis VPN cifrados. A arquitetura organiza cinco especialistas
+em quatro domínios de atributos (representação tabular com DNN, espacial com CNN, temporal de curto prazo com GRU,
+espectral com CAE e dependência temporal estendida com LSTM), coordenados por uma rede de roteamento (\emph{Gating
+Network}) com fusão atencional aprendível (ALF) e projeção afim estabilizada. O modelo alcançou acurácia superior a
+97\% em bases consolidadas como ISCX VPN-nonVPN e Unicauca.
 
-\citeonline{alfmoe2026} propuseram formalmente o ALF-MoE (\emph{Attention-Based Learnable Fusion of Specialized Expert Networks}), aplicando a mistura de redes à classificação de tráfego agregado e túneis cifrados VPN. A contribuição seminal do estudo residiu na organização de cinco especialistas direcionados a quatro perspectivas distintas de atributos (estatística tabular com DNN, espacial com CNN, temporal transitória com GRU, espectral de frequência com CAE e dependência temporal de longo prazo com LSTM), coordenados por uma Gating Network dotada de refinamento de atenção aprendível (ALF) e projeção afim estabilizada. O arranjo alcançou acurácia superior a 97\% em bases consolidadas como ISCX VPN-nonVPN e Unicauca.
-
-A despeito dessa relevância metodológica, a concepção original de \citeonline{alfmoe2026} circunscreveu-se a tarefas balanceadas de identificação de aplicações corporativas e operou em modo exclusivamente em lote (\emph{batch}), sem examinar a eficácia do modelo em tarefas de detecção de intrusão multiclasse com desbalanceamento extremo de classes de ataque e sem contemplar a viabilidade de inferência de baixa latência integrada a motores modernos de telemetria contínua de rede.
+Apesar desses resultados, a formulação original de \citeonline{alfmoe2026} foi avaliada exclusivamente na
+categorização balanceada de aplicações de rede e em regime de processamento em lote (\emph{batch}). O método não foi
+testado em cenários de detecção de intrusão com desbalanceamento severo de classes de ataque, nem analisado quanto à
+latência de inferência necessária para operação com ferramentas de telemetria contínua.
 
 \subsection{Síntese Comparativa}
 \label{subsec:sintese_comparativa}
 
-A análise crítica da literatura especializada permite consolidar um conjunto de lacunas estruturais que delimitam a fronteira do conhecimento na área de NIDS:
+O levantamento dos trabalhos correlatos evidencia lacunas metodológicas recorrentes na literatura de NIDS:
 
 \begin{enumerate}
-    \item \textbf{Monolitismo e Ausência de Especialização Multidomínio:} a maioria expressiva das propostas recorre a modelos homogêneos (estritamente convolucionais ou estritamente recorrentes), sacrificando a acurácia em classes de ameaças cujas características diagnósticas residem em dimensões fora do escopo focalizado pela arquitetura;
-    \item \textbf{Fusão Estática em Comitês Convencionais:} as abordagens com múltiplos classificadores adotam majoritariamente agregações heurísticas tardias (médias aritméticas ou votação majoritária estática), desconsiderando a dependência contextual entre fluxos e a calibração de certeza mútua entre os modelos;
-    \item \textbf{Vulnerabilidade ao Desbalanceamento Extremo de Classes:} a literatura frequentemente avalia modelos sob métricas globais agregadas que mascaram o colapso do classificador em ataques raros ou altamente assimétricos em tráfego criptografado;
-    \item \textbf{Ausência de Calibração Probabilística Dinâmica:} modelos neurais modernos sofrem de superconfiança (\emph{overconfidence}) em predições incorretas em espaços multiclasse complexos, carecendo de mecanismos de escalonamento paramétrico integrados à tomada de decisão;
-    \item \textbf{Limitação de Avaliação Cruzada entre Domínios:} grande parte das propostas restringe-se a uma única base de dados, omitindo a validação de robustez e generalização da arquitetura perante ecossistemas heterogêneos (redes corporativas, tráfego IoT e explorações avançadas).
+    \item \textbf{Monolitismo e ausência de especialização multidomínio:} a maior parte das propostas emprega modelos
+    homogêneos (exclusivamente convolucionais ou recorrentes), o que limita o desempenho em categorias de ataque cujos
+    padrões residem em domínios não contemplados pela arquitetura;
+    \item \textbf{Fusão estática em comitês convencionais:} métodos ensemble frequentemente adotam regras de votação
+    majoritária ou médias com pesos fixos, sem considerar a adequação contextual de cada classificador ao perfil do
+    fluxo recebido;
+    \item \textbf{Sensibilidade ao desbalanceamento de classes:} avaliações baseadas em métricas globais agregadas
+    muitas vezes ocultam a baixa taxa de detecção em ataques minoritários com escassa representação amostral;
+    \item \textbf{Ausência de calibração probabilística:} redes neurais profundas tendem a exibir superconfiança
+    (\emph{overconfidence}) em predições incorretas, o que requer métodos de calibração para estimar a incerteza das
+    decisões;
+    \item \textbf{Avaliação restrita a domínios isolados:} predominam estudos validados em uma única base de dados,
+    sem verificar a capacidade de generalização entre ambientes com perfis de tráfego distintos, como redes
+    corporativas e ecossistemas de Internet das Coisas (IoT).
 \end{enumerate}
 
-Para consolidar as distinções metodológicas entre os principais trabalhos da literatura e o modelo concebido nesta tese, o Quadro~\ref{quadro:comparativo_trabalhos} sumariza as abordagens, modelos empregados, conjuntos de dados e fragilidades estruturais de cada iniciativa.
+O Quadro~\ref{quadro:comparativo_trabalhos} resume as abordagens, modelos, bases de dados e limitações dos trabalhos
+analisados em relação à proposta desta pesquisa.
 
 \small
-\begin{xltabular}{\textwidth}{|>{\raggedright\arraybackslash}p{2.6cm}|>{\raggedright\arraybackslash}p{2.8cm}|>{\raggedright\arraybackslash}p{3.1cm}|>{\raggedright\arraybackslash}X|}
-\caption{Síntese comparativa entre trabalhos correlatos da literatura e a proposta desta tese.} \label{quadro:comparativo_trabalhos} \\
+\begin{xltabular}{\textwidth}{%
+|>{\raggedright\arraybackslash}p{2.6cm}|%
+>{\raggedright\arraybackslash}p{2.8cm}|%
+>{\raggedright\arraybackslash}p{3.1cm}|%
+>{\raggedright\arraybackslash}X|}
+\caption{Síntese comparativa entre trabalhos correlatos da literatura e a proposta desta tese.}
+\label{quadro:comparativo_trabalhos} \\
 \hline
-\textbf{Trabalho / Referência} & \textbf{Metodologia / Paradigma} & \textbf{Modelos / Datasets} & \textbf{Limitações Identificadas} \\
+\textbf{Trabalho / Referência} & \textbf{Metodologia / Paradigma} &
+\textbf{Modelos / Datasets} & \textbf{Limitações Identificadas} \\
 \hline
 \endfirsthead
 
 \multicolumn{4}{c}%
 {{\small\tablename\ \thetable{} -- Continuação da página anterior}} \\
 \hline
-\textbf{Trabalho / Referência} & \textbf{Metodologia / Paradigma} & \textbf{Modelos / Datasets} & \textbf{Limitações Identificadas} \\
+\textbf{Trabalho / Referência} & \textbf{Metodologia / Paradigma} &
+\textbf{Modelos / Datasets} & \textbf{Limitações Identificadas} \\
 \hline
 \endhead
 
@@ -309,33 +378,68 @@ Para consolidar as distinções metodológicas entre os principais trabalhos da 
 \hline
 \endlastfoot
 
-\citeonline{feature2018} & Detecção de outliers e seleção de atributos & DT, RF, SVM \newline (KDD-Cup99, NSL-KDD) & Modelos clássicos sem exploração multidomínio; restrito a datasets legados com tráfego sintético. \\
+\citeonline{feature2018} & Detecção de outliers e seleção de atributos &
+DT, RF, SVM \newline (KDD-Cup99, NSL-KDD) &
+Modelos clássicos sem exploração multidomínio; restrito a datasets legados com tráfego sintético. \\
 \hline
-\citeonline{netflow2020}; \citeonline{standard2021} & Padronização de atributos para fluxos NetFlow & RF, NB, MLP \newline (NF-UNSW-NB15, NF-CIC-IDS2018) & Foco exclusivo em atributos estatísticos agregados; não modela dinâmicas temporais e espectrais. \\
+\citeonline{netflow2020}; \citeonline{standard2021} &
+Padronização de atributos para fluxos NetFlow &
+RF, NB, MLP \newline (NF-UNSW-NB15, NF-CSE-CIC-IDS2018) &
+Foco exclusivo em atributos estatísticos agregados; não modela dinâmicas temporais e espectrais. \\
 \hline
-\citeonline{sistema2022} & Sistema híbrido e em tempo real para redes & Limiar estatístico + DT/RF \newline (Tráfego real e bases públicas) & Elevada dependência de limiares determinísticos; perda de precisão em ameaças complexas. \\
+\citeonline{sistema2022} & Sistema híbrido e em tempo real para redes &
+Limiar estatístico + DT/RF \newline (Tráfego real e bases públicas) &
+Elevada dependência de limiares determinísticos; perda de precisão em ameaças complexas. \\
 \hline
-\citeonline{advancedids2024} & Estudo comparativo exaustivo de NIDS em fluxo & DT, RF, XGBoost, MLP \newline (CSE-CIC-IDS2018, CIC-UNSW-NB15) & Arquiteturas homogêneas; degradação acentuada em classes com desbalanceamento extremo. \\
+\citeonline{advancedids2024} & Estudo comparativo de NIDS em fluxo &
+DT, RF, XGBoost, MLP \newline (CSE-CIC-IDS2018, CIC-UNSW-NB15) &
+Arquiteturas homogêneas; degradação acentuada em classes com desbalanceamento extremo. \\
 \hline
-\citeonline{neuralcyber2025} & Análise comparativa de redes profundas & CNN, RNN, DNN isoladas \newline (Bases públicas de intrusão) & Ausência de fusão estruturada; nenhum modelo homogêneo dominou todas as categorias de ataque. \\
+\citeonline{neuralcyber2025} & Análise comparativa de redes profundas &
+CNN, RNN, DNN isoladas \newline (Bases públicas de intrusão) &
+Ausência de fusão estruturada; nenhum modelo homogêneo dominou todas as categorias de ataque. \\
 \hline
-\citeonline{fnids2025} & Aprendizado Federado para NIDS corporativo & DNN homogênea federada \newline (CSE-CIC-IDS2018) & Foco na descentralização; classificador local não contempla representação em múltiplos domínios. \\
+\citeonline{fnids2025} & Aprendizado Federado para NIDS corporativo &
+DNN homogênea federada \newline (CSE-CIC-IDS2018) &
+Foco na descentralização; classificador local não contempla representação em múltiplos domínios. \\
 \hline
-\citeonline{sasi2025efficient} & Rede híbrida com autoatenção para IoT & 1D-CNN-LSTM + Atenção \newline (Edge-IIoTset, CICIoT2023) & Alta complexidade quadrática da autoatenção; inviável sob tráfego contínuo em alta vazão. \\
+\citeonline{sasi2025efficient} & Rede híbrida com autoatenção para IoT &
+1D-CNN-LSTM + Atenção \newline (Edge-IIoTset, CICIoT2023) &
+Alta complexidade quadrática da autoatenção; inviável sob tráfego contínuo em alta vazão. \\
 \hline
-\citeonline{hsae2025} & Autoencoder semi-supervisionado e ensemble & HSAE + Comitê de votação \newline (CSE-CIC-IDS2018, NSL-KDD) & Fusão tardia por votação estática; não aprende ponderações adaptativas de acordo com o contexto. \\
+\citeonline{hsae2025} & Autoencoder semi-supervisionado e ensemble &
+HSAE + Comitê de votação \newline (CSE-CIC-IDS2018, NSL-KDD) &
+Fusão tardia por votação estática; não aprende ponderações adaptativas de acordo com o contexto. \\
 \hline
-\citeonline{borgioli2024cae} & Autoencoder Convolucional em sistemas embarcados & 1D-CAE não supervisionado \newline (CIC-IDS2017, Modbus) & Restrito à classificação binária (anomalia vs normal); ausência de diagnóstico multiclasse. \\
+\citeonline{borgioli2024cae} & Autoencoder Convolucional em sistemas embarcados &
+1D-CAE não supervisionado \newline (CIC-IDS2017, Modbus) &
+Restrito à classificação binária (anomalia vs normal); ausência de diagnóstico multiclasse. \\
 \hline
-\citeonline{moevd2025} & Mixture of Experts para detecção de falhas & MoE condicional com Gating \newline (Bases de código C/C++) & Domínio de código estático; não se aplica a fluxos contínuos de pacotes em redes de dados. \\
+\citeonline{moevd2025} & Mixture of Experts para detecção de falhas &
+MoE condicional com Gating \newline (Bases de código C/C++) &
+Domínio de código estático; não se aplica a fluxos contínuos de pacotes em redes de dados. \\
 \hline
-\citeonline{trafficmoe2026} & MoE para classificação de tráfego cifrado & MoE heterogêneo + Gating \newline (ISCX VPN, Tráfego QUIC) & Foco na identificação de aplicações benignas cifradas; não avaliado sob ataques cibernéticos. \\
+\citeonline{trafficmoe2026} & MoE para classificação de tráfego cifrado &
+MoE heterogêneo + Gating \newline (ISCX VPN, Tráfego QUIC) &
+Foco na identificação de aplicações benignas cifradas; não avaliado sob ataques cibernéticos. \\
 \hline
-\citeonline{alfmoe2026} & MoE com fusão atencional aprendível (ALF) & 5 Especialistas (DNN, CNN, GRU, CAE, LSTM) + ALF \newline (ISCX VPN, Unicauca) & Validado apenas em classificação de tráfego de aplicações em lote; sem validação para NIDS multiclasse e streaming. \\
+\citeonline{alfmoe2026} & MoE com fusão atencional aprendível (ALF) &
+5 Especialistas (DNN, CNN, GRU, CAE, LSTM) + ALF \newline (ISCX VPN, Unicauca) &
+Validado apenas em classificação de tráfego de aplicações em lote; sem validação para NIDS \newline
+multiclasse e streaming. \\
 \hline
-\textbf{Este Trabalho (ALF-MoE NIDS)} & \textbf{ALF-MoE Multidomínio Adaptado para NIDS} & \textbf{5 Especialistas + Gating Atencional + Fusão ALF + NFStream} \newline (CSE-CIC-IDS2018 Canônico e Corrigido, CIC-BCCC-NRC-2024, CIC-UNSW-NB15) & \textbf{Supera as limitações anteriores:} investiga a transposição do MoE para detecção de intrusões multiclasse em tráfego de rede, mitiga desbalanceamento severo via Focal Loss multitarefa e avalia a latência de inferência em tempo real. \\ % TODO: Multitarefa ou multiclasse?
+\textbf{Este Trabalho (ALF-MoE NIDS)} & ALF-MoE multidomínio para NIDS &
+5 Especialistas + Gating Atencional + Fusão ALF + NFStream \newline
+(CSE-CIC-IDS2018 Canônico e Corrigido, CIC-BCCC-NRC-2024, CIC-UNSW-NB15) &
+Adaptação da arquitetura MoE para detecção de intrusões multiclasse em rede; mitigação de desbalanceamento severo
+via Focal Loss multitarefa; avaliação de latência em fluxo contínuo. \\
 \hline
 \end{xltabular}
 \fonte{Elaborado pelo autor (2026).}
 
-A fundamentação teórica e o mapeamento dos trabalhos correlatos expostos neste capítulo demonstram que a arquitetura ALF-MoE reúne os alicerces analíticos indispensáveis para superar os limites evidenciados na literatura. Ao segmentar a inspeção do tráfego em quatro perspectivas especializadas (tabular estática, morfológica espacial, sequencial temporal e harmônica espectral) coordenadas por uma rede de roteamento calibrada e um módulo de fusão atencional aprendível, estabelece-se a base teórico-conceitual necessária para a formulação metodológica descrita no capítulo subsequente.
+A revisão da literatura e os fundamentos teóricos apresentados neste capítulo embasam a adaptação da arquitetura
+ALF-MoE para o domínio de detecção de intrusão em redes. A divisão do espaço de atributos em perspectivas
+especializadas (Geral, Espacial, Estatística, Frequência e Temporal), combinada ao roteamento adaptativo via Gating
+Network e ao módulo de fusão atencional aprendível, estabelece a estrutura adotada para tratar a heterogeneidade e a
+assimetria dos fluxos de tráfego malicioso. O Capítulo~\ref{cap:metodologia} descreve detalhadamente as formulações
+metodológicas, os conjuntos de dados de referência e o protocolo experimental implementado.

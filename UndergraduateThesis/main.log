@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025/Debian) (preloaded format=pdflatex 2026.6.19)  2 OCT 2026 14:24
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025/Debian) (preloaded format=pdflatex 2026.10.11)  19 OCT 2026 21:53
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1085,7 +1085,17 @@ l.132
 
 ] [8
 
-] (./main.lof) [9
+] (./main.lof
+Overfull \hbox (18.50781pt too wide) in paragraph at lines 7--7
+ [][] [][][]\T1/ptm/m/n/12 (-20) Distribuição de classes no nível TL0 para o CIC-BCCC-NRC TabularIoTAttack- 
+ []
+
+
+Overfull \hbox (18.50781pt too wide) in paragraph at lines 9--9
+ [][] [][][]\T1/ptm/m/n/12 (-20) Distribuição de classes no nível TL1 para o CIC-BCCC-NRC TabularIoTAttack- 
+ []
+
+) [9
 
 ] (./main.lot) [10] [11
 
@@ -1094,172 +1104,184 @@ l.132
 
 ] (./main.toc [13
 
-] [14]
-LaTeX Font Info:    Trying to load font information for T1+pcr on input line 87.
+] [14]) [15]
+Cap\'{\i }tulo 1.
+(./chapters/01_introducao.tex [16
+
+]
+<figures/Arquitetura-Completa.pdf, id=406, 723.70375pt x 404.51125pt>
+File: figures/Arquitetura-Completa.pdf Graphic file (type pdf)
+<use figures/Arquitetura-Completa.pdf>
+Package pdftex.def Info: figures/Arquitetura-Completa.pdf  used on input line 54.
+(pdftex.def)             Requested size: 364.19667pt x 203.56982pt.
+ [17 <./figures/Arquitetura-Completa.pdf>]
+<figures/classdist/Dataset_CICUNSWNB15_Classes.pdf, id=492, 1288.57411pt x 517.45322pt>
+File: figures/classdist/Dataset_CICUNSWNB15_Classes.pdf Graphic file (type pdf)
+<use figures/classdist/Dataset_CICUNSWNB15_Classes.pdf>
+Package pdftex.def Info: figures/classdist/Dataset_CICUNSWNB15_Classes.pdf  used on input line 71.
+(pdftex.def)             Requested size: 455.24411pt x 182.8089pt.
+<figures/classdist/Dataset_CSECICIDS2018_Classes.pdf, id=493, 1432.87321pt x 591.16862pt>
+File: figures/classdist/Dataset_CSECICIDS2018_Classes.pdf Graphic file (type pdf)
+<use figures/classdist/Dataset_CSECICIDS2018_Classes.pdf>
+Package pdftex.def Info: figures/classdist/Dataset_CSECICIDS2018_Classes.pdf  used on input line 73.
+(pdftex.def)             Requested size: 455.24411pt x 187.82474pt.
+ [18] [19 <./figures/classdist/Dataset_CICUNSWNB15_Classes.pdf> <./figures/classdist/Dataset_CSECICIDS2018_Classes.pdf>] [20] [21]) [22]
+Cap\'{\i }tulo 2.
+(./chapters/02_fundamentacao.tex [23
+
+] [24]
+LaTeX Font Info:    Trying to load font information for T1+pcr on input line 37.
  (/usr/share/texlive/texmf-dist/tex/latex/psnfss/t1pcr.fd
 File: t1pcr.fd 2001/06/04 font definitions for T1/pcr.
 )
-LaTeX Font Info:    Font shape `T1/pcr/m/it' in size <12> not available
-(Font)              Font shape `T1/pcr/m/sl' tried instead on input line 87.
 Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `pcr' (encoding: T1).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
- [15]) [16]
-Cap\'{\i }tulo 1.
-(./chapters/01_introducao.tex [17
-
-] [18] [19] [20] [21] [22] [23]) [24]
-Cap\'{\i }tulo 2.
-(./chapters/02_fundamentacao.tex [25
-
-] [26] [27] [28] [29] [30] [31] [32] [33] [34] [35] [36] [37] [38] [39] [40] [41] [42] [43]
-./chapters/02_fundamentacao.tex:494: ignored error: Infinite glue shrinkage found in box being split [44]) [45] [46]
+ [25] [26] [27] [28] [29] [30] [31] [32] [33] [34] [35] [36] [37]
+./chapters/02_fundamentacao.tex:437: ignored error: Infinite glue shrinkage found in box being split [38]
+./chapters/02_fundamentacao.tex:437: ignored error: Infinite glue shrinkage found in box being split [39]) [40]
 Cap\'{\i }tulo 3.
-(./chapters/03_metodologia.tex [47
+(./chapters/03_metodologia.tex [41
 
-]
-Package hyperref Info: bookmark level for unknown quadro defaults to 0 on input line 37.
- [48] [49] [50] [51] [52] [53] [54] [55] [56]
-<figures/architecture/DNN.png, id=1131, 451.6875pt x 200.75pt>
-File: figures/architecture/DNN.png Graphic file (type png)
-<use figures/architecture/DNN.png>
-Package pdftex.def Info: figures/architecture/DNN.png  used on input line 332.
-(pdftex.def)             Requested size: 191.20169pt x 84.97913pt.
-<figures/architecture/CNN.png, id=1133, 621.32124pt x 200.75pt>
-File: figures/architecture/CNN.png Graphic file (type png)
-<use figures/architecture/CNN.png>
-Package pdftex.def Info: figures/architecture/CNN.png  used on input line 339.
-(pdftex.def)             Requested size: 245.82875pt x 79.42555pt.
-<figures/architecture/GRU.png, id=1134, 404.51125pt x 200.75pt>
-File: figures/architecture/GRU.png Graphic file (type png)
-<use figures/architecture/GRU.png>
-Package pdftex.def Info: figures/architecture/GRU.png  used on input line 348.
-(pdftex.def)             Requested size: 195.75163pt x 97.1492pt.
-<figures/architecture/CAE.png, id=1135, 501.875pt x 200.75pt>
-File: figures/architecture/CAE.png Graphic file (type png)
-<use figures/architecture/CAE.png>
-Package pdftex.def Info: figures/architecture/CAE.png  used on input line 355.
-(pdftex.def)             Requested size: 241.27881pt x 96.51205pt.
-<figures/architecture/LSTM.png, id=1136, 421.575pt x 200.75pt>
-File: figures/architecture/LSTM.png Graphic file (type png)
-<use figures/architecture/LSTM.png>
-Package pdftex.def Info: figures/architecture/LSTM.png  used on input line 364.
-(pdftex.def)             Requested size: 204.85846pt x 97.55354pt.
- [57]
-<figures/architecture/GATING_NETWORK.png, id=1149, 493.845pt x 200.75pt>
-File: figures/architecture/GATING_NETWORK.png Graphic file (type png)
-<use figures/architecture/GATING_NETWORK.png>
-Package pdftex.def Info: figures/architecture/GATING_NETWORK.png  used on input line 404.
-(pdftex.def)             Requested size: 341.43307pt x 138.79332pt.
- [58 <./figures/architecture/DNN.png> <./figures/architecture/CNN.png> <./figures/architecture/GRU.png> <./figures/architecture/CAE.png> <./figures/architecture/LSTM.png>]
-<figures/architecture/ALF.png, id=1163, 501.875pt x 200.75pt>
-File: figures/architecture/ALF.png Graphic file (type png)
-<use figures/architecture/ALF.png>
-Package pdftex.def Info: figures/architecture/ALF.png  used on input line 439.
-(pdftex.def)             Requested size: 341.43307pt x 136.57863pt.
- [59 <./figures/architecture/GATING_NETWORK.png> <./figures/architecture/ALF.png>]
-<figures/architecture/ALF-MoE.png, id=1179, 481.8pt x 316.18124pt>
-File: figures/architecture/ALF-MoE.png Graphic file (type png)
-<use figures/architecture/ALF-MoE.png>
-Package pdftex.def Info: figures/architecture/ALF-MoE.png  used on input line 449.
-(pdftex.def)             Requested size: 341.43307pt x 224.07051pt.
- [60 <./figures/architecture/ALF-MoE.png>] [61]) [62]
+] [42]
+<figures/classdist/Dataset_CSECICIDS2018_Amostra_Classes.pdf, id=1020, 1431.95169pt x 591.99544pt>
+File: figures/classdist/Dataset_CSECICIDS2018_Amostra_Classes.pdf Graphic file (type pdf)
+<use figures/classdist/Dataset_CSECICIDS2018_Amostra_Classes.pdf>
+Package pdftex.def Info: figures/classdist/Dataset_CSECICIDS2018_Amostra_Classes.pdf  used on input line 96.
+(pdftex.def)             Requested size: 364.19667pt x 150.56389pt.
+ [43 <./figures/classdist/Dataset_CSECICIDS2018_Amostra_Classes.pdf>]
+<figures/classdist/Dataset_CSECICIDS2018_Corrigido_Classes.pdf, id=1126, 1506.67336pt x 628.85312pt>
+File: figures/classdist/Dataset_CSECICIDS2018_Corrigido_Classes.pdf Graphic file (type pdf)
+<use figures/classdist/Dataset_CSECICIDS2018_Corrigido_Classes.pdf>
+Package pdftex.def Info: figures/classdist/Dataset_CSECICIDS2018_Corrigido_Classes.pdf  used on input line 157.
+(pdftex.def)             Requested size: 455.24411pt x 190.01035pt.
+ [44]
+<figures/classdist/Dataset_CICUNSWNB15_Amostra_Classes.pdf, id=1142, 1288.31067pt x 518.28004pt>
+File: figures/classdist/Dataset_CICUNSWNB15_Amostra_Classes.pdf Graphic file (type pdf)
+<use figures/classdist/Dataset_CICUNSWNB15_Amostra_Classes.pdf>
+Package pdftex.def Info: figures/classdist/Dataset_CICUNSWNB15_Amostra_Classes.pdf  used on input line 190.
+(pdftex.def)             Requested size: 386.96027pt x 155.675pt.
+ [45 <./figures/classdist/Dataset_CSECICIDS2018_Corrigido_Classes.pdf> <./figures/classdist/Dataset_CICUNSWNB15_Amostra_Classes.pdf>]
+<figures/classdist/Dataset_CICBCCCNRC2024_TL0.pdf, id=1324, 1864.93086pt x 742.67207pt>
+File: figures/classdist/Dataset_CICBCCCNRC2024_TL0.pdf Graphic file (type pdf)
+<use figures/classdist/Dataset_CICBCCCNRC2024_TL0.pdf>
+Package pdftex.def Info: figures/classdist/Dataset_CICBCCCNRC2024_TL0.pdf  used on input line 223.
+(pdftex.def)             Requested size: 455.24411pt x 181.2933pt.
+ [46 <./figures/classdist/Dataset_CICBCCCNRC2024_TL0.pdf>]
+<figures/classdist/Dataset_CSECICIDS2018_Corrigido_TL1.pdf, id=1476, 1510.90767pt x 628.85312pt>
+File: figures/classdist/Dataset_CSECICIDS2018_Corrigido_TL1.pdf Graphic file (type pdf)
+<use figures/classdist/Dataset_CSECICIDS2018_Corrigido_TL1.pdf>
+Package pdftex.def Info: figures/classdist/Dataset_CSECICIDS2018_Corrigido_TL1.pdf  used on input line 254.
+(pdftex.def)             Requested size: 455.24411pt x 189.473pt.
+<figures/classdist/Dataset_CICBCCCNRC2024_TL1.pdf, id=1485, 937.87033pt x 565.65974pt>
+File: figures/classdist/Dataset_CICBCCCNRC2024_TL1.pdf Graphic file (type pdf)
+<use figures/classdist/Dataset_CICBCCCNRC2024_TL1.pdf>
+Package pdftex.def Info: figures/classdist/Dataset_CICBCCCNRC2024_TL1.pdf  used on input line 278.
+(pdftex.def)             Requested size: 432.48051pt x 260.84535pt.
+ [47 <./figures/classdist/Dataset_CSECICIDS2018_Corrigido_TL1.pdf>] [48 <./figures/classdist/Dataset_CICBCCCNRC2024_TL1.pdf>] [49]
+Underfull \hbox (badness 10000) in paragraph at lines 408--408
+[]|$\OML/cmm/m/it/10.95 x[] \OMS/cmsy/m/n/10.95 2
+ []
+
+[50]
+<figures/Arquitetura-ExpertDNN.pdf, id=1772, 599.23875pt x 265.99374pt>
+File: figures/Arquitetura-ExpertDNN.pdf Graphic file (type pdf)
+<use figures/Arquitetura-ExpertDNN.pdf>
+Package pdftex.def Info: figures/Arquitetura-ExpertDNN.pdf  used on input line 481.
+(pdftex.def)             Requested size: 223.07211pt x 99.01683pt.
+<figures/Arquitetura-ExpertLSTM.pdf, id=1773, 534.99875pt x 254.9525pt>
+File: figures/Arquitetura-ExpertLSTM.pdf Graphic file (type pdf)
+<use figures/Arquitetura-ExpertLSTM.pdf>
+Package pdftex.def Info: figures/Arquitetura-ExpertLSTM.pdf  used on input line 488.
+(pdftex.def)             Requested size: 209.41534pt x 99.79675pt.
+<figures/Arquitetura-ExpertGRU.pdf, id=1774, 528.97626pt x 261.97874pt>
+File: figures/Arquitetura-ExpertGRU.pdf Graphic file (type pdf)
+<use figures/Arquitetura-ExpertGRU.pdf>
+Package pdftex.def Info: figures/Arquitetura-ExpertGRU.pdf  used on input line 497.
+(pdftex.def)             Requested size: 195.75163pt x 96.9466pt.
+<figures/Arquitetura-ExpertCAE.pdf, id=1775, 617.30624pt x 246.9225pt>
+File: figures/Arquitetura-ExpertCAE.pdf Graphic file (type pdf)
+<use figures/Arquitetura-ExpertCAE.pdf>
+Package pdftex.def Info: figures/Arquitetura-ExpertCAE.pdf  used on input line 504.
+(pdftex.def)             Requested size: 241.27881pt x 96.51036pt.
+<figures/Arquitetura-ExpertCNN.pdf, id=1776, 833.1125pt x 270.00874pt>
+File: figures/Arquitetura-ExpertCNN.pdf Graphic file (type pdf)
+<use figures/Arquitetura-ExpertCNN.pdf>
+Package pdftex.def Info: figures/Arquitetura-ExpertCNN.pdf  used on input line 513.
+(pdftex.def)             Requested size: 364.19667pt x 118.03377pt.
+ [51] [52 <./figures/Arquitetura-ExpertDNN.pdf> <./figures/Arquitetura-ExpertLSTM.pdf> <./figures/Arquitetura-ExpertGRU.pdf> <./figures/Arquitetura-ExpertCAE.pdf> <./figures/Arquitetura-ExpertCNN.pdf>]
+<figures/Arquitetura-GatingNetwork.pdf, id=2462, 571.13374pt x 231.86626pt>
+File: figures/Arquitetura-GatingNetwork.pdf Graphic file (type pdf)
+<use figures/Arquitetura-GatingNetwork.pdf>
+Package pdftex.def Info: figures/Arquitetura-GatingNetwork.pdf  used on input line 569.
+(pdftex.def)             Requested size: 386.96027pt x 157.09734pt.
+ [53 <./figures/Arquitetura-GatingNetwork.pdf>]
+<figures/Arquitetura-ALF.pdf, id=2623, 617.30624pt x 246.9225pt>
+File: figures/Arquitetura-ALF.pdf Graphic file (type pdf)
+<use figures/Arquitetura-ALF.pdf>
+Package pdftex.def Info: figures/Arquitetura-ALF.pdf  used on input line 610.
+(pdftex.def)             Requested size: 341.43307pt x 136.5764pt.
+ [54 <./figures/Arquitetura-ALF.pdf>] [55] [56]) [57]
 Cap\'{\i }tulo 4.
-(./chapters/04_pipeline_inferencia.tex [63
+(./chapters/04_pipeline_inferencia.tex [58
 
-] [64] [65]
-Underfull \hbox (badness 2790) in paragraph at lines 105--105
-[]|\T1/ptm/b/n/10.95 (+20) Semântica no Pro-to-colo
- []
-
-
-Underfull \hbox (badness 1383) in paragraph at lines 105--105
-[]|\T1/ptm/m/n/10.95 (+20) Indicação de con-ges-tion-a-
- []
-
-
-Underfull \hbox (badness 4543) in paragraph at lines 105--105
-\T1/ptm/m/n/10.95 (+20) mento imi-nente na rede
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 105--105
-[]|\T1/ptm/m/n/10.95 (+20) Confirmação de re-ce-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 105--105
-\T1/ptm/m/n/10.95 (+20) bi-mento de seg-men-tos
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 105--105
-[]|\T1/ptm/m/n/10.95 (+20) Interrupção abrupta e
- []
-
-
-Underfull \hbox (badness 1418) in paragraph at lines 105--105
-\T1/ptm/m/n/10.95 (+20) reini-cial-iza-ção forçada da
- []
-
-[66] [67] [68]
-./chapters/04_pipeline_inferencia.tex:281: ignored error: Infinite glue shrinkage found in box being split [69]
-./chapters/04_pipeline_inferencia.tex:281: ignored error: Infinite glue shrinkage found in box being split [70] [71] [72] [73] [74] [75]) [76]
+] [59] [60] [61]) [62]
 Cap\'{\i }tulo 5.
-(./chapters/05_resultados.tex [77
+(./chapters/05_resultados.tex [63
 
 ]
-<figures/benchmarks/cm_norm_cse2018_l2.png, id=1331, 518.4168pt x 452.1693pt>
-File: figures/benchmarks/cm_norm_cse2018_l2.png Graphic file (type png)
-<use figures/benchmarks/cm_norm_cse2018_l2.png>
-Package pdftex.def Info: figures/benchmarks/cm_norm_cse2018_l2.png  used on input line 69.
+<figures/benchmarks/comparativo_metricas_4datasets_tl0.pdf, id=2866, 964.18654pt x 510.70232pt>
+File: figures/benchmarks/comparativo_metricas_4datasets_tl0.pdf Graphic file (type pdf)
+<use figures/benchmarks/comparativo_metricas_4datasets_tl0.pdf>
+Package pdftex.def Info: figures/benchmarks/comparativo_metricas_4datasets_tl0.pdf  used on input line 96.
+(pdftex.def)             Requested size: 437.0374pt x 231.48933pt.
+<figures/benchmarks/comparativo_metricas_4datasets_tl1.pdf, id=2867, 964.18654pt x 510.70232pt>
+File: figures/benchmarks/comparativo_metricas_4datasets_tl1.pdf Graphic file (type pdf)
+<use figures/benchmarks/comparativo_metricas_4datasets_tl1.pdf>
+Package pdftex.def Info: figures/benchmarks/comparativo_metricas_4datasets_tl1.pdf  used on input line 104.
+(pdftex.def)             Requested size: 437.0374pt x 231.48933pt.
+ [64 <./figures/benchmarks/comparativo_metricas_4datasets_tl0.pdf>] [65 <./figures/benchmarks/comparativo_metricas_4datasets_tl1.pdf>] [66]
+<figures/benchmarks/cm_norm_cse2018_tl1.png, id=3089, 518.4168pt x 452.1693pt>
+File: figures/benchmarks/cm_norm_cse2018_tl1.png Graphic file (type png)
+<use figures/benchmarks/cm_norm_cse2018_tl1.png>
+Package pdftex.def Info: figures/benchmarks/cm_norm_cse2018_tl1.png  used on input line 203.
 (pdftex.def)             Requested size: 218.51521pt x 190.59285pt.
-<figures/benchmarks/cm_norm_cse2018_imp_l2.png, id=1332, 691.6239pt x 575.751pt>
-File: figures/benchmarks/cm_norm_cse2018_imp_l2.png Graphic file (type png)
-<use figures/benchmarks/cm_norm_cse2018_imp_l2.png>
-Package pdftex.def Info: figures/benchmarks/cm_norm_cse2018_imp_l2.png  used on input line 76.
+<figures/benchmarks/cm_norm_cse2018_imp_tl1.png, id=3091, 691.6239pt x 575.751pt>
+File: figures/benchmarks/cm_norm_cse2018_imp_tl1.png Graphic file (type png)
+<use figures/benchmarks/cm_norm_cse2018_imp_tl1.png>
+Package pdftex.def Info: figures/benchmarks/cm_norm_cse2018_imp_tl1.png  used on input line 210.
 (pdftex.def)             Requested size: 218.51521pt x 181.90721pt.
-<figures/benchmarks/cm_norm_bccc2024_l2.png, id=1333, 668.9793pt x 582.7371pt>
-File: figures/benchmarks/cm_norm_bccc2024_l2.png Graphic file (type png)
-<use figures/benchmarks/cm_norm_bccc2024_l2.png>
-Package pdftex.def Info: figures/benchmarks/cm_norm_bccc2024_l2.png  used on input line 85.
+<figures/benchmarks/cm_norm_bccc2024_tl1.png, id=3092, 668.9793pt x 582.7371pt>
+File: figures/benchmarks/cm_norm_bccc2024_tl1.png Graphic file (type png)
+<use figures/benchmarks/cm_norm_bccc2024_tl1.png>
+Package pdftex.def Info: figures/benchmarks/cm_norm_bccc2024_tl1.png  used on input line 219.
 (pdftex.def)             Requested size: 218.51521pt x 190.33875pt.
-<figures/benchmarks/cm_norm_unsw_l0.png, id=1334, 741.972pt x 648.5028pt>
-File: figures/benchmarks/cm_norm_unsw_l0.png Graphic file (type png)
-<use figures/benchmarks/cm_norm_unsw_l0.png>
-Package pdftex.def Info: figures/benchmarks/cm_norm_unsw_l0.png  used on input line 92.
+<figures/benchmarks/cm_norm_unsw_tl0.png, id=3093, 741.972pt x 648.5028pt>
+File: figures/benchmarks/cm_norm_unsw_tl0.png Graphic file (type png)
+<use figures/benchmarks/cm_norm_unsw_tl0.png>
+Package pdftex.def Info: figures/benchmarks/cm_norm_unsw_tl0.png  used on input line 226.
 (pdftex.def)             Requested size: 218.51521pt x 190.98012pt.
- [78] [79 <./figures/benchmarks/cm_norm_cse2018_l2.png> <./figures/benchmarks/cm_norm_cse2018_imp_l2.png> <./figures/benchmarks/cm_norm_bccc2024_l2.png> <./figures/benchmarks/cm_norm_unsw_l0.png>] [80]
-<figures/benchmarks/radar_cse2018_l2.png, id=1368, 566.5968pt x 494.5677pt>
-File: figures/benchmarks/radar_cse2018_l2.png Graphic file (type png)
-<use figures/benchmarks/radar_cse2018_l2.png>
-Package pdftex.def Info: figures/benchmarks/radar_cse2018_l2.png  used on input line 188.
-(pdftex.def)             Requested size: 218.51521pt x 190.72987pt.
-<figures/benchmarks/radar_cse2018_imp_l2.png, id=1369, 562.5015pt x 479.391pt>
-File: figures/benchmarks/radar_cse2018_imp_l2.png Graphic file (type png)
-<use figures/benchmarks/radar_cse2018_imp_l2.png>
-Package pdftex.def Info: figures/benchmarks/radar_cse2018_imp_l2.png  used on input line 195.
-(pdftex.def)             Requested size: 218.51521pt x 186.22293pt.
-<figures/benchmarks/radar_bccc2024_l2.png, id=1370, 561.5379pt x 483.0045pt>
-File: figures/benchmarks/radar_bccc2024_l2.png Graphic file (type png)
-<use figures/benchmarks/radar_bccc2024_l2.png>
-Package pdftex.def Info: figures/benchmarks/radar_bccc2024_l2.png  used on input line 204.
-(pdftex.def)             Requested size: 218.51521pt x 187.9509pt.
-<figures/benchmarks/radar_unsw_l0.png, id=1371, 564.1878pt x 503.9628pt>
-File: figures/benchmarks/radar_unsw_l0.png Graphic file (type png)
-<use figures/benchmarks/radar_unsw_l0.png>
-Package pdftex.def Info: figures/benchmarks/radar_unsw_l0.png  used on input line 211.
-(pdftex.def)             Requested size: 218.51521pt x 195.19128pt.
- [81] [82 <./figures/benchmarks/radar_cse2018_l2.png> <./figures/benchmarks/radar_cse2018_imp_l2.png> <./figures/benchmarks/radar_bccc2024_l2.png> <./figures/benchmarks/radar_unsw_l0.png>] [83] [84] [85]) [86]
+ [67 <./figures/benchmarks/cm_norm_cse2018_tl1.png> <./figures/benchmarks/cm_norm_cse2018_imp_tl1.png> <./figures/benchmarks/cm_norm_bccc2024_tl1.png> <./figures/benchmarks/cm_norm_unsw_tl0.png>] [68] [69]
+<figures/gating_weights/comparativo_gating_pesos_4datasets.pdf, id=3132, 929.6833pt x 460.0293pt>
+File: figures/gating_weights/comparativo_gating_pesos_4datasets.pdf Graphic file (type pdf)
+<use figures/gating_weights/comparativo_gating_pesos_4datasets.pdf>
+Package pdftex.def Info: figures/gating_weights/comparativo_gating_pesos_4datasets.pdf  used on input line 392.
+(pdftex.def)             Requested size: 400.61703pt x 198.23692pt.
+<figures/gating_weights/gating_pesos_classes_cse_cic_ids2018_corrigido.pdf, id=3133, 966.05981pt x 461.32286pt>
+File: figures/gating_weights/gating_pesos_classes_cse_cic_ids2018_corrigido.pdf Graphic file (type pdf)
+<use figures/gating_weights/gating_pesos_classes_cse_cic_ids2018_corrigido.pdf>
+Package pdftex.def Info: figures/gating_weights/gating_pesos_classes_cse_cic_ids2018_corrigido.pdf  used on input line 400.
+(pdftex.def)             Requested size: 400.61703pt x 191.31166pt.
+ [70 <./figures/gating_weights/comparativo_gating_pesos_4datasets.pdf>] [71 <./figures/gating_weights/gating_pesos_classes_cse_cic_ids2018_corrigido.pdf>] [72] [73] [74] [75] [76]) [77]
 Cap\'{\i }tulo 6.
-(./chapters/06_conclusao.tex [87
+(./chapters/06_conclusao.tex [78
 
-] [88]) (./main.bbl [89]
+] [79] [80]) (./main.bbl [81]
 bibitemlist
-[90
+[82
 
-]) [91] [92]
+] [83]) [84]
 \tf@lof=\write4
 \openout4 = `main.lof'.
 
@@ -1276,18 +1298,18 @@ L3 programming layer <2020/03/25>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 26133 strings out of 469514
- 423893 string characters out of 5470072
- 1066437 words of memory out of 5000000
- 52907 multiletter control sequences out of 15000+600000
- 745092 words of font info for 777 fonts, out of 8000000 for 9000
+ 25724 strings out of 469514
+ 423417 string characters out of 5470071
+ 1032880 words of memory out of 5000000
+ 52838 multiletter control sequences out of 15000+600000
+ 718236 words of font info for 598 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 99i,13n,107p,1568b,818s stack positions out of 10000i,1000n,20000p,200000b,200000s
-</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/courier/ucrb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/courier/ucrro8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on main.pdf (94 pages, 3797047 bytes).
+ 99i,14n,107p,3142b,818s stack positions out of 10000i,1000n,20000p,200000b,200000s
+</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
+Output written on main.pdf (86 pages, 7961378 bytes).
 PDF statistics:
- 2047 PDF objects out of 2073 (max. 8388607)
- 1789 compressed objects within 18 object streams
- 471 named destinations out of 1000 (max. 500000)
- 87561 words of extra memory for PDF output out of 89155 (max. 10000000)
+ 3958 PDF objects out of 4296 (max. 8388607)
+ 2213 compressed objects within 23 object streams
+ 376 named destinations out of 1000 (max. 500000)
+ 66393 words of extra memory for PDF output out of 74296 (max. 10000000)
 

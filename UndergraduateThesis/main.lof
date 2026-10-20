@@ -1,8 +1,17 @@
 \babel@toc {brazil}{}\relax 
-\contentsline {quadro}{\numberline {Quadro~1}{\ignorespaces Síntese comparativa dos conjuntos de dados selecionados para treinamento e avaliação.}}{48}{quadro.caption.19}%
-\contentsline {figure}{\numberline {Figura~1}{\ignorespaces Diagramas das topologias neurais dos modelos especialistas heterogêneos.}}{58}{figure.caption.24}%
-\contentsline {figure}{\numberline {Figura~2}{\ignorespaces Topologia interna da Gating Network com refinamento atencional e compressão simétrica.}}{59}{figure.caption.25}%
-\contentsline {figure}{\numberline {Figura~3}{\ignorespaces Topologia interna do módulo de fusão ALF (\emph {Attention-based Learnable Fusion}).}}{59}{figure.caption.26}%
-\contentsline {figure}{\numberline {Figura~4}{\ignorespaces Visão arquitetural integrada do modelo ALF-MoE, evidenciando o fluxo de tensores entre especialistas, Gating Network e fusão ALF.}}{60}{figure.caption.27}%
-\contentsline {figure}{\numberline {Figura~5}{\ignorespaces Painel comparativo de matrizes de confusão normalizadas nos quatro cenários de avaliação.}}{79}{figure.caption.30}%
-\contentsline {figure}{\numberline {Figura~6}{\ignorespaces Gráficos radar comparativos de desempenho por classe: Especialistas individuais vs. ALF-MoE.}}{82}{figure.caption.32}%
+\contentsline {figure}{\numberline {Figura~1}{\ignorespaces Macrovisão da Arquitetura ALF-MoE.}}{17}{figure.caption.19}%
+\contentsline {figure}{\numberline {Figura~2}{\ignorespaces Distribuição populacional de classes e severo desbalanceamento amostral nos conjuntos de dados de referência (CIC-UNSW-NB15 e CSE-CIC-IDS2018).}}{19}{figure.caption.20}%
+\contentsline {figure}{\numberline {Figura~3}{\ignorespaces Distribuição de classes da amostra estratificada do CSE-CIC-IDS2018 (Canônico): visão populacional completa (esquerda) e detalhamento do tráfego malicioso (direita).}}{43}{figure.caption.21}%
+\contentsline {figure}{\numberline {Figura~4}{\ignorespaces Distribuição de classes da amostra do CSE-CIC-IDS2018 (Corrigido): visão populacional completa (esquerda) e detalhamento do tráfego malicioso (direita).}}{45}{figure.caption.22}%
+\contentsline {figure}{\numberline {Figura~5}{\ignorespaces Distribuição de classes da amostra do CIC-UNSW-NB15: visão populacional completa (esquerda) e detalhamento do tráfego malicioso (direita).}}{45}{figure.caption.23}%
+\contentsline {figure}{\numberline {Figura~6}{\ignorespaces Distribuição de classes no nível TL0 para o CIC-BCCC-NRC TabularIoTAttack-2024: comparação entre a população original e a amostragem estratificada por Hare-Niemeyer.}}{46}{figure.caption.24}%
+\contentsline {figure}{\numberline {Figura~7}{\ignorespaces Distribuição de classes no nível TL1 para o CSE-CIC-IDS2018 (Corrigido): contagem e proporção em escala logarítmica (esquerda) e distribuição relativa em gráfico de rosca (direita).}}{47}{figure.caption.25}%
+\contentsline {figure}{\numberline {Figura~8}{\ignorespaces Distribuição de classes no nível TL1 para o CIC-BCCC-NRC TabularIoTAttack-2024: comparação da distribuição relativa entre a população original e a amostra estratificada por Hare-Niemeyer.}}{48}{figure.caption.26}%
+\contentsline {figure}{\numberline {Figura~9}{\ignorespaces Diagramas das topologias neurais dos modelos especialistas heterogêneos.}}{52}{figure.caption.28}%
+\contentsline {figure}{\numberline {Figura~10}{\ignorespaces Topologia interna da Gating Network com refinamento atencional e compressão simétrica.}}{53}{figure.caption.29}%
+\contentsline {figure}{\numberline {Figura~11}{\ignorespaces Topologia interna do módulo de fusão ALF (\emph {Attention-based Learnable Fusion}).}}{54}{figure.caption.30}%
+\contentsline {figure}{\numberline {Figura~12}{\ignorespaces Desempenho comparativo global do modelo ALF-MoE nos quatro conjuntos de dados no cenário granular (TL0).}}{64}{figure.caption.32}%
+\contentsline {figure}{\numberline {Figura~13}{\ignorespaces Desempenho comparativo global do modelo ALF-MoE nos quatro conjuntos de dados no cenário consolidado (TL1).}}{65}{figure.caption.33}%
+\contentsline {figure}{\numberline {Figura~14}{\ignorespaces Painel comparativo de matrizes de confusão normalizadas nos quatro cenários de avaliação.}}{67}{figure.caption.34}%
+\contentsline {figure}{\numberline {Figura~15}{\ignorespaces Comparativo da distribuição média global de pesos da Gating Network nos quatro conjuntos de dados.}}{70}{figure.caption.36}%
+\contentsline {figure}{\numberline {Figura~16}{\ignorespaces Distribuição dos pesos da Gating Network por classe no CSE-CIC-IDS2018 Corrigido.}}{71}{figure.caption.37}%

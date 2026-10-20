@@ -1,64 +1,198 @@
+Este capítulo apresenta a avaliação experimental e a discussão aprofundada dos resultados obtidos
+pela arquitetura \textbf{ALF-MoE}. Em estrito alinhamento com a taxonomia de objetivos estabelecida
+no Capítulo~\ref{cap:introducao}, a investigação empírica estrutura-se em duas vertentes
+complementares:
+
+\begin{enumerate}
+    \item \textbf{Avaliação em Benchmarks Consolidados (Resultados \emph{Offline}):} cumpre os
+    Objetivos Específicos~4, 5 e 6 ao quantificar o desempenho preditivo multiclasse da arquitetura
+    em quatro conjuntos de dados públicos de referência, sob sete configurações experimentais
+    independentes (Níveis de Ameaça TL0 e TL1). Conduz-se a comparação frente aos cinco modelos
+    monolíticos especializados ($K_{\mathrm{DNN}}$, $K_{\mathrm{CNN}}$,
+    $K_{\mathrm{GRU}}$, $K_{\mathrm{CAE}}$ e $K_{\mathrm{LSTM}}$), o
+    estudo comparativo do ganho marginal proporcionado pela fusão adaptativa atencional ALF, a
+    avaliação das matrizes de confusão e a análise da distribuição dos pesos de atenção gerados pela
+    \emph{Gating Network};
+    
+    \item \textbf{Avaliação Operacional em Tráfego Real de Rede (Bancada Física):} atende à
+    Contribuição~5 e aos requisitos de engenharia formulados no Capítulo~\ref{cap:pipeline},
+    submetendo a arquitetura à inspeção em tempo real na interface física de rede através do motor
+    NFStream. Avaliam-se a fidelidade estatística da extração de atributos, o perfil de consumo
+    computacional, a decomposição de latência de inferência unitária na GPU dedicada, o gargalo
+    estrutural da latência ponta a ponta e a supressão de falsos alarmes sob tráfego operacional.
+\end{enumerate}
+
 \section{Desempenho nos Datasets de Benchmark (Resultados Offline)}
 \label{sec:desempenho_benchmark}
 
-A validação empírica da arquitetura **ALF-MoE** foi conduzida sob um protocolo rigoroso de teste em partições estritamente desacopladas (\emph{offline test sets}), cobrindo os quatro conjuntos de dados analisados em sete configurações experimentais independentes. Este protocolo permitiu avaliar: (i) a capacidade de discriminação sob diferentes níveis de abstração semântica (\emph{Threat Levels} 0 e 2); (ii) a resiliência do modelo diante de falhas de rotulação em dados legados e o ganho obtido após a sanitização SOTA de \citeonline{liu2022error}; e (iii) a contribuição individual de cada especialista neural versus a representação integrada alcançada pelo bloco atencional ALF.
+A validação experimental da arquitetura foi conduzida sob protocolo de particionamento estritamente
+desacoplado (\emph{offline test sets}), cobrindo os quatro conjuntos de dados selecionados em sete
+configurações experimentais independentes. Este protocolo permitiu examinar:
 
+\begin{enumerate}
+    \item A capacidade de discriminação sob diferentes níveis de granularidade semântica (\emph{Threat
+    Levels} TL0 e TL1);
+    \item A resiliência do modelo diante de ruído de rotulação em dados legados e o ganho advindo da
+    higienização metodológica proposta por \citeonline{liu2022error};
+    \item A contribuição individual de cada especialista neural frente à representação integrada
+    consolidada pelo bloco atencional ALF;
+    \item O comportamento dinâmico de mediação da \emph{Gating Network} em resposta a diferentes
+    famílias de intrusão cibernética.
+\end{enumerate}
 
 \subsection{Análise por Classe e Desempenho Global}
 \label{subsec:analise_classe_global}
 
-A Tabela~\ref{tab:desempenho_global_7cenarios} consolida os resultados quantitativos globais do modelo ALF-MoE em todas as matrizes experimentais avaliadas. As métricas reportadas englobam Acurácia Global ($\mathrm{Acc}$), Macro $F_1$-Score ($F_1^{\mathrm{macro}}$), Macro Precisão ($\mathrm{Prec}_{\mathrm{macro}}$), Macro Sensibilidade ($\mathrm{Rec}_{\mathrm{macro}}$), Latência por Amostra ($L_{\mathrm{sample}}$) e Vazão de Inferência ($\mathrm{Throughput}$).
+A Tabela~\ref{tab:desempenho_global_7cenarios} consolida os resultados quantitativos globais do
+modelo ALF-MoE nos sete cenários experimentais avaliados. As métricas reportadas compreendem Acurácia
+Global ($\mathrm{Acc}$), Macro $F_1$-Score ($F_1^{\mathrm{macro}}$), $F_1$-Score Ponderado
+($F_1^{\mathrm{weighted}}$), Macro Precisão ($\mathrm{Prec}_{\mathrm{macro}}$), Macro Sensibilidade
+($\mathrm{Rec}_{\mathrm{macro}}$), Latência por Amostra ($L_{\mathrm{sample}}$) e Vazão de
+Inferência ($\mathrm{Throughput}$).
 
 \begin{table}[htb]
 \centering
 \caption{Desempenho global consolidado do modelo ALF-MoE nos 7 cenários de benchmark.}
 \label{tab:desempenho_global_7cenarios}
 \footnotesize
-\setlength{\tabcolsep}{3.5pt}
-\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}X l rrrrrr}
+\setlength{\tabcolsep}{2.8pt}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}X l rrrrrrr}
 \hline
-\textbf{Conjunto de Dados} & \textbf{Cenário} & \textbf{Acurácia} & \textbf{Macro $F_1$} & \textbf{Precisão} & \textbf{Recall} & \textbf{Latência} & \textbf{Vazão} \\
+\textbf{Conjunto de Dados} & \textbf{Cenário} & \textbf{Acurácia} & \textbf{Macro $F_1$} &
+  \textbf{$F_1$ Pond.} & \textbf{Precisão} & \textbf{Recall} & \textbf{Latência} &
+  \textbf{Vazão} \\
 \hline
-CIC-UNSW-NB15 & L0 (10 cls) & 75,11\% & 0,5069 & 0,5103 & 0,6087 & 0,0479\,ms & 20.896\,fl/s \\
-CIC-BCCC-NRC-2024 & L0 (49 cls) & 82,29\% & 0,4501 & 0,4505 & 0,5095 & 0,0184\,ms & 54.258\,fl/s \\
-CIC-BCCC-NRC-2024 & L2 (9 cls) & 92,83\% & 0,8476 & 0,8382 & 0,8617 & 0,0122\,ms & 82.129\,fl/s \\
-CSE-CIC-IDS2018 (Orig.) & L0 (15 cls) & 98,96\% & 0,8773 & 0,9045 & 0,8669 & 0,0119\,ms & 84.135\,fl/s \\
-CSE-CIC-IDS2018 (Orig.) & L2 (7 cls) & 98,38\% & 0,9050 & 0,9658 & 0,8855 & 0,0111\,ms & 90.017\,fl/s \\
-CSE-CIC-IDS2018 (Corr.) & L0 (15 cls) & 99,97\% & 0,8918 & 0,8814 & 0,9144 & 0,0162\,ms & 61.765\,fl/s \\
-CSE-CIC-IDS2018 (Corr.) & L2 (9 cls) & 99,96\% & 0,8851 & 0,9579 & 0,8927 & 0,0118\,ms & 84.858\,fl/s \\
+CIC-UNSW-NB15 & TL0 (10 cls) & 76,70\% & 0,5099 & 0,7695 & 0,5077 & 0,5821 & 0,0569\,ms &
+  17.572\,fl/s \\
+CIC-BCCC-NRC-2024 & TL0 (49 cls) & 91,99\% & 0,5828 & 0,9274 & 0,5779 & 0,6851 & 0,0265\,ms &
+  37.767\,fl/s \\
+CIC-BCCC-NRC-2024 & TL1 (9 cls) & 96,05\% & 0,9027 & 0,9612 & 0,8904 & 0,9231 & 0,0246\,ms &
+  40.707\,fl/s \\
+CSE-CIC-IDS2018 (Orig.) & TL0 (15 cls) & 98,93\% & 0,8804 & 0,9893 & 0,9031 & 0,8707 &
+  0,0257\,ms & 38.909\,fl/s \\
+CSE-CIC-IDS2018 (Orig.) & TL1 (7 cls) & 98,95\% & 0,9405 & 0,9896 & 0,9654 & 0,9272 &
+  0,0251\,ms & 39.855\,fl/s \\
+CSE-CIC-IDS2018 (Corr.) & TL0 (15 cls) & 99,87\% & 0,9623 & 0,9987 & 0,9623 & 0,9625 &
+  0,0257\,ms & 38.853\,fl/s \\
+CSE-CIC-IDS2018 (Corr.) & TL1 (9 cls) & 99,85\% & 0,8917 & 0,9985 & 0,8919 & 0,8980 &
+  0,0190\,ms & 52.749\,fl/s \\
 \hline
 \end{tabularx}
+
 \fonte{Elaborado pelo autor (2026), a partir dos relatórios experimentais.}
 \end{table}
 
-A análise comparativa dos resultados experimentais desdobra-se em três eixos centrais de discussão:
+Para complementar a exposição tabular e viabilizar apreensão visual do comportamento do
+classificador sob as cinco métricas cardinais de avaliação (Acurácia Global, Macro $F_1$-Score,
+$F_1$-Score Ponderado, Macro Precisão e Macro Recall), os gráficos em
+\ref{fig:comparativo_metricas_4datasets_tl0} e \ref{fig:comparativo_metricas_4datasets_tl1}
+apresentam o comparativo direto entre os quatro conjuntos de dados nos cenários granular (TL0) e
+consolidado (TL1), respectivamente.
 
-\subsubsection{Eixo 1: Impacto da Granularidade de Ameaças (Nível 0 vs. Nível 2)}
+\begin{figure}[htb]
+\centering
+\caption{Desempenho comparativo global do modelo ALF-MoE nos quatro conjuntos de dados no cenário granular (TL0).}
+\label{fig:comparativo_metricas_4datasets_tl0}
+\includegraphics[width=0.96\textwidth]{figures/benchmarks/comparativo_metricas_4datasets_tl0.pdf}
+\fonte{Elaborado pelo autor (2026), a partir dos relatórios de avaliação de teste.}
+\end{figure}
 
-A transição entre o Nível de Ameaça 0 (classes brutas com assinaturas estritas) e o Nível de Ameaça 2 (meta-categorias operacionais consolidadas) evidencia o custo estatístico da discriminação em espaços de classes hiper-fragmentados:
+\begin{figure}[htb]
+\centering
+\caption{Desempenho comparativo global do modelo ALF-MoE nos quatro conjuntos de dados no cenário consolidado (TL1).}
+\label{fig:comparativo_metricas_4datasets_tl1}
+\includegraphics[width=0.96\textwidth]{figures/benchmarks/comparativo_metricas_4datasets_tl1.pdf}
+\fonte{Elaborado pelo autor (2026), a partir dos relatórios de avaliação de teste.}
+\end{figure}
+
+A análise comparativa dos resultados desdobra-se em três eixos centrais de discussão:
+
+\subsubsection{Eixo 1: Impacto da Granularidade de Ameaças (TL0 vs. TL1)}
+
+A transição entre o Nível de Ameaça 0 (TL0 -- classes brutas com assinaturas microscópicas) e o
+Nível de Ameaça 1 (TL1 -- macro-famílias operacionais consolidadas) evidencia o custo estatístico da
+discriminação em espaços amostrais hiperfragmentados:
 \begin{itemize}
-    \item No ambiente IoT (\textbf{CIC-BCCC-NRC-2024}), a consolidação de 49 classes granulares em 9 macro-famílias proporcionou uma elevação substantiva no Macro $F_1$-Score, saltando de $0{,}4501$ para $0{,}8476$ (um incremento relativo de $+88{,}3\%$), acompanhado pelo aumento da Acurácia Global de $82{,}29\%$ para $92{,}83\%$. No nível granular (L0), o modelo é compelido a distinguir entre 12 variantes microscópicas de varredura e múltiplas ramificações de inundações ICMP/UDP cuja separabilidade estatística no nível de fluxo agregado é tênue, muitas com suporte inferior a 200 instâncias de teste. Ao agregar essas variantes em famílias funcionais (como \emph{Reconnaissance}, \emph{DDoS} e \emph{IoT/MQTT}), a incerteza intra-classe é eliminada, gerando um modelo de altíssima confiabilidade operacional para acionamento perimetral;
-    \item Em termos de eficiência computacional, a redução do espaço de saída no CIC-BCCC-NRC-2024 aliviou a carga de computação da projeção linear final, reduzindo a latência de $0{,}0184\,\mathrm{ms}$ para $0{,}0122\,\mathrm{ms}$ por fluxo e elevando a vazão sustentada de $54.258$ para $82.129\,\mathrm{fluxos/s}$.
+    \item No ecossistema IoT (\textbf{CIC-BCCC-NRC-2024}), a agregação de 49 classes granulares em
+    9 macro-famílias proporcionou expressiva elevação no Macro $F_1$-Score, saltando de $0{,}5828$
+    para $0{,}9027$ (incremento relativo de $+54{,}89\%$ e ganho absoluto de $+31{,}99$ pontos
+    percentuais de Macro $F_1$), acompanhado pela elevação da Acurácia Global de $91{,}99\%$ para
+    $96{,}05\%$. No nível granular (TL0), o classificador é demandado a diferenciar 12 modalidades
+    estritas de varredura de portas e ramificações de inundações ICMP e UDP cuja separabilidade em
+    nível de fluxo agregado é reduzida, muitas das quais possuem suporte inferior a 200 amostras no
+    conjunto de teste. Ao estruturar essas categorias em famílias funcionais (tais como
+    \emph{Reconnaissance}, \emph{DDoS}, \emph{DoS} e \emph{IoT/MQTT}), a incerteza intra-classe é
+    atenuada, viabilizando alta confiabilidade para detecção perimetral;
+    
+    \item Em termos de eficiência computacional, a diminuição do espaço de saída no
+    CIC-BCCC-NRC-2024 de 49 para 9 neurônios na projeção linear final reduziu a carga de cálculo da
+    camada \emph{softmax}, reduzindo a latência média por amostra de $0{,}0265\,\mathrm{ms}$ para
+    $0{,}0246\,\mathrm{ms}$ e elevando a vazão sustentada em lote de $37.767$ para
+    $40.707\,\mathrm{fluxos/s}$;
+    
+    \item No conjunto \textbf{CSE-CIC-IDS2018 Canônico}, o agrupamento das 15 classes originais em
+    7 categorias operacionais elevou o Macro $F_1$-Score de $0{,}8804$ para $0{,}9405$ (ganho relativo
+    de $+6{,}83\%$), preservando a Acurácia Global em $98{,}95\%$ com vazão de inferência de
+    $39.855\,\mathrm{fluxos/s}$.
 \end{itemize}
 
-\subsubsection{Eixo 2: Impacto da Sanitização de Rótulos de Liu et al. (2022) no CSE-CIC-IDS2018}
+\subsubsection{Eixo 2: Impacto da Sanitização Metodológica de Liu et al. (2022) no CSE-CIC-IDS2018}
 
-O contraste direto entre o CSE-CIC-IDS2018 Canônico e a versão corrigida segundo \citeonline{liu2022error} elucida de forma categórica as consequências do ruído de rotulação em modelos de aprendizado profundo:
+O contraste direto entre o CSE-CIC-IDS2018 Canônico e a versão saneada conforme
+\citeonline{liu2022error} evidencia as repercussões de falhas de rotulação em modelos neurais
+profundos:
 \begin{itemize}
-    \item Na versão original canônica (L0), o modelo atinge $98{,}96\%$ de acurácia global com Macro $F_1$ de $0{,}8773$. Contudo, a inspeção detalhada por classe revela anomalias críticas: a classe \emph{FTP-BruteForce} obteve $F_1$ de $0{,}7344$ e precisão de apenas $0{,}6843$. Essa degradação decorre diretamente da falha de etiquetagem comprovada por \citeonline{liu2022error}, na qual o servidor na porta 21 estava inativo e respondia com pacotes de encerramento \texttt{[RST, ACK]}. O classificador era forçado a aprender que respostas legítimas de porta fechada equivaliam a força bruta ativa, gerando confusão sistemática com o tráfego normal;
-    \item Na versão corrigida (\emph{CSE-CIC-IDS2018 Improved}), na qual fluxos com portas fechadas e tentativas inócuas foram reclassificados como benignos, a Acurácia Global alcançou expressivos $99{,}97\%$ e o Weighted $F_1$-Score atingiu $0{,}9997$ no teste independente de 1.263.903 fluxos;
-    \item Além disso, a desagregação da infiltração em classes específicas permitiu constatar que o modelo detecta varreduras internas (\emph{Infiltration - NMAP Portscan}) com $F_1 = 0{,}9912$ e canais de comando vítima-atacante com $F_1 = 0{,}8636$. Em contrapartida, a exfiltração pontual em tráfego criptografado (\emph{Infiltration - Dropbox Download}), representada por meras 17 amostras de teste, obteve $F_1 = 0{,}1818$, demonstrando que conexões legítimas a serviços de nuvem HTTPS constituem o vetor de maior furtividade para extratores baseados puramente em estatísticas de fluxo sem inspeção de carga útil.
+    \item Na versão original canônica (TL0), embora a acurácia global atinja $98{,}93\%$ com Macro
+    $F_1$ de $0{,}8804$, a desagregação por classe revela distorções críticas decorrentes de rotulação
+    imprecisa: a classe \emph{FTP-BruteForce} obteve $F_1$ de apenas $0{,}7026$ (precisão de $0{,}7038$
+    e sensibilidade de $0{,}7015$), enquanto \emph{DoS attacks-SlowHTTPTest} registrou $F_1 = 0{,}6075$.
+    Conforme demonstrado experimentalmente por \citeonline{liu2022error}, o servidor FTP da vítima
+    permaneceu desligado durante fração relevante do experimento, respondendo a tentativas de conexão
+    com pacotes de encerramento imediato (\emph{RST/ACK}). Essa falha induziu os modelos a associar
+    respostas legítimas de porta fechada a conexões hostis ativas;
+    
+    \item Na versão corrigida (\emph{CSE-CIC-IDS2018 Improved}), na qual fluxos de portas inativas
+    e tentativas inócuas foram devidamente reetiquetados como tráfego benigno, a Acurácia Global
+    alcançou expressivos $99{,}87\%$ e o Macro $F_1$-Score atingiu $0{,}9623$ no teste independente de
+    175.624 fluxos em TL0 ($99{,}85\%$ de acurácia e Macro $F_1$ de $0{,}8917$ em TL1). Oito das quinze
+    classes avaliadas em TL0 atingiram $F_1 = 1{,}0000$ (incluindo \emph{Botnet Ares}, \emph{DDoS-HOIC},
+    \emph{DDoS-LOIC-HTTP}, \emph{DDoS-LOIC-UDP}, \emph{SSH-BruteForce} e as variantes de \emph{Web Attack});
+    
+    \item A desagregação das intrusões em classes específicas permitiu constatar que a arquitetura
+    identifica varreduras internas de reconhecimento (\emph{Infiltration - NMAP Portscan}) com
+    $F_1 = 0{,}9941$ (suporte de 17.875 fluxos) e canais de comando e controle
+    (\emph{Infiltration - Communication Victim Attacker}) com $F_1 = 0{,}9877$ em TL0 ($F_1 = 0{,}9091$
+    em TL1). Em contrapartida, a exfiltração em canal criptografado
+    (\emph{Infiltration - Dropbox Download}), representada por 17 amostras de teste, obteve
+    $F_1 = 0{,}4571$ em TL0 e $F_1 = 0{,}1600$ em TL1. Como as transmissões aos servidores da API do
+    Dropbox utilizam túneis TLS convencionais sobre portas HTTPS padronizadas, suas grandezas
+    estatísticas agregadas mimetizam a navegação web rotineira, atingindo o limite de discriminação
+    de extratores desprovidos de inspeção profunda de carga útil (\emph{Deep Packet Inspection} -- DPI).
 \end{itemize}
 
 \subsubsection{Eixo 3: Generalização em Tráfego de Alta Densidade (CIC-UNSW-NB15)}
 
-No conjunto CIC-UNSW-NB15, que não sofreu agregação em níveis superiores (operando estritamente em L0 com 10 classes), o ALF-MoE alcançou Acurácia Global de $75{,}11\%$ e Macro $F_1$-Score de $0{,}5069$. Em classes de tráfego volumétrico e ataques de penetração complexos, o modelo exibiu excelente discriminação: \emph{Benign} ($F_1 = 0{,}9495$), \emph{Fuzzers} ($F_1 = 0{,}6968$), \emph{Exploits} ($F_1 = 0{,}6876$) e \emph{Reconnaissance} ($F_1 = 0{,}7169$). 
+No conjunto CIC-UNSW-NB15, analisado em TL0 com 10 classes, o ALF-MoE obteve Acurácia Global de
+$76{,}70\%$, Macro $F_1$-Score de $0{,}5099$ e $F_1$-Score Ponderado de $0{,}7695$ sobre 27.917 fluxos
+de teste. Em categorias com representatividade volumétrica e perfis bem delineados de intrusão, o
+modelo demonstrou alta capacidade discriminativa: \emph{Benign} ($F_1 = 0{,}9488$), \emph{Fuzzers}
+($F_1 = 0{,}7154$), \emph{Reconnaissance} ($F_1 = 0{,}7113$), \emph{Exploits} ($F_1 = 0{,}7109$) e
+\emph{Generic} ($F_1 = 0{,}5970$).
 
-Para categorias com suporte diminuto, a função de perda Focal Loss balanceada priorizou a sensibilidade em detrimento da precisão: na classe \emph{Analysis} (suporte 77), o modelo obteve Sensibilidade (\emph{Recall}) de $0{,}9481$ (Acurácia Balanceada de $0{,}9661$), prevenindo a omissão do ataque embora gerando falsos positivos que reduziram o $F_1$ para $0{,}2479$. Esse comportamento reflete a postura conservadora deliberadamente imposta pelo fator de foco da Focal Loss, indispensável para ambientes corporativos em que o custo de um falso negativo (uma invasão ignorada) é infinitamente superior ao de uma inspeção secundária de falso positivo.
+Para classes minoritárias com suporte reduzido, a formulação da perda Focal Loss balanceada priorizou
+a sensibilidade: na classe \emph{Analysis} (suporte de 77 instâncias), o modelo atingiu Sensibilidade
+(\emph{Recall}) de $0{,}9351$ ($93{,}51\%$), assegurando a detecção da grande maioria das ameaças,
+com $F_1 = 0{,}3097$ decorrente de dispersões pontuais que reduziram a precisão para $0{,}1856$. Em
+operações reais de centros de segurança (SOC), priorizar a contenção de falsos negativos constitui
+postura estratégica essencial, visto que uma intrusão não percebida acarreta prejuízos incomensuravelmente
+superiores à triagem de um alarme falso.
 
-\subsubsection{Matrizes de Confusão Normalizadas}
+\subsection{Matrizes de Confusão Normalizadas}
+\label{subsec:matrizes_confusao}
 
-A Figura~\ref{fig:matrizes_confusao_painel} reúne as matrizes de confusão normalizadas para os quatro conjuntos de dados representativos: (a) CSE-CIC-IDS2018 Canônico (L2); (b) CSE-CIC-IDS2018 Corrigido (L2); (c) CIC-BCCC-NRC-2024 (L2); e (d) CIC-UNSW-NB15 (L0).
+O painel estruturado em \ref{fig:matrizes_confusao_painel} reúne as matrizes de confusão normalizadas
+para os quatro cenários experimentais de teste: (a) CSE-CIC-IDS2018 Canônico (TL1); (b)
+CSE-CIC-IDS2018 Corrigido (TL1); (c) CIC-BCCC-NRC-2024 (TL1); e (d) CIC-UNSW-NB15 (TL0).
 
 \begin{figure}[htb]
 \centering
@@ -66,15 +200,15 @@ A Figura~\ref{fig:matrizes_confusao_painel} reúne as matrizes de confusão norm
 \label{fig:matrizes_confusao_painel}
 \begin{subfigure}[b]{0.48\textwidth}
     \centering
-    \includegraphics[width=\textwidth]{figures/benchmarks/cm_norm_cse2018_l2.png}
-    \caption{CSE-CIC-IDS2018 Canônico (L2 - 7 classes).}
+    \includegraphics[width=\textwidth]{figures/benchmarks/cm_norm_cse2018_tl1.png}
+    \caption{CSE-CIC-IDS2018 Canônico (TL1 - 7 classes).}
     \label{subfig:cm_cse2018_orig}
 \end{subfigure}
 \hfill
 \begin{subfigure}[b]{0.48\textwidth}
     \centering
-    \includegraphics[width=\textwidth]{figures/benchmarks/cm_norm_cse2018_imp_l2.png}
-    \caption{CSE-CIC-IDS2018 Corrigido (L2 - 9 classes).}
+    \includegraphics[width=\textwidth]{figures/benchmarks/cm_norm_cse2018_imp_tl1.png}
+    \caption{CSE-CIC-IDS2018 Corrigido (TL1 - 9 classes).}
     \label{subfig:cm_cse2018_imp}
 \end{subfigure}
 
@@ -82,272 +216,543 @@ A Figura~\ref{fig:matrizes_confusao_painel} reúne as matrizes de confusão norm
 
 \begin{subfigure}[b]{0.48\textwidth}
     \centering
-    \includegraphics[width=\textwidth]{figures/benchmarks/cm_norm_bccc2024_l2.png}
-    \caption{CIC-BCCC-NRC-2024 (L2 - 9 classes).}
+    \includegraphics[width=\textwidth]{figures/benchmarks/cm_norm_bccc2024_tl1.png}
+    \caption{CIC-BCCC-NRC-2024 (TL1 - 9 classes).}
     \label{subfig:cm_bccc2024}
 \end{subfigure}
 \hfill
 \begin{subfigure}[b]{0.48\textwidth}
     \centering
-    \includegraphics[width=\textwidth]{figures/benchmarks/cm_norm_unsw_l0.png}
-    \caption{CIC-UNSW-NB15 (L0 - 10 classes).}
+    \includegraphics[width=\textwidth]{figures/benchmarks/cm_norm_unsw_tl0.png}
+    \caption{CIC-UNSW-NB15 (TL0 - 10 classes).}
     \label{subfig:cm_unsw}
 \end{subfigure}
 \fonte{Elaborado pelo autor (2026), a partir dos artefatos de avaliação.}
 \end{figure}
 
-A inspeção visual confirma a dominância quase diagonal absoluta na versão corrigida do CSE-CIC-IDS2018 (Figura~\ref{subfig:cm_cse2018_imp}), em contraste com a dispersão de erros verificada na versão original (Figura~\ref{subfig:cm_cse2018_orig}). No ambiente IoT (Figura~\ref{subfig:cm_bccc2024}), observa-se perfeita segregação de tráfego de intermediadores MQTT ($96{,}0\%$ de acerto) e inundações DoS/DDoS ($>94\%$), enquanto o UNSW-NB15 (Figura~\ref{subfig:cm_unsw}) ilustra a sobreposição natural existente entre as classes \emph{Exploits} e \emph{Fuzzers}.
+A inspeção visual confirma a dominância quase diagonal absoluta na versão corrigida do CSE-CIC-IDS2018
+(\ref{subfig:cm_cse2018_imp}), em oposição às dispersões verificadas na versão original
+(\ref{subfig:cm_cse2018_orig}). No ambiente IoT (\ref{subfig:cm_bccc2024}), observa-se segregação
+robusta do tráfego de intermediadores MQTT (Macro $F_1$-Score de $0{,}9671$ e Sensibilidade de
+$0{,}9710$ em $50.300$ fluxos de teste) e ataques de negação de serviço DoS/DDoS ($F_1 > 0{,}97$),
+enquanto o UNSW-NB15 (\ref{subfig:cm_unsw}) reflete a sobreposição estatística existente entre as
+classes \emph{Exploits} e \emph{Fuzzers}.
 
-A análise das dispersões fora da diagonal principal permite fundamentar quatro padrões específicos de confusão interclasses observados nos experimentos, balizados pelas restrições físico-matemáticas da telemetria de fluxo:
+A análise das dispersões fora da diagonal principal fundamenta quatro padrões característicos de
+confusão interclasses observados nos ensaios, correlacionados aos limites da telemetria de fluxo:
 \begin{enumerate}
     \item \textbf{CSE-CIC-IDS2018 Canônico (\emph{Infiltration} vs. \emph{WebAttack}):}
-    Verifica-se sobreposição estatística mútua entre fluxos de infiltração e ataques a aplicações web. Essa confusão decorre do fato da corrupção do rótulo de infiltração, apontado por \cite{liu2022error}. Como os extratores NetFlow/CICFlowMeter descartam o conteúdo da carga útil (\emph{payload}), a diferenciação apoia-se unicamente em distribuições de tamanho e temporização de pacotes. Além disso, a classe \emph{WebAttack} no conjunto canônico conta com suporte diminuto de teste (apenas 186 instâncias somando \emph{Brute Force - Web}, \emph{Brute Force - XSS} e \emph{SQL Injection}), limitando a estimativa das fronteiras bayesianas de decisão;
+    Constata-se sobreposição recíproca entre fluxos de infiltração e ataques a aplicações web. Essa
+    dispersão decorre da imperfeição original de rotulação demonstrada por \citeonline{liu2022error}.
+    Como os extratores tabulares descartam a carga útil (\emph{payload}), a discriminação apoia-se
+    unicamente em distribuições de tamanho e temporização de pacotes. Além disso, as categorias web
+    no conjunto canônico possuem suporte reduzido de teste (apenas 186 instâncias somando
+    \emph{Brute Force - Web}, \emph{Brute Force - XSS} e \emph{SQL Injection}), dificultando a
+    calibração de fronteiras bayesianas de decisão;
     
     \item \textbf{CSE-CIC-IDS2018 Corrigido (\emph{Benign} vs. \emph{Infiltration - Dropbox Download}):}
-    Na base saneada conforme \citeonline{liu2022error}, a classe \emph{Infiltration - Dropbox Download} alcança $F_1 = 0{,}1818$ com dispersão preponderante em direção à classe \emph{Benign}. Essa confusão é tecnicamente inevitável no nível de fluxo: download de artefatos maliciosos via API oficial do Dropbox utiliza canais TLS legítimos em conexões HTTPS padronizadas, reproduzindo rigorosamente as grandezas estatísticas e temporais da navegação web corporativa. Aliado ao suporte ultra-reduzido de apenas 17 amostras de teste, esse vetor atinge o limite intrínseco de separabilidade de extratores estritamente baseados em fluxo de rede;
+    Na base saneada conforme \citeonline{liu2022error}, a classe \emph{Infiltration - Dropbox Download}
+    registra $F_1 = 0{,}4571$ no nível TL0 ($F_1 = 0{,}1600$ em TL1), com dispersão voltada à classe
+    \emph{Benign}. Essa confusão é tecnicamente inescapável no nível de fluxo: transferências via
+    API oficial do Dropbox empregam sessões TLS padronizadas em conexões HTTPS, reproduzindo
+    fidedignamente os parâmetros estatísticos e temporais da navegação web corporativa. Somado ao
+    suporte diminuto de 17 amostras de teste, esse vetor atinge o limiar teórico de separabilidade de
+    extratores estatísticos puros;
     
-    \item \textbf{CIC-BCCC-NRC TabularIoTAttack-2024 (\emph{MITM} vs. \emph{Botnet}):}
-    No ecossistema IoT, constata-se confusão pontual entre fluxos das macro-famílias \emph{MITM} (especialmente variantes de \emph{ARP Spoofing}) e tráfego de \emph{Botnet}. Em redes locais de sensores e atuadores, ambos os vetores caracterizam-se por mensagens curtas de controle TCP/IP, ausência de fluxos volumétricos em rajada (\emph{bulk}) e temporizações assíncronas com intervalos de inter-chegada assemelhados, induzindo dispersão correlacionada nos logits da Gating Network;
+    \item \textbf{CIC-BCCC-NRC-2024 (\emph{MITM} vs. \emph{Botnet}):}
+    No contexto IoT, verifica-se dispersão pontual entre fluxos das macro-famílias \emph{MITM}
+    (especialmente variantes de envenenamento ARP) e tráfego de \emph{Botnet/Malware}. Em redes locais
+    de sensores, ambos os vetores envolvem transmissões curtas de controle TCP/IP, ausência de fluxos
+    volumétricos contínuos e temporizações assíncronas com intervalos de inter-chegada semelhantes,
+    induzindo correlações nas saídas da \emph{Gating Network};
     
     \item \textbf{CIC-UNSW-NB15 (\emph{Analysis}, \emph{Backdoor}, \emph{Exploits} e \emph{Fuzzers}):}
-    No benchmark UNSW-NB15, verifica-se sobreposição estatística mútua entre as classes \emph{Exploits} ($22{,}17\%$ do teste) e \emph{Fuzzers} ($21{,}22\%$), além de falsos positivos cruzados com \emph{Analysis} e \emph{Backdoor}. Conforme documentado por \citeonline{moustafa2015unsw}, o tráfego sintético dessa base foi sintetizado pelo gerador de hardware comercial IXIA PerfectStorm injetando transações HTTP padronizadas com payloads mutacionados. No plano da telemetria de fluxo (contadores agregados de pacotes, bytes e intervalos IAT), essas classes produzem vetores numéricos virtualmente idênticos, delimitando um teto teórico de erro de Bayes intransponível sem inspeção profunda de pacotes (DPI).
+    No benchmark UNSW-NB15, verifica-se sobreposição estatística mútua entre as classes \emph{Exploits}
+    ($22{,}17\%$ do teste) e \emph{Fuzzers} ($21{,}22\%$), além de dispersões cruzadas com
+    \emph{Analysis} e \emph{Backdoor}. Conforme documentado por \citeonline{moustafa2015unsw}, o
+    tráfego hostil dessa base foi sintetizado pelo gerador comercial IXIA PerfectStorm injetando
+    transações HTTP padronizadas com payloads mutacionados. No plano de telemetria agregada (contadores
+    de pacotes, bytes e intervalos IAT), essas classes manifestam vetores numéricos altamente
+    colineares, estabelecendo um teto teórico de erro de Bayes intransponível sem inspeção de conteúdo.
 \end{enumerate}
-
 
 \subsection{Análise Comparativa dos Especialistas e do Bloco ALF}
 \label{subsec:estudo_ablacao}
 
-A arquitetura ALF-MoE apoia-se no princípio de que especialistas neurais heterogêneos, concebidos para extrair representações de domínios específicos da telemetria de rede, oferecem projeções complementares que, ao serem integradas pela fusão por atenção adaptativa, superam a capacidade preditiva de qualquer modelo monolítico individual. Para quantificar essa premissa de projeto e mensurar o ganho advindo do bloco atencional ALF sobre os ramos isolados, realizou-se uma análise comparativa sistemática entre as predições supervisionadas das cinco cabeças especializadas ($\mathcal{E}_{\mathrm{DNN}}, \mathcal{E}_{\mathrm{CNN}}, \mathcal{E}_{\mathrm{GRU}}, \mathcal{E}_{\mathrm{CAE}}, \mathcal{E}_{\mathrm{LSTM}}$) e a predição da cabeça integrada ALF-MoE.
+Em atendimento formal ao Objetivo Específico~5 (Seção~\ref{subsec:obj_especificos}), conduziu-se um
+estudo comparativo sistemático para quantificar o ganho marginal proporcionado pelo módulo de fusão
+adaptativa ALF em relação às predições de cada rede especialista isolada. A arquitetura ALF-MoE
+baseia-se na premissa de que especialistas neurais heterogêneos, concebidos com vieses indutivos
+dedicados a subespaços informacionais específicos da telemetria de fluxo, produzem projeções
+complementares que, integradas dinamicamente pela fusão atencional, superam a capacidade de qualquer
+modelo monolítico individual.
 
-A Tabela~\ref{tab:estudo_ablacao_completo} sumariza o Macro $F_1$-Score e a Acurácia Global obtidos por cada especialista e pela cabeça unificada ALF nos sete cenários de teste.
+A Tabela~\ref{tab:estudo_ablacao_completo} consolida o Macro $F_1$-Score e a Acurácia Global obtidos
+por cada especialista neural isolado ($K_{\mathrm{DNN}}, K_{\mathrm{CNN}},
+K_{\mathrm{GRU}}, K_{\mathrm{CAE}}, K_{\mathrm{LSTM}}$) e pela
+arquitetura unificada ALF-MoE em todas as matrizes experimentais avaliadas.
 
 \begin{table}[htb]
 \centering
-\caption{Estudo de ablação: Macro $F_1$-Score e Acurácia dos especialistas individuais vs. ALF-MoE.}
+\caption{Estudo comparativo: Macro $F_1$-Score e Acurácia dos especialistas individuais vs. ALF-MoE.}
 \label{tab:estudo_ablacao_completo}
 \footnotesize
 \setlength{\tabcolsep}{4.5pt}
 \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}X l rrrrrr}
 \hline
-\textbf{Dataset} & \textbf{Métrica} & \textbf{DNN} & \textbf{CNN} & \textbf{GRU} & \textbf{CAE} & \textbf{LSTM} & \textbf{ALF-MoE} \\
+\textbf{Dataset} & \textbf{Métrica} & \textbf{DNN} & \textbf{CNN} & \textbf{GRU} & \textbf{CAE} &
+  \textbf{LSTM} & \textbf{ALF-MoE} \\
 \hline
-\multirow{2}{*}{CIC-UNSW-NB15 (L0)} 
- & Macro $F_1$ & 0,4611 & 0,4053 & 0,4367 & 0,2525 & 0,2779 & \textbf{0,5069} \\
- & Acurácia    & 71,77\% & 58,56\% & 71,42\% & 62,28\% & 64,12\% & \textbf{75,11\%} \\
+\multirow{2}{*}{CIC-UNSW-NB15 (TL0)} 
+ & Macro $F_1$ & 0,4596 & 0,3910 & 0,4465 & 0,4570 & 0,2879 & \textbf{0,5099} \\
+ & Acurácia    & 72,47\% & 64,67\% & 73,87\% & 73,37\% & 66,71\% & \textbf{76,70\%} \\
 \hline
-\multirow{2}{*}{CIC-BCCC-NRC-2024 (L0)} 
- & Macro $F_1$ & 0,0057 & 0,2496 & 0,4448 & 0,1246 & 0,3676 & \textbf{0,4501} \\
- & Acurácia    & 10,88\% & 41,31\% & \textbf{82,33\%} & 60,73\% & 80,06\% & 82,29\% \\
+\multirow{2}{*}{CIC-BCCC-NRC-2024 (TL0)} 
+ & Macro $F_1$ & 0,2162 & 0,2627 & 0,4969 & 0,0753 & 0,4405 & \textbf{0,5828} \\
+ & Acurácia    & 51,49\% & 38,58\% & 85,98\% & 33,89\% & 81,34\% & \textbf{91,99\%} \\
 \hline
-\multirow{2}{*}{CIC-BCCC-NRC-2024 (L2)} 
- & Macro $F_1$ & 0,1284 & 0,5551 & 0,8451 & 0,2557 & 0,8163 & \textbf{0,8476} \\
- & Acurácia    & 12,41\% & 57,04\% & 92,26\% & 60,55\% & 90,88\% & \textbf{92,83\%} \\
+\multirow{2}{*}{CIC-BCCC-NRC-2024 (TL1)} 
+ & Macro $F_1$ & 0,5114 & 0,4661 & 0,8785 & 0,1738 & 0,8248 & \textbf{0,9027} \\
+ & Acurácia    & 41,64\% & 52,62\% & 94,29\% & 62,43\% & 89,30\% & \textbf{96,05\%} \\
 \hline
-\multirow{2}{*}{CSE-CIC-IDS2018 Orig. (L0)} 
- & Macro $F_1$ & 0,7588 & 0,5485 & 0,7681 & 0,4750 & 0,6891 & \textbf{0,8773} \\
- & Acurácia    & 93,05\% & 51,73\% & 88,62\% & 69,61\% & 89,09\% & \textbf{98,96\%} \\
+\multirow{2}{*}{CSE-CIC-IDS2018 Orig. (TL0)} 
+ & Macro $F_1$ & 0,6660 & 0,5362 & 0,7751 & 0,0355 & 0,7138 & \textbf{0,8804} \\
+ & Acurácia    & 82,16\% & 54,18\% & 88,77\% & 36,32\% & 89,37\% & \textbf{98,93\%} \\
 \hline
-\multirow{2}{*}{CSE-CIC-IDS2018 Orig. (L2)} 
- & Macro $F_1$ & 0,8442 & 0,5925 & 0,8181 & 0,3029 & 0,7880 & \textbf{0,9050} \\
- & Acurácia    & 94,30\% & 61,53\% & 88,62\% & 44,05\% & 88,13\% & \textbf{98,38\%} \\
+\multirow{2}{*}{CSE-CIC-IDS2018 Orig. (TL1)} 
+ & Macro $F_1$ & 0,8275 & 0,5975 & 0,8287 & 0,9111 & 0,7826 & \textbf{0,9405} \\
+ & Acurácia    & 92,33\% & 62,12\% & 89,05\% & 98,54\% & 89,15\% & \textbf{98,95\%} \\
 \hline
-\multirow{2}{*}{CSE-CIC-IDS2018 Corr. (L0)} 
- & Macro $F_1$ & 0,7862 & 0,7156 & 0,8390 & 0,4405 & 0,7598 & \textbf{0,8918} \\
- & Acurácia    & 99,85\% & 92,87\% & 99,40\% & 78,51\% & 98,37\% & \textbf{99,97\%} \\
+\multirow{2}{*}{CSE-CIC-IDS2018 Corr. (TL0)} 
+ & Macro $F_1$ & 0,9029 & 0,8629 & 0,9038 & 0,7174 & 0,7985 & \textbf{0,9623} \\
+ & Acurácia    & 99,71\% & 91,49\% & 99,04\% & 99,42\% & 95,98\% & \textbf{99,87\%} \\
 \hline
-\multirow{2}{*}{CSE-CIC-IDS2018 Corr. (L2)} 
- & Macro $F_1$ & 0,8134 & 0,6953 & 0,8464 & 0,5115 & 0,7344 & \textbf{0,8851} \\
- & Acurácia    & 99,85\% & 92,84\% & 99,34\% & 77,40\% & 97,77\% & \textbf{99,96\%} \\
+\multirow{2}{*}{CSE-CIC-IDS2018 Corr. (TL1)} 
+ & Macro $F_1$ & 0,8701 & 0,8070 & 0,8757 & \textbf{0,8928} & 0,8352 & 0,8917 \\
+ & Acurácia    & 99,79\% & 91,16\% & 99,23\% & 99,57\% & 96,71\% & \textbf{99,85\%} \\
 \hline
 \end{tabularx}
 \fonte{Elaborado pelo autor (2026), com base nos relatórios de teste.}
 \end{table}
 
-A análise minuciosa da Tabela~\ref{tab:estudo_ablacao_completo} permite derivar conclusões estruturais acerca do comportamento dos especialistas e do ganho proporcionado pela fusão ALF:
+A análise detalhada da Tabela~\ref{tab:estudo_ablacao_completo} permite derivar constatações
+estruturais acerca da sinergia entre os especialistas e o ganho da fusão adaptativa:
 \begin{enumerate}
-    \item \textbf{Superação Sistemática do Melhor Especialista Individual:}
-    Em todos os cenários sem exceção, a fusão atencional \textbf{ALF-MoE} alcança o melhor Macro $F_1$-Score global. No CIC-UNSW-NB15, o melhor especialista isolado foi a $\mathcal{E}_{\mathrm{DNN}}$ ($F_1 = 0{,}4611$), enquanto o ALF-MoE atingiu $0{,}5069$ (ganho de $+4{,}58$ pontos percentuais de $F_1$ e $+3{,}34\%$ em acurácia). No CSE-CIC-IDS2018 Canônico (L0), o ganho é ainda mais acentuado: o melhor especialista individual foi a $\mathcal{E}_{\mathrm{GRU}}$ com $F_1 = 0{,}7681$, superada largamente pelo ALF-MoE com $0{,}8773$ (um salto de $+10{,}92$ pontos de $F_1$ e $+5{,}91\%$ de acurácia sobre a DNN);
+    \item \textbf{Superação Sistemática dos Classificadores Monolíticos:}
+    Em seis dos sete cenários avaliados, a fusão atencional \textbf{ALF-MoE} supera o melhor
+    especialista individual em Macro $F_1$-Score e Acurácia Global. No CIC-UNSW-NB15, a
+    $K_{\mathrm{DNN}}$ obteve $F_1 = 0{,}4596$ e o $K_{\mathrm{CAE}}$ registrou
+    $0{,}4570$, enquanto o ALF-MoE atingiu $0{,}5099$ (ganho de $+5{,}03$ pontos percentuais de $F_1$ e
+    $+2{,}83\%$ em acurácia). No CSE-CIC-IDS2018 Canônico (TL0), a $K_{\mathrm{GRU}}$ foi o
+    melhor ramo individual com $F_1 = 0{,}7751$, sendo largamente ultrapassada pelo ALF-MoE com
+    $0{,}8804$ (avanço de $+10{,}53$ pontos percentuais de Macro $F_1$ e $+9{,}56\%$ em acurácia). No
+    CSE-CIC-IDS2018 Corrigido (TL0), a arquitetura alcançou $0{,}9623$, superando a GRU ($0{,}9038$) e a
+    DNN ($0{,}9029$) por $+5{,}85$ pontos percentuais de Macro $F_1$;
     
-    \item \textbf{Especialização Funcional por Domínio:}
-    Os especialistas $\mathcal{E}_{\mathrm{GRU}}$ e $\mathcal{E}_{\mathrm{LSTM}}$, encarregados da telemetria de intervalos temporais (\emph{IAT} e \emph{Active/Idle}), demonstraram liderança folgada no tráfego IoT (CIC-BCCC-NRC-2024), alcançando $F_1$ de $0{,}8451$ e $0{,}8163$, respectivamente, enquanto os modelos alimentados unicamente por propriedades de pacotes ou globais sofreram degradação. Isso decorre da natureza do protocolo MQTT, cujos pacotes apresentam tamanho uniforme de cabeçalho, tornando os padrões de tempo entre chegadas o elemento primordial de discriminação;
+    \item \textbf{Especialização no Domínio Temporal e Protocolos IoT:}
+    Os especialistas recorrentes $K_{\mathrm{GRU}}$ e $K_{\mathrm{LSTM}}$, encarregados
+    de processar momentos de tempo entre chegadas (\emph{IAT}) e intervalos de atividade/inatividade
+    (\emph{Active/Idle}), demonstraram liderança absoluta no tráfego IoT (CIC-BCCC-NRC-2024),
+    alcançando $F_1$ de $0{,}8785$ e $0{,}8248$ em TL1, respectivamente, enquanto classificadores baseados
+    em contadores globais ($K_{\mathrm{DNN}}$ com $F_1 = 0{,}5114$) apresentaram desempenho
+    inferior. Essa diferenciação decorre da natureza operacional do protocolo MQTT, cujos pacotes
+    apresentam tamanhos de cabeçalho uniformes e enxutos, tornando a dinâmica relacional dos intervalos
+    temporais o vetor primordial de discriminação;
     
-    \item \textbf{Papel Regularizador do Autoencoder Convolucional ($\mathcal{E}_{\mathrm{CAE}}$):}
-    Embora o $\mathcal{E}_{\mathrm{CAE}}$ isole pontuações mais modestas como classificador autônomo (variando entre $F_1 = 0{,}1246$ e $0{,}5115$), sua inclusão no grafo computacional provê uma restrição de reconstrução espectral no domínio da frequência ($\mathcal{L}_{\mathrm{CAE\_rec}}$) que atua como regularizador indutivo, impedindo que os especialistas densos entrem em colapso latente diante de fluxos volumétricos colineares.
+    \item \textbf{Papel Regularizador do Autoencoder Convolucional ($K_{\mathrm{CAE}}$):}
+    Nas matrizes com desbalanceamento severo, a cabeça supervisionada isolada do
+    $K_{\mathrm{CAE}}$ apresenta variações de pontuação (como no BCCC-2024 TL0 com
+    $F_1 = 0{,}0753$). Não obstante, sua integração sob supervisão profunda provê uma restrição indutiva
+    de reconstrução espectral no domínio da frequência ($\mathcal{L}_{\mathrm{rec}}$). Essa restrição
+    impede que representações latentes dos especialistas densos sofram colapso numérico diante de fluxos
+    colineares, atuando como estabilizador global do grafo. Em cenários consolidados como o CSE Corrigido
+    (TL1), o $K_{\mathrm{CAE}}$ alcançou $F_1 = 0{,}8928$, mantendo empate estatístico rigoroso
+    com a fusão final ($0{,}8917$), na qual a acurácia global do ALF-MoE foi superior ($99{,}85\%$
+    contra $99{,}57\%$).
 \end{enumerate}
 
-\subsubsection{Gráficos Radar de Especialistas}
+\subsection{Dinâmica de Roteamento e Atribuição de Pesos da Gating Network}
+\label{subsec:dinamica_gating_network}
 
-A complementaridade multidomínio dos modelos é visualizada na Figura~\ref{fig:radar_especialistas_painel}, que reúne os gráficos radar de comparação entre cada especialista e a arquitetura ALF-MoE nos quatro conjuntos de teste.
+A interpretabilidade do mecanismo de roteamento adaptativo constitui a essência do Objetivo Específico~6
+(Seção~\ref{subsec:obj_especificos}). Diferentemente de ensembles tradicionais com ponderações estáticas
+ou modelos monolíticos opacos, a \emph{Gating Network} do ALF-MoE atua como árbitro dinâmico,
+ponderando a relevância instantânea de cada especialista conforme as características estruturais de cada
+fluxo inspecionado.
+
+A distribuição média global dos coeficientes atencionais atribuídos aos cinco ramos neurais nos quatro
+conjuntos de dados é ilustrada em \ref{fig:gating_pesos_comparativo}. Complementarmente,
+\ref{fig:gating_pesos_classes} detalha o comportamento dos pesos em função das diferentes classes de
+ataque no conjunto CSE-CIC-IDS2018 (Corrigido).
 
 \begin{figure}[htb]
 \centering
-\caption{Gráficos radar comparativos de desempenho por classe: Especialistas individuais vs. ALF-MoE.}
-\label{fig:radar_especialistas_painel}
-\begin{subfigure}[b]{0.48\textwidth}
-    \centering
-    \includegraphics[width=\textwidth]{figures/benchmarks/radar_cse2018_l2.png}
-    \caption{CSE-CIC-IDS2018 Canônico (L2).}
-    \label{subfig:radar_cse_orig}
-\end{subfigure}
-\hfill
-\begin{subfigure}[b]{0.48\textwidth}
-    \centering
-    \includegraphics[width=\textwidth]{figures/benchmarks/radar_cse2018_imp_l2.png}
-    \caption{CSE-CIC-IDS2018 Corrigido (L2).}
-    \label{subfig:radar_cse_imp}
-\end{subfigure}
-
-\vspace{0.4cm}
-
-\begin{subfigure}[b]{0.48\textwidth}
-    \centering
-    \includegraphics[width=\textwidth]{figures/benchmarks/radar_bccc2024_l2.png}
-    \caption{CIC-BCCC-NRC-2024 (L2).}
-    \label{subfig:radar_bccc}
-\end{subfigure}
-\hfill
-\begin{subfigure}[b]{0.48\textwidth}
-    \centering
-    \includegraphics[width=\textwidth]{figures/benchmarks/radar_unsw_l0.png}
-    \caption{CIC-UNSW-NB15 (L0).}
-    \label{subfig:radar_unsw}
-\end{subfigure}
-\fonte{Elaborado pelo autor (2026), a partir dos artefatos de avaliação.}
+\caption{Comparativo da distribuição média global de pesos da Gating Network nos quatro conjuntos de dados.}
+\label{fig:gating_pesos_comparativo}
+\includegraphics[width=0.88\textwidth]{figures/gating_weights/comparativo_gating_pesos_4datasets.pdf}
+\fonte{Elaborado pelo autor (2026), a partir dos registros de inferência da Gating Network.}
 \end{figure}
 
-Em todas as representações radiais da Figura~\ref{fig:radar_especialistas_painel}, o polígono correspondente ao \emph{ALF-MoE} (em linha de destaque) delimita a envoltória superior em virtualmente todas as direções de ataque. Mesmo quando um especialista específico exibe deficiência em um determinado vetor (por exemplo, a queda acentuada da DNN em classes IoT ou da CNN em ataques de força bruta), o mecanismo de fusão atencional redistribui dinamicamente os pesos para os especialistas mais bem capacitados, demonstrando a robustez teórica e prática do projeto ALF-MoE.
+\begin{figure}[htb]
+\centering
+\caption{Distribuição dos pesos da Gating Network por classe no CSE-CIC-IDS2018 Corrigido.}
+\label{fig:gating_pesos_classes}
+\includegraphics[width=0.88\textwidth]{figures/gating_weights/gating_pesos_classes_cse_cic_ids2018_corrigido.pdf}
+\fonte{Elaborado pelo autor (2026), a partir dos registros de inferência da Gating Network.}
+\end{figure}
 
-
-\section{Avaliação da Extração e Inferência em Tráfego Real/PCAPs}
-\label{sec:avaliacao_extracao_inferencia}
-
-A transição de modelos de Aprendizado Profundo avaliados em partições estáticas de \emph{benchmark} para pipelines operacionais de inspeção de rede em tempo real impõe severos desafios de engenharia de software e processamento de sinais. Enquanto a avaliação \emph{offline} assume dados pré-segmentados, normalizados e perfeitamente indexados, o ambiente de produção lida com fluxos bidirecionais concorrentes, assincronia de eventos, variações de temporização de \emph{hardware} e restrições de latência determinística. Esta seção examina o comportamento do arcabouço **ALF-MoE** quando implantado em bancada física real, analisando a fidelidade da extração de características em tempo real via NFStream, o perfil de consumo de recursos computacionais e os gargalos estruturais de latência ponta a ponta.
-
-
-\subsection{Impacto do Mapeamento NFStream \texorpdfstring{$\to$}{->} CICFlowMeter}
-\label{subsec:impacto_mapeamento}
-
-Os conjuntos de dados de referência utilizados no treinamento supervisionado do ALF-MoE (notadamente CSE-CIC-IDS2018, CIC-UNSW-NB15 e CIC-BCCC-NRC-2024) foram originalmente gerados por meio do extrator proprietário \emph{CICFlowMeter} \cite{Sharafaldin2018TowardGA}, uma aplicação monolítica escrita em Java que processa arquivos de captura (.pcap) de forma puramente \emph{offline}. Para viabilizar a inferência em tempo de execução na interface de rede da máquina vítima, concebeu-se um pipeline de produção fundamentado no \emph{framework} NFStream \cite{AOUINI2022108719}, estendido por um \emph{plugin} customizado em C/Python (\texttt{FeatureExtractor}).
-
-A migração entre esses dois motores de telemetria introduz discrepâncias estatísticas inerentes à natureza de suas arquiteturas:
+A análise quantitativa dessas distribuições elucida o direcionamento atencional segundo a natureza de
+cada cenário de rede:
 \begin{enumerate}
-    \item \textbf{Discretização Temporal e Resolução de Clock:}
-    O CICFlowMeter original depende dos temporizadores da máquina virtual Java (JVM) e das ligações da biblioteca \texttt{jNetPcap}, expressando durações e intervalos entre chegadas (\emph{Inter-Arrival Times} -- IAT) em microssegundos ($\mu\mathrm{s}$), embora frequentemente truncados ou arredondados pela granulação de milissegundos do relógio subjacente do sistema operacional. Em contrapartida, o motor do NFStream opera nativamente em linguagem C com suporte a \emph{buffers} de anel de alta velocidade no espaço de usuário (\texttt{libpcap} / AF\_PACKET), capturando os instantes de primeiro e último pacote em milissegundos de precisão (\texttt{bidirectional\_first\_seen\_ms}). Para compatibilizar o vetor de entrada com a distribuição esperada pelo modelo neural, o \texttt{FeatureExtractor} converte dinamicamente as grandezas temporais multiplicando-as pelo fator de escala $1000{,}0$. Embora essa transformação preserve a magnitude relativa dos intervalos, ela remove variações microscópicas de submilissegundos que constavam nos dados de treino;
+    \item \textbf{Predominância Sequencial no Tráfego IoT (CIC-BCCC-NRC-2024):}
+    No ambiente de sensores e protocolos leves, o especialista $K_{\mathrm{GRU}}$
+    consolidou-se como líder absoluto de atenção, recebendo $40{,}34\%$ da média macro de pesos
+    ($41{,}24\%$ na média ponderada por instâncias de teste). Em contrapartida, a
+    $K_{\mathrm{DNN}}$ recuou para $7{,}03\%$ ($7{,}47\%$ ponderado). O
+    $K_{\mathrm{CAE}}$ registrou o segundo maior coeficiente ($24{,}04\%$ macro / $22{,}47\%$
+    ponderado), seguido da $K_{\mathrm{CNN}}$ ($16{,}33\%$) e da $K_{\mathrm{LSTM}}$
+    ($12{,}25\%$). Esse resultado evidencia que, em comunicações MQTT onde o volume de bytes por pacote é
+    reduzido e regular, os momentos temporais de inter-chegada (IAT) e as assinaturas espectrais concentram
+    o poder discriminativo;
     
-    \item \textbf{Cálculo de Variância e IAT em Janelas Deslizantes:}
-    Em ambiente \emph{offline}, o CICFlowMeter calcula a variância do comprimento dos pacotes e os desvios padrão de IAT em duas passagens completas sobre o vetor de pacotes em memória, utilizando a fórmula da variância amostral clássica com correção de Bessel ($N-1$). No extrator em tempo real do NFStream, o cômputo é realizado incrementalmente em janelas deslizantes sem que o extrator conheça previamente o tamanho total ou a duração final da conexão. A variância do comprimento dos pacotes é aproximada pelo quadrado do desvio padrão nativo acumulado (\texttt{bidirectional\_stddev\_ps}$^2$). Em conexões de longa duração ($N \ge 10$ pacotes), a lei dos grandes números garante convergência quase perfeita entre ambas as formulações. Todavia, em conexões ultracurtas ($N < 3$ pacotes) — típicas de sondagens TCP SYN avulsas —, o cálculo incremental sofre de degenerescência numérica marginal nos graus de liberdade amostrais;
+    \item \textbf{Liderança Equilibrada na Rede Corporativa Saneada (CSE-CIC-IDS2018 Corrigido):}
+    Na base saneada em nível TL1, a $K_{\mathrm{DNN}}$ assumiu a liderança com $34{,}01\%$ da
+    média macro de atenção ($38{,}42\%$ ponderada), cooperando ativamente com a
+    $K_{\mathrm{CNN}}$ ($19{,}23\%$ macro / $15{,}41\%$ ponderada), a
+    $K_{\mathrm{GRU}}$ ($19{,}79\%$ macro / $14{,}23\%$ ponderada) e o
+    $K_{\mathrm{CAE}}$ ($17{,}14\%$ macro / $19{,}77\%$ ponderada), enquanto a
+    $K_{\mathrm{LSTM}}$ obteve $9{,}83\%$ ($12{,}18\%$ ponderada). O equilíbrio atencional
+    reflete a diversidade do ambiente em nuvem da AWS, que combina tráfego volumétrico e requisições web;
     
-    \item \textbf{Métricas de Subfluxos e Taxas de Bulk:}
-    O CICFlowMeter adota regras heurísticas complexas para fragmentar um fluxo contínuo em ``subfluxos'' (\emph{subflows}) caso ocorram períodos de inatividade interna superiores a 1 segundo, gerando atributos como \texttt{Subflow\_Fwd\_Packets} e \texttt{Subflow\_Fwd\_Bytes}. De forma similar, suas taxas de transferência contínua (\emph{Bulk Rates}) exigem a observação de blocos ininterruptos de dados. Na implementação em tempo real, tais agregações tornam-se voláteis e computacionalmente onerosas. O \texttt{FeatureExtractor} optou por mapear os acumuladores de subfluxo diretamente para as contagens globais da direção (\texttt{src2dst\_packets} e \texttt{src2dst\_bytes}).
+    \item \textbf{Distribuição no Cenário Canônico (CSE-CIC-IDS2018 Canônico):}
+    No conjunto canônico em TL1, a atenção concentrou-se entre a $K_{\mathrm{GRU}}$
+    ($33{,}04\%$ macro / $31{,}34\%$ ponderada) e a $K_{\mathrm{DNN}}$ ($26{,}99\%$ macro /
+    $29{,}02\%$ ponderada), acompanhadas por $K_{\mathrm{CAE}}$ ($15{,}52\%$),
+    $K_{\mathrm{CNN}}$ ($13{,}12\%$) e $K_{\mathrm{LSTM}}$ ($11{,}32\%$);
+    
+    \item \textbf{Exploração Espectral e Espacial no Tráfego Sintético (CIC-UNSW-NB15):}
+    No benchmark UNSW-NB15, o $K_{\mathrm{CAE}}$ atingiu o maior coeficiente médio com
+    $34{,}02\%$ macro ($30{,}47\%$ ponderado), associado à $K_{\mathrm{CNN}}$ com $24{,}76\%$
+    ($27{,}17\%$ ponderado), enquanto a $K_{\mathrm{DNN}}$ deteve $17{,}21\%$ ($19{,}65\%$
+    ponderado), a $K_{\mathrm{LSTM}}$ obteve $14{,}83\%$ e a $K_{\mathrm{GRU}}$
+    registrou $9{,}19\%$. Esse comportamento decorre da síntese do equipamento IXIA PerfectStorm, cujas
+    mutações artificiais geram perturbações espectrais e morfológicas em matrizes de pacotes capturadas
+    pelos filtros 2D do CAE e da CNN.
 \end{enumerate}
 
-A Tabela~\ref{tab:comparativo_extratores_metricas} sintetiza a comparação metodológica entre os extratores e reporta o índice de consistência estatística mensurado em 10.000 fluxos de validação cruzada entre capturas processadas concomitantemente por ambas as ferramentas.
+A desagregação dos pesos por classe no CSE-CIC-IDS2018 Corrigido (\ref{fig:gating_pesos_classes})
+comprova a adaptabilidade da \emph{Gating Network}:
+\begin{itemize}
+    \item \textbf{Ataques Volumétricos e Força Bruta Estruturada:} nas classes \emph{Botnet}
+    ($48{,}09\%$), \emph{DDoS} ($41{,}98\%$), \emph{DoS} ($40{,}61\%$) e sondagens de rede
+    (\emph{Infiltration - NMAP Portscan}, com $51{,}35\%$), a rede delegou atenção predominante à
+    $K_{\mathrm{DNN}}$. Nesses cenários, os contadores acumulados de bytes, taxas de
+    transmissão e sinalizadores TCP no subvetor global $\mathbf{x}_g$ reúnem alta variância e separabilidade
+    linear;
+    
+    \item \textbf{Ataques a Aplicações Web (\emph{Web Attack}):} para as invasões web, a
+    \emph{Gating Network} reduziu o peso da $K_{\mathrm{DNN}}$ para apenas $10{,}69\%$,
+    transferindo a confiança para a $K_{\mathrm{GRU}}$ ($37{,}01\%$) e a
+    $K_{\mathrm{CNN}}$ ($36{,}93\%$). Esse redirecionamento dinâmico atesta a capacidade de
+    adaptação atencional: ataques em camada de aplicação manifestam-se em sequências morfológicas de
+    tamanho de pacote e temporizações assíncronas, modeladas pelos filtros convolucionais e pelas portas
+    recorrentes da GRU;
+    
+    \item \textbf{Tráfego Normal (\emph{BENIGN}):} as conexões legítimas ativaram um perfil cooperativo
+    amplo, liderado pela $K_{\mathrm{CNN}}$ ($29{,}41\%$) e pela $K_{\mathrm{DNN}}$
+    ($25{,}27\%$), com participação equilibrada de $K_{\mathrm{CAE}}$ ($17{,}55\%$),
+    $K_{\mathrm{GRU}}$ ($15{,}44\%$) e $K_{\mathrm{LSTM}}$ ($12{,}33\%$);
+    
+    \item \textbf{Força Bruta em Conexões Cifradas (\emph{SSH-BruteForce}):} o comitê estabeleceu uma
+    divisão equilibrada entre $K_{\mathrm{DNN}}$ ($29{,}32\%$), $K_{\mathrm{CNN}}$
+    ($29{,}31\%$) e $K_{\mathrm{GRU}}$ ($29{,}25\%$), integrando contadores volumétricos,
+    comprimento de segmentos de autenticação e intervalos de tentativas repetitivas.
+\end{itemize}
+
+\section{Avaliação da Extração e Inferência em Tráfego Real na Bancada Física}
+\label{sec:avaliacao_extracao_inferencia}
+
+A transição de modelos neurais avaliados em arquivos estáticos de \emph{benchmark} para pipelines de
+inspeção em tempo real impõe desafios de engenharia de software e processamento de sinais. Conforme
+fundamentado no Capítulo~\ref{cap:pipeline}, a operação perimetral lida com fluxos bidirecionais
+assíncronos, restrições de concorrência com drivers aceleradores e temporizadores determinísticos de
+expiração de protocolos. Esta seção examina o comportamento da arquitetura \textbf{ALF-MoE} quando
+implantada no ambiente experimental de bancada física, avaliando a consistência estatística da extração
+via NFStream, a decomposição de latência computacional na GPU dedicada, o gargalo estrutural da latência
+ponta a ponta e a supressão de falsos alarmes sob tráfego operacional.
+
+\subsection{Impacto do Mapeamento NFStream para o Padrão CICFlowMeter}
+\label{subsec:impacto_mapeamento}
+
+Os conjuntos de dados de referência utilizados no treinamento supervisionado do ALF-MoE foram gerados
+originalmente pelo extrator acadêmico \emph{CICFlowMeter} \cite{Sharafaldin2018TowardGA}, uma
+ferramenta monolítica em Java que processa arquivos PCAP em modo \emph{offline}. Para viabilizar a
+inferência contínua na interface física de rede, o pipeline ALF-MoE incorporou um sensor passivo baseado
+no \emph{framework} NFStream \cite{AOUINI2022108719}, estendido pelo plugin \emph{FeatureExtractor}
+(Seção~\ref{subsec:extracao_nfstream}).
+
+A transposição entre os motores de telemetria introduz particularidades metodológicas:
+\begin{enumerate}
+    \item \textbf{Discretização Temporal e Resolução de Clock:}
+    O extrator CICFlowMeter calcula durações e intervalos entre chegadas (\emph{Inter-Arrival Times} --
+    IAT) a partir dos temporizadores da máquina virtual Java (JVM), reportando grandezas em
+    microssegundos ($\mu\mathrm{s}$), embora sujeitas a variações de relógio do sistema operacional. O
+    NFStream opera nativamente em linguagem C com buffers de anel de alta velocidade (\emph{libpcap}),
+    registrando instantes de primeiro e último pacote em milissegundos. Para harmonizar os atributos com a
+    escala esperada pelo modelo pré-treinado, o \emph{FeatureExtractor} converte dinamicamente as
+    métricas de tempo multiplicando-as pelo fator $1000{,}0$. Essa transformação preserva as ordens de
+    grandeza relativas e mitiga flutuações irrelevantes;
+    
+    \item \textbf{Cálculo de Variância e IAT em Janelas Deslizantes:}
+    Em modo \emph{offline}, o CICFlowMeter calcula a variância de pacotes e desvios de IAT em duas
+    passagens completas sobre a memória com correção amostral de Bessel ($N-1$). No sensor em tempo real
+    do NFStream, o cômputo é incremental e atualizado a cada pacote capturado na interface. A variância do
+    comprimento dos pacotes é obtida diretamente pelo quadrado do desvio padrão acumulado. Em conexões
+    típicas ($N \ge 10$ pacotes), constata-se convergência entre ambas as abordagens, com variações
+    marginais em conexões ultracurtas ($N < 3$ pacotes);
+    
+    \item \textbf{Métricas de Subfluxos e Taxas de Transferência Contínua:}
+    O CICFlowMeter emprega regras heurísticas para segmentar fluxos mediante pausas internas superiores a
+    um segundo, gerando contadores de subfluxo. Na captura em tempo real, essa divisão contínua introduz
+    instabilidade na telemetria. O plugin do NFStream mapeou os acumuladores de subfluxo diretamente nas
+    contagens globais acumuladas da direção.
+\end{enumerate}
+
+A Tabela~\ref{tab:comparativo_extratores_metricas} sintetiza o confronto metodológico entre os motores
+de telemetria e documenta a consistência estatística mensurada em 10.000 fluxos processados
+simultaneamente por ambos os extratores.
 
 \begin{table}[htb]
 \centering
-\caption{Comparativo metodológico e estatístico entre o extrator offline (CICFlowMeter) e o extrator em tempo real (NFStream + Plugin ALF).}
+\caption{Comparativo metodológico e estatístico entre extratores de telemetria.}
 \label{tab:comparativo_extratores_metricas}
 \footnotesize
 \setlength{\tabcolsep}{4pt}
-\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{2.4cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X r >{\raggedright\arraybackslash}p{2.8cm}}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{2.4cm}
+  >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X r
+  >{\raggedright\arraybackslash}p{2.8cm}}
 \hline
-\textbf{Grupo de Atributos} & \textbf{CICFlowMeter (Java / Offline)} & \textbf{NFStream + Plugin (C / Tempo Real)} & \textbf{Consistência} & \textbf{Impacto no Modelo} \\
+\textbf{Grupo de Atributos} & \textbf{CICFlowMeter (Java / Offline)} & \textbf{NFStream + Plugin (C / Tempo Real)} &
+  \textbf{Consistência} & \textbf{Impacto no Modelo} \\
 \hline
-Volumetria Global e Pacotes & Contagem exata em memória; bytes e pacotes bidirecionais totais. & Acumuladores em nível de kernel via \texttt{libpcap} / C. & 99,4\% & Nulo (Erro $< 0{,}6\%$) \\
+Volumetria e Pacotes & Contagem exata em memória; bytes e pacotes bidirecionais totais. &
+  Acumuladores em nível de kernel via \emph{libpcap} / C. & 99,4\% &
+  Nulo (Erro $< 0{,}6\%$) \\
 \hline
-Temporização e IAT & Microssegundos brutos ($\mu\mathrm{s}$) sujeitos a jitter de JVM. & Milissegundos (\texttt{ms}) convertidos para $\mu\mathrm{s}$ ($\times 1000$). & 98,7\% & Desprezível (Absorvido pelo \texttt{RobustScaler}) \\
+Temporização e IAT & Microssegundos brutos ($\mu\mathrm{s}$) sujeitos a variações de JVM. &
+  Milissegundos (\emph{ms}) convertidos para $\mu\mathrm{s}$ ($\times 10^3$). & 98,7\% &
+  Desprezível (Absorvido pelo \emph{RobustScaler}) \\
 \hline
-Variância de Comprimento & Variância amostral em duas passagens ($N-1$). & Cômputo incremental pelo desvio padrão acumulado (\texttt{stddev}$^2$). & 99,1\% & Marginal em fluxos com $N < 3$ pacotes \\
+Variância de Comprimento & Variância amostral em duas passagens ($N-1$). &
+  Cômputo incremental pelo desvio padrão acumulado ($\mathrm{stddev}^2$). & 99,1\% &
+  Marginal em fluxos com $N < 3$ pacotes \\
 \hline
-Subfluxos e Taxas Bulk & Fragmentação por pausas heurísticas de 1 segundo. & Acumuladores diretos do fluxo (\texttt{subflow = total}). & 91,2\% & Nulo (Features descartadas ou com peso residual) \\
+Subfluxos e Taxas Bulk & Fragmentação por pausas heurísticas de um segundo. &
+  Acumuladores diretos do fluxo (\emph{subflow} = total). & 91,2\% &
+  Nulo (Features descartadas ou com peso residual) \\
 \hline
-Flags e Janelas TCP & Inspeção pós-fato sobre pacotes armazenados. & Captura síncrona no primeiro pacote de cada direção. & 100,0\% & Positivo (Identificação determinística de SYN/ACK) \\
+Flags e Janelas TCP & Inspeção após processamento completo dos pacotes. &
+  Captura da janela no primeiro pacote e contadores cumulativos. & 100,0\% &
+  Positivo (Identificação determinística de SYN/ACK) \\
 \hline
 \end{tabularx}
+
 \fonte{Elaborado pelo autor (2026), com base nos ensaios de calibração em bancada.}
 \end{table}
 
-Os resultados empíricos confirmam que os atributos volumétricos globais e as propriedades morfológicas dos pacotes (médias, mínimos e máximos) mantiveram \textbf{99,4\% de consistência estatística}. As pequenas flutuações registradas nas métricas temporais de IAT foram integralmente absorvidas pela etapa de normalização robusta (\texttt{RobustScaler}), que dimensiona os dados segundo a mediana e o intervalo interquartil (IQR), mitigando a sensibilidade a desvios mínimos de escala. Por sua vez, a simplificação nas métricas de subfluxo e \emph{bulk} não comprometeu a acurácia global do ALF-MoE, uma vez que a etapa de seleção de atributos e o mecanismo de fusão atencional já atribuíam pesos residuais a essas grandezas em favor da telemetria temporal fina modelada pelos especialistas recorrentes ($\mathcal{E}_{\mathrm{GRU}}$ e $\mathcal{E}_{\mathrm{LSTM}}$).
+Os resultados confirmam que as variáveis volumétricas globais e as propriedades morfológicas dos
+pacotes mantiveram \textbf{99,4\% de consistência estatística}. Flutuações residuais nas métricas
+temporais foram amortecidas pelo \emph{RobustScaler}, que padroniza os dados pela mediana e pelo
+intervalo interquartil (IQR), mitigando variações mínimas de escala.
 
-
-\subsection{Throughput, Latência e Consumo Computacional}
+\subsection{Vazão, Latência de Inferência e Consumo Computacional na GPU}
 \label{subsec:throughput_latencia_consumo}
 
-A viabilidade de um sistema de detecção e resposta perimetral em tempo real depende estritamente do atendimento a requisitos estritos de temporização e moderação no consumo de recursos de \emph{hardware}. A bancada de testes experimentais foi montada sobre a máquina hospedeira da vítima (Acer Nitro V15), equipada com uma unidade de processamento gráfico dedicada \textbf{NVIDIA GeForce RTX 4050 6GB Laptop GPU} (arquitetura Ada Lovelace, 2.560 núcleos CUDA, barramento de 96 bits), operando sobre o sistema operacional Ubuntu Linux (kernel 7.0.0-31-generic).
+A bancada de testes experimentais foi operada na máquina hospedeira de teste (Acer Nitro V15), cujas
+especificações foram apresentadas na Seção~\ref{subsec:arquitetura_execucao}: processador Intel Core
+i7-13620H (10 núcleos, 16 threads), 16 GB de RAM DDR5 (5200 MT/s) e GPU dedicada NVIDIA GeForce RTX 4050
+6GB Laptop GPU (arquitetura Ada Lovelace, 2560 núcleos CUDA), sob Ubuntu 26.04.1 LTS (kernel Linux
+7.0.0-38-generic) e aceleração TensorFlow 2.21.0 com CUDA 12.5.
 
-\subsubsection{Métricas Quantitativas de Inferência Neural}
+\subsubsection{Métricas de Inferência no Regime Streaming Unitário}
 
-No ambiente operacional de bancada, a inferência do ALF-MoE foi executada no modo de classificação unitária sob demanda (\emph{single-flow streaming}, lote $B = 1$), refletindo a chegada progressiva e assíncrona de fluxos encerrados pela camada de captura. Sob essa condição de produção, a \textbf{latência pura de \emph{forward pass} neural} variou na faixa de \textbf{$52{,}45\,\mathrm{ms}$ a $64{,}68\,\mathrm{ms}$ por fluxo}, com média amostral consolidada em \textbf{$54{,}23\,\mathrm{ms}$}.
+No ambiente operacional de bancada física, a inferência do ALF-MoE operou no modo de classificação
+unitária sob demanda (\emph{single-flow streaming}, lote $B = 1$). Essa configuração reflete a dinâmica
+de recepção assíncrona de conexões expiradas pelo temporizador do NFStream. Sob essas condições reais de
+operação, a \textbf{latência computacional do \emph{forward pass} neural na GPU} registrou média amostral
+consolidada em \textbf{$54{,}23\,\mathrm{ms}$} por fluxo (com médias de campanhas operacionais situando-se
+entre $52{,}45\,\mathrm{ms}$ e $64{,}68\,\mathrm{ms}$).
 
-Esse comportamento contrasta expressivamente com os resultados do \emph{benchmark offline} reportados na Seção~\ref{sec:desempenho_benchmark}, onde o modelo alcançou latências nominais de $\approx 0{,}012\,\mathrm{ms}$ por fluxo e vazão teórica superior a $84.000\,\mathrm{fluxos/s}$. Essa discrepância decorre diretamente da física de execução em processadores massivamente paralelos:
+Esse comportamento em bancada contrasta com a latência teórica obtida no regime \emph{offline} em lote
+(Tabela~\ref{tab:desempenho_global_7cenarios}), onde o modelo alcançou $\approx 0{,}019$ a
+$0{,}026\,\mathrm{ms}$ por amostra e vazão superior a $38.000\,\mathrm{fluxos/s}$. Essa variação
+decorre das características de execução em processadores massivamente paralelos:
 \begin{itemize}
-    \item No regime \emph{offline}, o processamento ocorre em megablocos parametrizados (e.g. lotes de 2.048 amostras), amortizando os custos fixos de sobrecarga de invocação do \emph{kernel} CUDA (\emph{kernel launch overhead}), saturando completamente os \emph{Tensor Cores} e maximizando a largura de banda de memória GDDR6;
-    \item No regime de fluxo contínuo unitário ($B=1$), o gargalo é dominado pela latência de transferência de dados hospedeiro-dispositivo (\emph{host-to-device} via barramento PCIe) e pelas barreiras de sincronização interna exigidas pela passagem simultânea de tensores pelas cinco redes especialistas e pelo cômputo sequencial da matriz de atenção do bloco ALF.
+    \item No regime \emph{offline}, tensores com milhares de instâncias (lotes de 2.048 amostras)
+    amortizam os custos de despacho de comandos para o driver CUDA (\emph{kernel launch overhead}),
+    preenchem completamente os \emph{Tensor Cores} e saturam a largura de banda de memória GDDR6;
+    
+    \item No regime de fluxo unitário contínuo ($B=1$), o processamento é dominado pela latência de
+    transferência de dados entre a CPU hospedeira e a GPU via barramento PCIe, associada às sincronizações
+    internas requeridas para despachar tensores através dos cinco especialistas e computar a atenção no
+    módulo ALF.
 \end{itemize}
 
-A Tabela~\ref{tab:decomposicao_latencia_pipeline} apresenta a decomposição minuciosa do tempo de processamento consumido por cada estágio do pipeline em tempo real para cada fluxo recebido.
+A Tabela~\ref{tab:decomposicao_latencia_pipeline} detalha a decomposição do tempo de processamento
+consumido por cada estágio do pipeline em tempo real para cada fluxo inspecionado.
 
 \begin{table}[htb]
 \centering
-\caption{Decomposição temporal e perfil de latência do pipeline de inferência em tempo real (GPU NVIDIA GeForce RTX 4050 6GB Laptop).}
+\caption{Decomposição temporal e perfil de latência do pipeline de inferência em tempo real.}
 \label{tab:decomposicao_latencia_pipeline}
 \footnotesize
 \setlength{\tabcolsep}{4pt}
-\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{3.2cm} >{\raggedright\arraybackslash}p{2.6cm} rr >{\raggedright\arraybackslash}X}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{3.2cm}
+  >{\raggedright\arraybackslash}p{2.6cm} rr >{\raggedright\arraybackslash}X}
 \hline
-\textbf{Estágio do Pipeline} & \textbf{Componente Responsável} & \textbf{Latência Média} & \textbf{Fração Comput.} & \textbf{Descrição Funcional} \\
+\textbf{Estágio do Pipeline} & \textbf{Componente Responsável} & \textbf{Latência Média} &
+  \textbf{Fração Comput.} & \textbf{Descrição Funcional} \\
 \hline
-Pré-processamento & Processador Host (CPU) & $1{,}82\,\mathrm{ms}$ & $3{,}2\%$ & Normalização \texttt{RobustScaler} e transformação \texttt{log1p}. \\
-Inferência ALF-MoE & GPU Dedicada (RTX 4050) & $54{,}23\,\mathrm{ms}$ & $95{,}7\%$ & \emph{Forward pass} em 5 especialistas + fusão por atenção. \\
-Decisão e Defesa Ativa & Subsistema NIPS (Kernel) & $0{,}61\,\mathrm{ms}$ & $1{,}1\%$ & Consulta de \emph{whitelist} e injeção de regra no \texttt{nftables}. \\
+Pré-processamento & Processador Host (CPU) & $1{,}82\,\mathrm{ms}$ & $3{,}2\%$ &
+  Normalização \emph{RobustScaler} e transformação $\ln(1+x)$. \\
+Inferência ALF-MoE & GPU Dedicada (RTX 4050) & $54{,}23\,\mathrm{ms}$ & $95{,}7\%$ &
+  \emph{Forward pass} em 5 especialistas + fusão por atenção. \\
+Decisão e Auditoria & \emph{InferenceAuditor} & $0{,}61\,\mathrm{ms}$ & $1{,}1\%$ &
+  Consulta a salvaguardas e gravação síncrona em JSONL. \\
 \hline
-\textbf{Total Computacional} & \textbf{Pipeline Integrado} & \textbf{56,66\,ms} & \textbf{100,0\%} & Tempo entre a extração e a mitigação no firewall. \\
+\textbf{Total Computacional} & \textbf{Pipeline Integrado} & $\mathbf{56{,}66\,\mathrm{ms}}$ &
+  $\mathbf{100{,}0\%}$ & Tempo entre a extração e a persistência no SIEM. \\
 \hline
-\emph{Latência Estrutural} & \emph{Temporizador de Rede} & $120.000{,}00\,\mathrm{ms}$ & --- & \emph{Janela de inatividade (\texttt{idle\_timeout}) para expiração.} \\
+\emph{Latência Estrutural} & \emph{Temporizador de Rede} & $120.000{,}00\,\mathrm{ms}$ & --- &
+  \emph{Janela de inatividade ($\tau_{\mathrm{idle}}$) para expiração.} \\
 \hline
 \end{tabularx}
-\fonte{Elaborado pelo autor (2026), com base nas medições do auditor forense (\texttt{InferenceAuditor}).}
+
+\fonte{Elaborado pelo autor (2026), com base nas medições do auditor forense.}
 \end{table}
 
-A vazão sustentada em regime contínuo de inferência alcançou aproximadamente \textbf{$17{,}6$ fluxos classificados por segundo} no processo principal. O consumo de memória de vídeo da GPU estabilizou-se em \textbf{$1{,}2\,\mathrm{GB}$ de VRAM} (cerca de $20\%$ da capacidade nominal de 6 GB), evidenciando que a arquitetura ALF-MoE é computacionalmente enxuta e viabiliza a coexistência harmônica do motor de segurança com outras cargas analíticas, serviços locais ou interfaces gráficas na máquina protegida.
+A vazão sustentada em inferência contínua unitária no processo consumidor alcançou aproximadamente
+\textbf{$17{,}6$ fluxos classificados por segundo}, com consumo de memória de vídeo estabilizado em
+\textbf{$1{,}2\,\mathrm{GB}$ de VRAM} (aproximadamente $20\%$ da capacidade de 6 GB da GPU). Essa
+moderação comprova que a arquitetura é enxuta e viabiliza a coexistência com outros serviços analíticos
+na estação de segurança.
 
+\subsubsection{O Gargalo Estrutural da Latência Ponta a Ponta}
 
-\subsubsection{O Gargalo Estrutural da Latência Ponta a Ponta (End-to-End Latency)}
+A investigação prática em bancada física revelou uma constatação empírica central: \textbf{a latência
+ponta a ponta (\emph{end-to-end}) entre o primeiro pacote de uma intrusão e o alerta forense emitido no
+SIEM não é governada pelo tempo de inferência do modelo neural, mas sim pela dinâmica de transporte e
+temporização do extrator de fluxo}.
 
-A investigação em bancada revelou uma constatação empírica fundamental para a ciência da computação e segurança de redes: \textbf{a latência ponta a ponta (\emph{end-to-end}) entre o disparo do primeiro pacote malicioso e o bloqueio efetivo da conexão no \emph{firewall} não é governada pelo modelo de aprendizado de máquina, mas sim pela dinâmica de transporte do extrator de fluxo}.
-
-Conforme exposto na Tabela~\ref{tab:decomposicao_latencia_pipeline}, o tempo estritamente computacional gasto para normalizar os atributos, executar a inferência atencional multi-expert e registrar a regra no \texttt{nftables} é de apenas $56{,}66\,\mathrm{ms}$. Todavia, na captura em tempo real, o objeto de fluxo só é finalizado e disponibilizado para consumo após a expiração dos temporizadores de protocolo configurados no motor de telemetria:
+Conforme exposto na Tabela~\ref{tab:decomposicao_latencia_pipeline}, o atraso estritamente computacional
+para pré-processar atributos, executar a inferência no ALF-MoE e registrar o evento é de apenas
+$56{,}66\,\mathrm{ms}$. Todavia, no extrator de fluxo, a conexão somente é encerrada e despachada para
+consumo após a expiração dos temporizadores de protocolo configurados:
 \begin{itemize}
-    \item \texttt{idle\_timeout = 120s}: intervalo de silêncio exigido entre dois pacotes consecutivos de uma mesma tupla para que a conexão seja dada como inativa e encerrada;
-    \item \texttt{active\_timeout = 240s}: duração máxima contínua permitida para conexões persistentes antes de sua segmentação forçada (reduzida de 1.800 s para 240 s durante os ensaios de calibração).
+    \item Limiar de inatividade ($\tau_{\mathrm{idle}} = 120\,\mathrm{s}$): janela temporal de
+    ausência de novos pacotes necessária para consolidar o encerramento do fluxo;
+    \item Limiar ativo ($\tau_{\mathrm{active}} = 240\,\mathrm{s}$): teto máximo para segmentação
+    de conexões persistentes.
 \end{itemize}
 
-Essa dependência manifestou-se claramente nos ensaios práticos com a ferramenta Nmap: uma varredura de portas em modo básico completa o envio de suas sondas em menos de $30$ segundos. No entanto, os fluxos correspondentes permanecem retidos no extrator, aguardando que transcorram os 120 segundos de inatividade após o último pacote transmitido. Apenas quando o cronômetro atinge $120\,\mathrm{s}$ o NFStream dispara o evento \texttt{on\_expire}, liberando o fluxo para a inferência neural ($54\,\mathrm{ms}$) e culminando no descarte pelo \texttt{nftables} ($0{,}6\,\mathrm{ms}$). O atraso ponta a ponta real atinge, portanto, cerca de $120{,}06\,\mathrm{segundos}$.
+Essa dinâmica evidenciou-se durante ensaios de varredura com a ferramenta Nmap: embora a emissão de
+sondas de porta seja concluída em segundos, os fluxos correspondentes permanecem retidos no buffer de
+telemetria até que transcorram os 120 segundos de inatividade regulamentares. Uma vez atingido o
+temporizador, o NFStream emite o evento de expiração, a classificação neural é concluída em
+$54\,\mathrm{ms}$ e o registro forense é efetuado em $0{,}6\,\mathrm{ms}$, resultando em um atraso
+ponta a ponta real de aproximadamente $120{,}06\,\mathrm{segundos}$.
 
-Esse fenômeno suscita uma reflexão técnica profunda sobre a \textbf{dicotomia entre NIDS baseados em fluxo (\emph{Flow-based}) versus NIDS baseados em pacote individual (\emph{Packet-based} / DPI)}:
+Esse comportamento delineia a dicotomia fundamental entre \textbf{NIDS baseados em fluxo (\emph{Flow-based})}
+versus \textbf{NIDS baseados em pacote individual (\emph{Packet-based} / DPI)}:
 \begin{enumerate}
-    \item \textbf{Vantagens Inerentes da Abordagem por Fluxo:} A computação de métricas estatísticas agregadas (médias de tamanho, variâncias e desvios de IAT) confere ao ALF-MoE robustez semântica superior. O modelo analisa a dinâmica relacional da conversa, tornando-se imune a técnicas evasivas clássicas de fragmentação de pacotes em nível IP, desordenação proposital de segmentos TCP ou ofuscação de cabeçalhos. Além disso, a abordagem é totalmente agnóstica à criptografia de carga útil (TLS/HTTPS) e reduz em ordens de magnitude o volume de dados a ser inspecionado pelo subsistema de segurança;
-    \item \textbf{Custo Estrutural de Encerramento:} O compromisso inescapável dessa estratégia é o retardo temporal de fechamento. Para construir uma estimativa fidedigna de variância ou taxa de bytes, o extrator precisa testemunhar o término da transação ou aguardar a certeza estatística de sua inatividade. Em ataques fulminantes de exploração rápida, o vetor hostil pode ter sido concluído antes que o alerta seja emitido;
-    \item \textbf{Estratégias de Mitigação no ALF-MoE:} Para amortecer esse gargalo, o projeto ALF-MoE adotou a redução agressiva do \texttt{active\_timeout} de 1.800 s para 240 s e estruturou as fundações para classificação precoce (\emph{early flow classification}), na qual fluxos de alta intensidade volumétrica podem ser inferidos prematuramente após os primeiros pacotes de abertura.
+    \item \textbf{Vantagens da Análise por Fluxo:} a agregação de propriedades estatísticas e
+    temporais confere ao ALF-MoE robustez semântica superior, tornando-o imune a técnicas clássicas de
+    fragmentação de pacotes em nível IP, reordenação de segmentos TCP e ofuscação de cabeçalhos.
+    Adicionalmente, opera de forma agnóstica à criptografia de carga útil (HTTPS/TLS) e reduz o volume
+    de eventos processados pelo subsistema de segurança em várias ordens de magnitude;
+    
+    \item \textbf{Custo Estrutural de Encerramento:} o compromisso operacional reside no retardo
+    temporal para fechamento do fluxo. Para calcular médias e momentos de IAT, o extrator necessita
+    testemunhar a finalização da transação ou aguardar o tempo de inatividade;
+    
+    \item \textbf{Estratégias de Mitigação no Pipeline:} o arranjo implementado mitigou esse retardo
+    reduzindo o limiar ativo de 1.800 s para 240 s e estruturando o pipeline para classificação precoce
+    (\emph{early flow classification}), onde fluxos de alto volume podem ser avaliados preliminarmente
+    após os primeiros pacotes de abertura.
 \end{enumerate}
 
-
-\subsection{Avaliação de Falsos Positivos em Tráfego Operacional e Calibração de Salvaguardas}
+\subsection{Avaliação de Falsos Positivos em Tráfego Operacional e Salvaguardas}
 \label{subsec:desempenho_trafego_benigno}
 
-Um requisito fundamental para a viabilidade operacional de qualquer ferramenta de segurança de redes reside na minimização da taxa de falsos positivos (FPR). Alarmes espúrios recorrentes sobre tráfego legítimo causam a chamada fadiga de alertas, sobrecarregando as equipes de monitoramento ou provocando a desativação indevida dos módulos de bloqueio automatizado.
+Um requisito crítico para a implantação de ferramentas de detecção reside na minimização da taxa de
+falsos positivos (\emph{False Positive Rate} -- FPR). Alarmes espúrios recorrentes sobre atividades
+normais geram sobrecarga nas equipes de segurança e provocam a desativação inadvertida de regras
+perimetrais.
 
-Para quantificar esse comportamento em ambiente físico de produção, o pipeline em tempo real operou em escuta contínua na máquina vítima durante uma sessão prolongada de tráfego corporativo e navegação rotineira. Foram capturados e classificados mais de $24.000$ fluxos estritamente legítimos, contemplando navegação web concorrente (sobre HTTP/1.1, HTTP/2 e HTTP/3), transmissão ininterrupta de vídeo e áudio em alta definição (YouTube e Spotify), operações de sincronização em nuvem e comunicações de serviços em segundo plano do sistema operacional Linux.
+Para mensurar esse comportamento em condições físicas de produção, o pipeline em tempo real operou em
+monitoramento contínuo durante sessões prolongadas de tráfego corporativo e navegação rotineira,
+inspecionando fluxos legítimos de navegação web (HTTP/1.1, HTTP/2 e HTTP/3), streaming de vídeo e áudio em
+alta definição (YouTube e Spotify), operações de sincronização em nuvem e comunicações de segundo plano
+do sistema operacional.
 
-\subsubsection{Diagnóstico de Falsos Positivos Iniciais e Calibração}
+\subsubsection{Diagnóstico de Falsos Positivos e Calibração de Salvaguardas}
 
-Nas primeiras execuções do monitoramento de bancada, o classificador emitiu alertas pontuais em dois cenários específicos de tráfego legítimo:
+Nas primeiras execuções do monitoramento de bancada, o classificador emitiu alertas pontuais sobre dois
+padrões específicos de tráfego legítimo:
 \begin{enumerate}
-    \item \textbf{Telemetria de Aplicação em Nuvem (Spotify para o IP \texttt{35.186.224.9} na porta 443 HTTPS):}
-    O modelo atribuiu rótulo de infiltração (\emph{Infiltration - Dropbox Download}) a esse fluxo. A investigação forense esclareceu a causa estatística: conforme documentado por \citeonline{ding2017collecting}, serviços modernos de telemetria agregam dados locais e os transmitem em rajadas curtas, periódicas e criptografadas. No plano de atributos de fluxo (sem inspeção de carga útil), essa dinâmica rítmica e compacta aproxima-se dos padrões de canais de exfiltração furtiva e balizamento (\emph{beaconing}) de comando e controle;
+    \item \textbf{Telemetria de Aplicação em Nuvem (Spotify para o IP 35.186.224.9 na porta 443 HTTPS):}
+    O classificador associou o fluxo a canal malicioso (\emph{Infiltration - Dropbox Download}). A
+    auditoria forense esclareceu a causa: serviços de nuvem modernos transmitem telemetria em rajadas
+    curtas e periódicas sobre canais TLS. No plano de métricas estatísticas puras (sem inspeção de payload),
+    essa dinâmica rítmica mimetiza o padrão de canais de exfiltração e balizamento (\emph{beaconing}) de
+    servidores de comando e controle (C2);
     
-    \item \textbf{Descoberta Local SSDP/UPnP Multicast (\texttt{239.255.255.250}):}
-    O tráfego de descoberta local via protocolo SSDP (porta 1900 UDP) foi classificado como anomalia volumétrica (\emph{DoS}). Por operar em regime multicast unidirecional não orientado a conexão, os datagramas UDP são disparados em rajadas sem confirmações TCP (\emph{ACKs}), apresentando razão de subida/descida (\texttt{down\_up\_ratio}) nula e curta duração. O classificador interpretou essa assimetria pontual como tentativa de inundação.
+    \item \textbf{Descoberta de Dispositivos Locais via SSDP/UPnP Multicast (239.255.255.250 na porta 1900 UDP):}
+    O tráfego de descoberta local foi classificado como anomalia volumétrica (\emph{DoS}). Por operar em
+    regime multicast unidirecional não orientado a conexão, os datagramas UDP são transmitidos em rajadas
+    curtas sem confirmações TCP, apresentando razão de pacotes de retorno nula, o que foi interpretado pelo
+    modelo como tentativa de inundação.
 \end{enumerate}
 
-Para neutralizar tais desvios sem degradar a sensibilidade a intrusões reais, o endereço de grupo \emph{multicast} local (\texttt{239.255.255.250}) e os destinos estáveis de telemetria foram incorporados à lista de exceções de salvaguarda (\texttt{custom\_whitelist}) do \texttt{ActiveDefenseAgent}. Além disso, a calibragem dos pesos com o conjunto de dados higienizado segundo os preceitos de \citeonline{liu2022error} eliminou a tendência do modelo de correlacionar encerramentos abruptos com intenção hostil. Em baterias subsequentes de monitoramento estendido sobre mais de $24.000$ fluxos benignos adicionais, o sistema operou com \textbf{0\% de falsos positivos} ($0{,}0000$), consolidando a estabilidade necessária para operação contínua em redes de produção.
+Para neutralizar tais desvios sem degradar a sensibilidade a intrusões verdadeiras, o endereço multicast
+local (239.255.255.250), grupos IPv6 de descoberta de vizinhança e destinos estáveis de telemetria foram
+incorporados à lista de salvaguardas perimetrais (\emph{custom whitelist}) do subsistema de auditoria
+(\emph{InferenceAuditor}). Em baterias subsequentes de monitoramento estendido sobre mais de $70.000$
+fluxos estritamente benignos, o sistema operou com \textbf{0\% de falsos positivos} ($0{,}0000$),
+consolidando a estabilidade necessária para operação contínua em redes de produção.
+
+\section{Síntese Crítica e Cumprimento dos Objetivos}
+\label{sec:sintese_cumprimento_objetivos}
+
+Os resultados quantitativos e qualitativos obtidos ao longo deste capítulo atestam formalmente o
+cumprimento integral das metas de pesquisa formuladas no Capítulo~\ref{cap:introducao}:
+\begin{itemize}
+    \item \textbf{Cumprimento do Objetivo Específico~4 (Avaliação Comparativa Frente a Monolíticos):}
+    A arquitetura ALF-MoE demonstrou superioridade preditiva em relação a todos os especialistas neurais
+    isolados em seis dos sete cenários de teste, alcançando Acurácia Global de até $99{,}87\%$ e Macro
+    $F_1$-Score de até $0{,}9623$ no CSE-CIC-IDS2018 Corrigido, além de manter latências nominais em lote
+    entre $0{,}019\,\mathrm{ms}$ e $0{,}026\,\mathrm{ms}$ com vazões de até
+    $52.749\,\mathrm{fluxos/s}$;
+    
+    \item \textbf{Cumprimento do Objetivo Específico~5 (Ablação e Ganho Marginal da Fusão ALF):}
+    O estudo comparativo consolidado na Tabela~\ref{tab:estudo_ablacao_completo} comprovou que o mecanismo
+    de fusão adaptativa supera sistematicamente o melhor especialista em cada matriz (ganhos de até
+    $+10{,}53$ pontos percentuais de Macro $F_1$ no CSE Canônico e $+5{,}85$ pontos no CSE Corrigido),
+    confirmando o princípio de que representações latentes heterogêneas e complementares superam modelos
+    isolados;
+    
+    \item \textbf{Cumprimento do Objetivo Específico~6 (Generalização e Interpretabilidade da Atenção):}
+    A avaliação em quatro conjuntos de dados heterogêneos evidenciou resiliência na identificação de classes
+    raras (Sensibilidade de $93{,}51\%$ em \emph{Analysis} e $F_1$ de $0{,}9941$ em
+    \emph{Infiltration - NMAP Portscan}). A \emph{Gating Network} comprovou interpretabilidade dinâmica,
+    priorizando a $K_{\mathrm{GRU}}$ ($40{,}34\%$) no tráfego IoT/MQTT, a
+    $K_{\mathrm{DNN}}$ ($34{,}01\%$) em redes corporativas com ataques volumétricos, e
+    redirecionando a atenção para a $K_{\mathrm{CNN}}$ ($36{,}93\%$) e a
+    $K_{\mathrm{GRU}}$ ($37{,}01\%$) diante de ataques web;
+    
+    \item \textbf{Validação da Contribuição~5 e Viabilidade Operacional (Capítulo~\ref{cap:pipeline}):}
+    A implantação em bancada física real comprovou que a arquitetura executa o \emph{forward pass} unitário
+    em $54{,}23\,\mathrm{ms}$ na GPU dedicada, consome apenas $1{,}2\,\mathrm{GB}$ de VRAM e atinge taxa de
+    falsos positivos nula sob salvaguardas perimetrais, confirmando a viabilidade de inspeção contínua em
+    ambientes de produção.
+\end{itemize}
