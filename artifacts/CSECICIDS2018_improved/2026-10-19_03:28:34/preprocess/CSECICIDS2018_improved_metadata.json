@@ -169,7 +169,7 @@
     "7": 1.017732213205847,
     "8": 18.57402689612895
   },
-  "threat_level_used": 2,
+  "threat_level_used": 1,
   "random_state": 42,
   "audit": {
     "generated_at": "2026-10-19T03:28:44.728702Z",

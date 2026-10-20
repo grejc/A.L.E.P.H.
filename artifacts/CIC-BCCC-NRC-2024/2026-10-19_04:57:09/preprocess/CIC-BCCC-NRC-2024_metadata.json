@@ -156,7 +156,7 @@
     "7": 1.4276390821687728,
     "8": 1.8773733904701293
   },
-  "threat_level_used": 2,
+  "threat_level_used": 1,
   "random_state": 42,
   "audit": {
     "generated_at": "2026-10-19T04:59:10.748769Z",
