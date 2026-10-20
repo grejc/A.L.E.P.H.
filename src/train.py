@@ -99,7 +99,7 @@ def run_training(
     print(f"  Diretório Raiz de Artefatos: {experiment_dir}")
     print(f"  Subpastas: preprocess/, model/, reports/")
     print(f"  Épocas: {epochs} | Batch Size: {batch_size} | LR: {learning_rate}")
-    print(f"  Threat Level: {threat_level} | Sampled: {load_sampled}")
+    print(f"  Threat Level: TL{threat_level} | Sampled: {load_sampled}")
     print("=" * 80)
 
     # 2. Carregamento e Pré-processamento
@@ -348,7 +348,7 @@ def main() -> None:
     parser.add_argument("--epochs", type=int, default=CONFIG.training.epochs, help="Quantidade de épocas")
     parser.add_argument("--batch-size", type=int, default=CONFIG.training.batch_size, help="Tamanho do lote")
     parser.add_argument("--lr", type=float, default=CONFIG.training.learning_rate, help="Taxa de aprendizado")
-    parser.add_argument("--threat-level", type=int, default=CONFIG.preprocessing.threat_level, choices=[0, 1, 2], help="Nível de ameaça (0, 1 ou 2)")
+    parser.add_argument("--threat-level", type=int, default=CONFIG.preprocessing.threat_level, choices=[0, 1], help="Nível de ameaça (0: TL0 ou 1: TL1)")
     parser.add_argument("--full-dataset", action="store_true", help="Carrega dataset completo em vez de amostrado")
 
     args = parser.parse_args()

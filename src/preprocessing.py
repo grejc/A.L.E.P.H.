@@ -64,7 +64,7 @@ class Preprocessor:
         test_size: float = 0.2,
         random_state: int = 42,
         skew_threshold: float = 3.0,
-        threat_level: Literal[0, 1, 2] = 2,
+        threat_level: Literal[0, 1] = 1,
         artifacts_dir: Optional[Union[str, Path]] = None,
         base_path: Optional[Union[str, Path]] = None,
         dataset_path: Optional[Union[str, Path]] = None,
@@ -183,12 +183,11 @@ class Preprocessor:
             return [str(c) for c in self.label_encoder.classes_]
         return []
 
-    def threat_classification(self, level: Literal[0, 1, 2] = 2) -> Dict[str, str]:
+    def threat_classification(self, level: Literal[0, 1] = 1) -> Dict[str, str]:
         """
         Retorna o mapeamento hierárquico das classes de ataque.
-        level=0: Classes brutas/granulares originais do dataset.
-        level=1: Famílias intermediárias de ataque.
-        level=2: Meta-categorias consolidadas.
+        level=0: TL0 - Classes brutas/granulares originais do dataset.
+        level=1: TL1 - Meta-categorias consolidadas.
         """
         ds = self.dataset_name
         is_improved = "improved" in ds or ds in ("CSECICIDS2018_improved", "CSECICIDS2018_improved.parquet")
@@ -203,24 +202,6 @@ class Preprocessor:
                     'Web Attack - SQL'
                 ]
                 return {a: a for a in attacks}
-            elif level == 1:
-                return {
-                    'BENIGN':                                       'BENIGN',
-                    'DoS Hulk':                                     'DoS-Hulk',
-                    'Botnet Ares':                                  'Botnet',
-                    'DDoS-HOIC':                                    'DDoS-HOIC',
-                    'SSH-BruteForce':                               'SSH-BruteForce',
-                    'Infiltration - NMAP Portscan':                 'Infiltration - NMAP Portscan',
-                    'DDoS-LOIC-HTTP':                               'DDoS-LOIC-HTTP',
-                    'DoS GoldenEye':                                'DoS-GoldenEye',
-                    'DoS Slowloris':                                'DoS-Slowloris',
-                    'DDoS-LOIC-UDP':                                'DDoS-LOIC-UDP',
-                    'Infiltration - Communication Victim Attacker': 'Infiltration - Communication Victim Attacker',
-                    'Web Attack - Brute Force':                     'WebAttack-BruteForce',
-                    'Web Attack - XSS':                             'WebAttack-XSS',
-                    'Infiltration - Dropbox Download':              'Infiltration - Dropbox Download',
-                    'Web Attack - SQL':                             'WebAttack-SQL_Injection',
-                }
             else:
                 return {
                     # 1. BENIGN
@@ -271,24 +252,6 @@ class Preprocessor:
                     'Infilteration', 'Brute Force -Web', 'Brute Force -XSS', 'SQL Injection'
                 ]
                 return {a: a for a in attacks}
-            elif level == 1:
-                return {
-                    'Benign': 'Benign',
-                    'DDOS attack-HOIC': 'DDoS-HOIC',
-                    'DDoS attacks-LOIC-HTTP': 'DDoS-LOIC-HTTP',
-                    'DDOS attack-LOIC-UDP': 'DDoS-LOIC-UDP',
-                    'DoS attacks-Hulk': 'DoS-Hulk',
-                    'DoS attacks-SlowHTTPTest': 'DoS-SlowHTTPTest',
-                    'DoS attacks-GoldenEye': 'DoS-GoldenEye',
-                    'DoS attacks-Slowloris': 'DoS-Slowloris',
-                    'Bot': 'Botnet',
-                    'FTP-BruteForce': 'BruteForce-FTP',
-                    'SSH-Bruteforce': 'BruteForce-SSH',
-                    'Infilteration': 'Infiltration',
-                    'Brute Force -Web': 'WebAttack-BruteForce_Web',
-                    'Brute Force -XSS': 'WebAttack-BruteForce_XSS',
-                    'SQL Injection': 'WebAttack-SQL_Injection',
-                }
             else:
                 return {
                     'Benign': 'Benign',
@@ -364,58 +327,6 @@ class Preprocessor:
                     'Telnet Brute Force': 'Telnet Brute Force',
                     'Recon Host Discovery': 'Recon Host Discovery',
                     'OS Fingerprinting': 'OS Fingerprinting',
-                }
-            elif level == 1:
-                return {
-                    'Benign Traffic':               'Benign Traffic',
-                    'DDoS RSTFIN Flood':            'Volumetric Flooding',
-                    'DDoS PSHACK Flood':            'TCP State Flooding',
-                    'DDoS ACK Fragmentation':       'Fragmented Flooding',
-                    'DDoS TCP SYN Flood':           'Volumetric Distributed DoS',
-                    'DDoS HTTP Flood':              'Layer-7 Web Flooding',
-                    'DDoS ICMP Fragmentation':      'ICMP Fragment Attack',
-                    'DDoS UDP Flood':               'Distributed UDP Flood',
-                    'DDoS ICMP Flood':              'Distributed ICMP Flood',
-                    'ACK Flood':                    'TCP State Flooding',
-                    'DoS TCP Flood':                'Volumetric DoS',
-                    'DoS SYN Flood':                'Volumetric DoS',
-                    'DoS UDP Flood':                'UDP Flooding',
-                    'DoS ICMP Flood':               'ICMP Flooding',
-                    'DoS DNS Flood':                'DNS Amplification/Flood',
-                    'SYN Flood':                    'Connection State Exhaustion',
-                    'Sparta SSH Brute Force':       'Credential Brute Force',
-                    'MQTT Brute Force':             'IoT Protocol Attack',
-                    'Recon Port Scan':              'Reconnaissance / Discovery',
-                    'XSS':                          'Web Application Attack',
-                    'Backdoor':                     'Persistent Malware',
-                    'MQTT DDoS Publish Flood':      'IoT Application Flooding',
-                    'MQTT DoS Connect Flood':       'IoT Session Flooding',
-                    'Password Attack':              'Authentication Brute Force',
-                    'Recon OS Scan':                'Reconnaissance / Fingerprinting',
-                    'MITM':                         'Man-in-the-Middle',
-                    'Recon Vulnerability Scan':     'Vulnerability Assessment',
-                    'Recon Ping Sweep':             'Host Probing',
-                    'Scan Aggressive':              'Active Scanning',
-                    'Dictionary Brute Force':       'Credential Attack',
-                    'MITM ARP Spoofing':            'Layer-2 Poisoning',
-                    'Ransomware':                   'Malware Payload',
-                    'Scan UDP Attack':              'UDP Port Scanning',
-                    'Mirai ACK Flood':              'IoT Botnet Flooding',
-                    'Port Scanning':                'Service Probing',
-                    'Scan Port OS':                 'Service & OS Probing',
-                    'Uploading Attack':             'Web Exploit / Shell Upload',
-                    'SQL Injection':                'Database Injection',
-                    'Scan Host Port':               'Host/Port Scanning',
-                    'Vulnerability Scanner':        'Automated Tool Probe',
-                    'Mirai HTTP Flood':             'Botnet Layer-7 Flood',
-                    'Mirai Host Brute Force':       'Botnet Propagation',
-                    'MQTT Malformed':               'Protocol Fuzzing / Exploit',
-                    'Mirai UDP Plain':              'Botnet UDP Flooding',
-                    'Mirai UDP Flood':              'Botnet UDP Flooding',
-                    'MQTT DoS Publish Flood':       'IoT Broker Flooding',
-                    'Telnet Brute Force':           'Legacy Protocol Attack',
-                    'Recon Host Discovery':         'Network Mapping',
-                    'OS Fingerprinting':            'Active TCP Fingerprinting',
                 }
             else:
                 return {
@@ -776,7 +687,7 @@ class Preprocessor:
     def generate_train_val_test(
         self,
         stratify: bool = True,
-        threat_level: Optional[Literal[0, 1, 2]] = None,
+        threat_level: Optional[Literal[0, 1]] = None,
         deduplicate: bool = True,
         refit: bool = False,
     ) -> Tuple[Tuple[np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray]]:
@@ -798,7 +709,7 @@ class Preprocessor:
             mapping = self.threat_classification(level=lvl)
             if mapping:
                 df[self.target_column] = df[self.target_column].map(mapping).fillna(df[self.target_column])
-                print(f"[Preprocessor] Agrupamento threat_level={lvl} aplicado. Classes ativas ({df[self.target_column].nunique()}): {sorted(df[self.target_column].unique())}")
+                print(f"[Preprocessor] Agrupamento threat_level={lvl} (TL{lvl}) aplicado. Classes ativas ({df[self.target_column].nunique()}): {sorted(df[self.target_column].unique())}")
 
         # 2. Deduplicação opcional
         if deduplicate:
@@ -953,14 +864,16 @@ class Preprocessor:
         self.dataset_name = artifacts.get("dataset_name", self.dataset_name)
         self.target_column = artifacts.get("target_column", self.target_column)
         self._threat_level_used = artifacts.get("threat_level_used")
+        if self._threat_level_used == 2:
+            self._threat_level_used = 1
 
         # Inferência de threat_level_used quando não definido nos artefatos
         if self._threat_level_used is None and self.label_encoder is not None:
             n_cls = len(self.label_encoder.classes_)
             if self.dataset_name == "CIC-BCCC-NRC-2024":
-                self._threat_level_used = 0 if n_cls == 49 else (1 if n_cls > 9 else 2)
+                self._threat_level_used = 0 if n_cls == 49 else 1
             elif "CIC" in self.dataset_name:
-                self._threat_level_used = 0 if n_cls >= 14 else 2
+                self._threat_level_used = 0 if n_cls >= 14 else 1
             else:
                 self._threat_level_used = 0
 
@@ -970,5 +883,5 @@ class Preprocessor:
         self._is_fitted = True
 
         print(f"[Preprocessor] Artefatos carregados com sucesso de: {pkl_path}")
-        print(f"  Features: {len(self.feature_names)} | Classes: {len(self.label_encoder.classes_)} | Threat Level: {self._threat_level_used}")
+        print(f"  Features: {len(self.feature_names)} | Classes: {len(self.label_encoder.classes_)} | Threat Level: TL{self._threat_level_used}")
         return self

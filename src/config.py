@@ -42,7 +42,7 @@ class PreprocessingConfig:
     test_size: float = 0.2
     random_state: int = 42
     skew_threshold: float = 3.0
-    threat_level: Literal[0, 1, 2] = 2  # 2: Meta-categorias consolidadas
+    threat_level: Literal[0, 1] = 1  # 0: TL0 (classes brutas), 1: TL1 (meta-categorias consolidadas)
     deduplicate: bool = False
 
     @property

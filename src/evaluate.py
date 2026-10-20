@@ -270,7 +270,7 @@ def main() -> None:
     parser.add_argument("--dataset", type=str, default=CONFIG.preprocessing.dataset_name, help="Nome do dataset")
     parser.add_argument("--batch-size", type=int, default=256, help="Tamanho do lote para inferência")
     parser.add_argument("--full-dataset", action="store_true", help="Utiliza dataset completo")
-    parser.add_argument("--threat-level", type=int, default=None, choices=[0, 1, 2], help="Nível de ameaça (sobrescreve o do artefato se fornecido)")
+    parser.add_argument("--threat-level", type=int, default=None, choices=[0, 1], help="Nível de ameaça (sobrescreve o do artefato se fornecido: 0 para TL0, 1 para TL1)")
 
     args = parser.parse_args()
     run_evaluation(
