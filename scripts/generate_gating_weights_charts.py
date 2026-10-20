@@ -59,8 +59,8 @@ DATASET_CONFIGS = [
         "id": "bccc_2024",
         "dataset_name": "CIC-BCCC-NRC-2024",
         "dataset_dir": "CIC-BCCC-NRC-2024",
-        "run_id": "2026-09-27_22:14:39",
-        "threat_level": "Nível 2 (9 classes)",
+        "run_id": "2026-10-19_04:57:09",
+        "threat_level": "TL1 (9 classes)",
         "file_suffix": "cic_bccc_nrc_2024",
         "title": "CIC-BCCC-NRC-2024",
     },
@@ -68,8 +68,8 @@ DATASET_CONFIGS = [
         "id": "cse_2018_orig",
         "dataset_name": "CSE-CIC-IDS2018 (Canônico)",
         "dataset_dir": "CSE-CIC-IDS2018",
-        "run_id": "2026-09-27_21:09:15",
-        "threat_level": "Nível 2 (7 classes)",
+        "run_id": "2026-10-19_11:34:08",
+        "threat_level": "TL1 (7 classes)",
         "file_suffix": "cse_cic_ids2018_canonico",
         "title": "CSE-CIC-IDS2018 (Canônico)",
     },
@@ -77,8 +77,8 @@ DATASET_CONFIGS = [
         "id": "cse_2018_imp",
         "dataset_name": "CSE-CIC-IDS2018 (Corrigido)",
         "dataset_dir": "CSECICIDS2018_improved",
-        "run_id": "2026-09-28_00:19:51",
-        "threat_level": "Nível 2 (9 classes)",
+        "run_id": "2026-10-19_03:28:34",
+        "threat_level": "TL1 (9 classes)",
         "file_suffix": "cse_cic_ids2018_corrigido",
         "title": "CSE-CIC-IDS2018 (Corrigido)",
     },
@@ -86,8 +86,8 @@ DATASET_CONFIGS = [
         "id": "unsw_nb15",
         "dataset_name": "CIC-UNSW-NB15",
         "dataset_dir": "CIC-UNSW-NB15",
-        "run_id": "2026-09-27_20:19:01",
-        "threat_level": "Nível 0 (10 classes)",
+        "run_id": "2026-10-19_03:50:51",
+        "threat_level": "TL0 (10 classes)",
         "file_suffix": "cic_unsw_nb15",
         "title": "CIC-UNSW-NB15",
     },
@@ -481,13 +481,16 @@ def plot_global_comparison_chart(all_data: dict, output_dirs: list[Path]):
 
 def main():
     root_dir = Path(__file__).resolve().parent.parent
-    thesis_figures_dir = root_dir / "UndergraduateThesis" / "figures" / "benchmarks"
-    thesis_figures_dir.mkdir(parents=True, exist_ok=True)
+    thesis_gating_dir = root_dir / "UndergraduateThesis" / "figures" / "gating_weights"
+    thesis_gating_dir.mkdir(parents=True, exist_ok=True)
+
+    thesis_benchmarks_dir = root_dir / "UndergraduateThesis" / "figures" / "benchmarks"
+    thesis_benchmarks_dir.mkdir(parents=True, exist_ok=True)
 
     artifacts_gating_dir = root_dir / "artifacts" / "gating_weights"
     artifacts_gating_dir.mkdir(parents=True, exist_ok=True)
 
-    output_dirs = [thesis_figures_dir, artifacts_gating_dir]
+    output_dirs = [thesis_gating_dir, thesis_benchmarks_dir, artifacts_gating_dir]
 
     print("=== Carregando dados da Gating Network para os 4 datasets ===")
     all_data = {}

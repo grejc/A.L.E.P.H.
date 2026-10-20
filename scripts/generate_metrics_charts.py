@@ -48,50 +48,50 @@ SCENARIOS = [
         "id": "unsw_l0",
         "dataset_dir": "CIC-UNSW-NB15",
         "run_id": "2026-09-27_20:19:01",
-        "name": "CIC-UNSW-NB15\n(L0 - 10 cls)",
-        "short_name": "UNSW-NB15 (L0)",
+        "name": "CIC-UNSW-NB15\n(TL0 - 10 cls)",
+        "short_name": "UNSW-NB15 (TL0)",
     },
     {
         "id": "bccc_l0",
         "dataset_dir": "CIC-BCCC-NRC-2024",
         "run_id": "2026-09-27_21:38:11",
-        "name": "CIC-BCCC-NRC-2024\n(L0 - 49 cls)",
-        "short_name": "BCCC-NRC (L0)",
+        "name": "CIC-BCCC-NRC-2024\n(TL0 - 49 cls)",
+        "short_name": "BCCC-NRC (TL0)",
     },
     {
         "id": "bccc_l2",
         "dataset_dir": "CIC-BCCC-NRC-2024",
         "run_id": "2026-09-27_22:14:39",
-        "name": "CIC-BCCC-NRC-2024\n(L2 - 9 cls)",
-        "short_name": "BCCC-NRC (L2)",
+        "name": "CIC-BCCC-NRC-2024\n(TL1 - 9 cls)",
+        "short_name": "BCCC-NRC (TL1)",
     },
     {
         "id": "cse_orig_l0",
         "dataset_dir": "CSE-CIC-IDS2018",
         "run_id": "2026-09-27_20:21:21",
-        "name": "CSE-CIC-IDS2018 Orig.\n(L0 - 15 cls)",
-        "short_name": "CSE-2018 Orig. (L0)",
+        "name": "CSE-CIC-IDS2018 Orig.\n(TL0 - 15 cls)",
+        "short_name": "CSE-2018 Orig. (TL0)",
     },
     {
         "id": "cse_orig_l2",
         "dataset_dir": "CSE-CIC-IDS2018",
         "run_id": "2026-09-27_21:09:15",
-        "name": "CSE-CIC-IDS2018 Orig.\n(L2 - 7 cls)",
-        "short_name": "CSE-2018 Orig. (L2)",
+        "name": "CSE-CIC-IDS2018 Orig.\n(TL1 - 7 cls)",
+        "short_name": "CSE-2018 Orig. (TL1)",
     },
     {
         "id": "cse_imp_l0",
         "dataset_dir": "CSECICIDS2018_improved",
         "run_id": "2026-09-27_22:58:17",
-        "name": "CSE-CIC-IDS2018 Corr.\n(L0 - 15 cls)",
-        "short_name": "CSE-2018 Corr. (L0)",
+        "name": "CSE-CIC-IDS2018 Corr.\n(TL0 - 15 cls)",
+        "short_name": "CSE-2018 Corr. (TL0)",
     },
     {
         "id": "cse_imp_l2",
         "dataset_dir": "CSECICIDS2018_improved",
         "run_id": "2026-09-28_00:19:51",
-        "name": "CSE-CIC-IDS2018 Corr.\n(L2 - 9 cls)",
-        "short_name": "CSE-2018 Corr. (L2)",
+        "name": "CSE-CIC-IDS2018 Corr.\n(TL1 - 9 cls)",
+        "short_name": "CSE-2018 Corr. (TL1)",
     },
 ]
 
@@ -261,7 +261,7 @@ def plot_experts_vs_alf_chart(experts_data: dict, output_dir: Path, target_scena
             )
 
     ax.set_ylabel("Escore / Taxa (0.0 a 1.0)")
-    ax.set_title("Estudo de Ablação: Especialistas Neurais Individuais vs. ALF-MoE\nCenário de Referência: CSE-CIC-IDS2018 Corrigido (Nível 2 - 9 classes)", pad=20)
+    ax.set_title("Estudo de Ablação: Especialistas Neurais Individuais vs. ALF-MoE\nCenário de Referência: CSE-CIC-IDS2018 Corrigido (TL1 - 9 classes)", pad=20)
     ax.set_xticks(x)
     ax.set_xticklabels(models, fontweight="bold")
     ax.set_ylim(0.0, 1.15)
@@ -312,7 +312,7 @@ def plot_integrated_dashboard(df: pd.DataFrame, experts_data: dict, output_dir: 
     ax1.grid(axis="y", linestyle="--", alpha=0.5)
     ax1.legend(loc="upper left", ncol=4, framealpha=0.95)
 
-    # Painel 2: Especialistas vs ALF (CSE-CIC-IDS2018 Corr L2)
+    # Painel 2: Especialistas vs ALF (CSE-CIC-IDS2018 Corr TL1)
     sc_data = experts_data.get("cse_imp_l2", {})
     experts = sc_data.get("experts", {})
     alf = sc_data.get("alf", {})
@@ -347,7 +347,7 @@ def plot_integrated_dashboard(df: pd.DataFrame, experts_data: dict, output_dir: 
                          textcoords="offset points", ha="center", va="bottom", fontsize=7.5, rotation=90)
 
     ax2.set_ylabel("Escore (0.0 a 1.0)")
-    ax2.set_title("(B) Comparativo de Ablação: Especialistas Individuais vs. Fusão ALF-MoE [CSE-2018 Corr. L2]", loc="left", pad=12)
+    ax2.set_title("(B) Comparativo de Ablação: Especialistas Individuais vs. Fusão ALF-MoE [CSE-2018 Corr. TL1]", loc="left", pad=12)
     ax2.set_xticks(x2)
     ax2.set_xticklabels(models, fontweight="bold")
     ax2.get_xticklabels()[-1].set_color("#d62728")

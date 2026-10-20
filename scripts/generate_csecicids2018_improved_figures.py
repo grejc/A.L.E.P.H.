@@ -5,9 +5,9 @@ tanto em PDF vetorial quanto em PNG (300 DPI) para UndergraduateThesis/figures,
 para /run/media/null/VM_s/DATASETS/eda_plots e para os artefatos da sessão.
 
 Figuras geradas:
-1. Dataset_CSECICIDS2018_Corrigido_Classes (Painel Duplo: Distribuição Completa L0 + Zoom Ataques)
+1. Dataset_CSECICIDS2018_Corrigido_Classes (Painel Duplo: Distribuição Completa TL0 + Zoom Ataques)
 2. Dataset_CSECICIDS2018_Corrigido_Classes_Single (Painel Único: 15 Classes)
-3. Dataset_CSECICIDS2018_Corrigido_L2 (Macro-Categorias L2: Barras + Rosca Donut)
+3. Dataset_CSECICIDS2018_Corrigido_TL1 (Macro-Categorias TL1: Barras + Rosca Donut)
 4. Dataset_CSECICIDS2018_Corrigido_Amostragem_Fidelidade (População 63.2M vs Amostra 878k)
 5. Dataset_CSECICIDS2018_Corrigido_Rerotulamento (Impacto da reclassificação de "Attempted" -> BENIGN)
 6. csecicids2018_improved_distribution (Distribuição Canônica no eda_plots)
@@ -107,9 +107,9 @@ if json_path.exists():
         print(f"Aviso ao atualizar json: {e}")
 
 # =============================================================================
-# FIGURA 1: Painel Duplo (L0: Distribuição Completa + Zoom nos Ataques)
+# FIGURA 1: Painel Duplo (TL0: Distribuição Completa + Zoom nos Ataques)
 # =============================================================================
-print("\nGerando Figura 1: Painel Duplo (L0)...")
+print("\nGerando Figura 1: Painel Duplo (TL0)...")
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(21, 8.5), gridspec_kw={'width_ratios': [1.2, 1]})
 
 # Painel 1: Todas as classes (log scale)
@@ -159,9 +159,9 @@ plt.suptitle('CSE-CIC-IDS2018 (Corrigido / Improved): Perfil de Classes e Tráfe
 save_fig(fig, "Dataset_CSECICIDS2018_Corrigido_Classes")
 
 # =============================================================================
-# FIGURA 2: Painel Único (L0 Compacto)
+# FIGURA 2: Painel Único (TL0 Compacto)
 # =============================================================================
-print("Gerando Figura 2: Painel Único (L0)...")
+print("Gerando Figura 2: Painel Único (TL0)...")
 fig, ax = plt.subplots(figsize=(14, 8.5))
 bars = ax.barh(y_pos1, s_corr.values, color=colors_corr1, edgecolor='black', linewidth=0.7, alpha=0.86, height=0.65)
 ax.set_yticks(y_pos1)
@@ -181,9 +181,9 @@ ax.set_xlim(right=ax.get_xlim()[1] * 9.5)
 save_fig(fig, "Dataset_CSECICIDS2018_Corrigido_Classes_Single")
 
 # =============================================================================
-# FIGURA 3: Macro-Categorias L2 (9 Classes: Barras + Rosca Donut)
+# FIGURA 3: Macro-Categorias TL1 (9 Classes: Barras + Rosca Donut)
 # =============================================================================
-print("Gerando Figura 3: Macro-Categorias L2...")
+print("Gerando Figura 3: Macro-Categorias TL1...")
 mapping_l2 = {
     "BENIGN": "BENIGN",
     "DoS Hulk": "DoS",
@@ -229,7 +229,7 @@ ax1.set_yticklabels(s_macro.index, fontweight='bold', fontsize=11)
 ax1.invert_yaxis()
 ax1.set_xscale('log')
 ax1.set_xlabel('Contagem de Fluxos (Escala Logarítmica)', fontsize=12)
-ax1.set_title(f'Contagem e Proporção por Macro-Categoria (L2)\n(Total: {total_corr:,} fluxos | 9 macro-famílias)', fontsize=13.5)
+ax1.set_title(f'Contagem e Proporção por Macro-Categoria (TL1)\n(Total: {total_corr:,} fluxos | 9 macro-famílias)', fontsize=13.5)
 ax1.grid(True, which='both', linestyle='--', alpha=0.5)
 
 for bar, count, pct in zip(bars_m, s_macro.values, pct_macro.values):
@@ -256,12 +256,12 @@ for at in autotexts:
     at.set_fontweight('bold')
     at.set_color('white')
 
-ax2.set_title('Proporção Relativa das Macro-Categorias (L2)', fontsize=13.5, pad=10)
+ax2.set_title('Proporção Relativa das Macro-Categorias (TL1)', fontsize=13.5, pad=10)
 legend_labels = [f"{cat}: {cnt:,} ({fmt_pct(pct)})" for cat, cnt, pct in zip(s_macro.index, s_macro.values, pct_macro.values)]
 ax2.legend(wedges, legend_labels, title="Macro-Categorias", loc="center left", bbox_to_anchor=(0.95, 0.5), fontsize=10, frameon=True)
 
-plt.suptitle('CSE-CIC-IDS2018 (Corrigido): Agrupamento em 9 Macro-Famílias (L2)', fontsize=16, y=1.02)
-save_fig(fig, "Dataset_CSECICIDS2018_Corrigido_L2")
+plt.suptitle('CSE-CIC-IDS2018 (Corrigido): Agrupamento em 9 Macro-Famílias (TL1)', fontsize=16, y=1.02)
+save_fig(fig, "Dataset_CSECICIDS2018_Corrigido_TL1")
 
 # =============================================================================
 # FIGURA 4: Fidelidade da Amostragem (População 63.2M vs Amostra Otimizada)
